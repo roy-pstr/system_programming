@@ -3,6 +3,7 @@
 #include <string.h>
 #include "hard_coded_defiens.h"
 #include "process_handler.h"
+#include "math_expression_parser.h"
 
 #define MATH_STRING_MAX_LEN 256
 #define SIMPLE_MATH_STRING_MAX_LEN 32
