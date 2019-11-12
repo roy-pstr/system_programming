@@ -21,9 +21,6 @@
     <ClCompile Include="process_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="math_expression_tree.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="math_expression_parser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -33,9 +30,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="process_handler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="math_expression_tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="math_expression_parser.h">

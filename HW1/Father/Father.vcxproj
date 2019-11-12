@@ -125,13 +125,11 @@
   <ItemGroup>
     <ClCompile Include="main.c" />
     <ClCompile Include="math_expression_parser.c" />
-    <ClCompile Include="math_expression_tree.c" />
     <ClCompile Include="process_handler.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hard_coded_defiens.h" />
     <ClInclude Include="math_expression_parser.h" />
-    <ClInclude Include="math_expression_tree.h" />
     <ClInclude Include="process_handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
