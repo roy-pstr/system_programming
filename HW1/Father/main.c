@@ -5,28 +5,24 @@
 #include "process_handler.h"
 #include "math_expression_parser.h"
 
-#define MATH_STRING_MAX_LEN 256
-#define SIMPLE_MATH_STRING_MAX_LEN 32
-
 int calculateResult(char *math_expression) {
-	bool exit_loop = false;
-	char* closingBarckets_ptr;
+	int result = 0, next_closing_brks_ind = 0;
+	char* closing_brkts_ptr;
 	char simpleMathExp[SIMPLE_MATH_STRING_MAX_LEN];
-	int result, next_closing_brks_ind;
 
-	closingBarckets_ptr = strchr(math_expression, ')');
-	while (closingBarckets_ptr!=NULL) {
-		next_closing_brks_ind = closingBarckets_ptr - math_expression;
+	closing_brkts_ptr = strchr(math_expression, ')');
+	while (closing_brkts_ptr!=NULL) {
+		next_closing_brks_ind = closing_brkts_ptr - math_expression;
 		extractSimpleMathExpression(simpleMathExp, math_expression, next_closing_brks_ind);
+		result = calcResultUsingSon(simpleMathExp);
 
-		//result = calcResultUsingSon(simpleMathExp);
-		//replaceMathExpWithResult(math_expression, simpleMathExp, result);
-		print("%s", math_expression);
+		updateMathExpWithResult(math_expression, simpleMathExp, result);
+		printf("%s\n", math_expression);
 
-		closingBarckets_ptr = strchr(math_expression, ')');
+		closing_brkts_ptr = strchr(math_expression, ')');
 	}
 
-	return (int)(math_expression - '0');
+	return result;
 }
 
 int main(int argc, char *argv[])
@@ -39,9 +35,7 @@ int main(int argc, char *argv[])
 		return ERROR_CODE;
 	}
 
-	printf("%s", argv[1]); //debug
+	printf("%s\n", argv[1]);
 	result = calculateResult(argv[1]);
-	//int ecode = GetSonExitCode("Son.exe 40+2");
-	//printf("Son Exit Code: %d\n", ecode);
 	return 0;
 }

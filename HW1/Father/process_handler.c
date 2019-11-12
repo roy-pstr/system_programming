@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <string.h>
 #include <windows.h>
 #include "process_handler.h"
+
 // This module create opens a son process and return its exit code //
 
 //Program for process creation simple fuicntion from recitation//
@@ -25,11 +27,15 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr
 	);
 }
 //Program to get son exit code//
-int calcResultUsingSon(char *command)
+int calcResultUsingSon(char *args_line)
 {
 	PROCESS_INFORMATION procinfo;
 	DWORD				exitcode;
-	BOOL retVal = CreateProcessSimple(command, &procinfo);
+	char command_line[CMD_LINE_MAX_LEN];
+	strcpy_s(command_line,sizeof(command_line) , SON_EXE_NAME);
+	strcat_s(command_line, sizeof(command_line), args_line);
+	//printf("%s\n", command_line); //debug
+	BOOL retVal = CreateProcessSimple(&command_line, &procinfo);
 	if (retVal == 0)
 	{
 		printf("FATAL! process not created, Aborting...");
@@ -37,7 +43,7 @@ int calcResultUsingSon(char *command)
 	}
 	WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS);
 	GetExitCodeProcess(procinfo.hProcess, &exitcode);
-	printf("ILAY EXIT CODE %d\n", exitcode);
+	//printf("ILAY EXIT CODE %d\n", exitcode);
 	//	CloseHandle(procinfo.hProcess);
 		//WAITCODE ILAY
 	return exitcode;

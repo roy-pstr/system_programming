@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 	CHECK_MAIN_STATUS(main_status)
 
 	//result = parseAndCalculate(argv[1]);
-	printf("%llu\n", result); //debug
+	//printf("%llu\n", result); //debug
 
 	return result;
 }
