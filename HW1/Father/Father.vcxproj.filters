@@ -24,6 +24,9 @@
     <ClCompile Include="math_expression_tree.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="math_expression_parser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hard_coded_defiens.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="math_expression_tree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math_expression_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -25,7 +25,7 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr
 	);
 }
 //Program to get son exit code//
-int GetSonExitCode(char *command)
+int calcResultUsingSon(char *command)
 {
 	PROCESS_INFORMATION procinfo;
 	DWORD				exitcode;
