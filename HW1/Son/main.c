@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
 		return ERROR_CODE;
 	}
 	//result = parseAndCalculate(argv[1]);
-
-	printf("%llu", result); //debug
+	printf("%llu\n", result); //debug
 	return result;
 }

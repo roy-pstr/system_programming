@@ -32,6 +32,7 @@ int parseMathString(const char *mathstring, unsigned long long *first_int_ptr, u
 }
 
 
+
 int parseAndCalculate(char *mathstring)
 {
 	/*input: string in the following formats:
