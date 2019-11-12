@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include "hard_coded_defiens.h"
-#include "process_funcs.h"
+#include "process_handler.h"
 
 int main(int argc, char *argv[])
 {
-
 	if (argc != 2)
 	{
 		printf("Illegal number of arguents! Try again\n");
@@ -13,8 +12,7 @@ int main(int argc, char *argv[])
 
 	printf("%s", argv[1]); //debug
 
-
-	int ecode = GetSonExitCode("Son.exe 40+2");
-	printf("Son Exit Code: %d\n", ecode);
+	//int ecode = GetSonExitCode("Son.exe 40+2");
+	//printf("Son Exit Code: %d\n", ecode);
 	return 0;
 }

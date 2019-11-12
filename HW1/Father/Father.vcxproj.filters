@@ -18,21 +18,15 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="process_funcs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="math_exp_parser.c">
+    <ClCompile Include="process_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="parsing_handler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="hard_coded_defiens.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="math_exp_parser.h">
+    <ClInclude Include="process_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
