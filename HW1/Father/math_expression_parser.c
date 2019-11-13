@@ -51,9 +51,7 @@ int updateMathExpWithResult(char * math_expression, const char * simpleMathExp, 
 
 void writeStringToOutputsArray(char ** parser_outputs, int ind, char * math_expression)
 {
-	if (sizeof(parser_outputs) / sizeof(parser_outputs[0]) < ind) {
+	//parser_outputs array is big enough, if not, realloc:
 
-	}
-	strcpy_s(parser_outputs[ind], sizeof(parser_outputs[ind]), math_expression);
 }
 

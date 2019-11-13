@@ -24,6 +24,10 @@ void readFirstTwoIntegersFromStr(const char *mathstring, int *first_int_ptr, int
 
 int parseMathString(const char *mathstring, int *first_int_ptr, int *second_int_ptr, char op_ptr[]) {
 	op_ptr[0] = findOperatorBetweenTwoNumbers(mathstring);
+	if (op_ptr[0] == NULL) 
+	{
+		return ERROR_CODE;
+	}
 	readFirstTwoIntegersFromStr(mathstring, first_int_ptr, second_int_ptr);
 	return SUCCESS_CODE;
 }

@@ -16,9 +16,9 @@ void runParsing(char *math_expression, char **parser_outputs) {
 		output_ind++;
 		next_close_brks_ind = (int)(next_close_brkt_ptr - math_expression);
 		extractSimpleMathExpression(simple_math_exp, math_expression, next_close_brks_ind);
-		result = calcResultUsingSon(simple_math_exp);
+		result = calcResultUsingSon(simple_math_exp); //using other process...
 		updateMathExpWithResult(math_expression, simple_math_exp, result);
-		writeStringToOutputsArray(parser_outputs, math_expression);
+		//writeStringToOutputsArray(parser_outputs, math_expression);
 		printf("%s\n", math_expression);
 
 		next_close_brkt_ptr = strchr(math_expression, ')');
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
 	}
 
 	printf("%s\n", argv[1]); //debug
+
 	runParsing(argv[1], parser_outputs);
 	writeParsingsToFile(parser_outputs);
 	releaseOutputsMemory(parser_outputs);

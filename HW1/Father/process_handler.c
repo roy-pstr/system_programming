@@ -44,7 +44,7 @@ int calcResultUsingSon(char *args_line)
 	WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS);
 	GetExitCodeProcess(procinfo.hProcess, &exitcode);
 	//printf("ILAY EXIT CODE %d\n", exitcode);
-	//	CloseHandle(procinfo.hProcess);
+	CloseHandle(procinfo.hProcess);
 		//WAITCODE ILAY
 	return exitcode;
 }
