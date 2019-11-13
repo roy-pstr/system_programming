@@ -1,3 +1,4 @@
 #pragma once
+#include <stdbool.h>
 
-int parseMathString(const char *mathstring, int *first_int_ptr, int *second_int_ptr, char op_ptr[]);
+bool parseMathString(const char *mathstring, int *first_int_ptr, int *second_int_ptr, char op_ptr[]);

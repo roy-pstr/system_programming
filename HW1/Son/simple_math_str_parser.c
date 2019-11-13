@@ -1,6 +1,13 @@
 #include <stdio.h>
+#include "simple_math_str_parser.h"
 #include "hard_coded_data.h"
 
+/*findOperatorBetweenTwoNumbers:
+	input:
+		mathstring - a string conatin two integers and a charcter between them
+	return:
+		functions return '+', '*' or NULL if known of them were found.
+*/
 char findOperatorBetweenTwoNumbers(char *mathstring) {
 	char *operator_ptr = NULL;
 	operator_ptr = strchr(mathstring, PLUS_SIGN);
@@ -16,13 +23,25 @@ char findOperatorBetweenTwoNumbers(char *mathstring) {
 	}
 }
 
-void readFirstTwoIntegersFromStr(const char *mathstring, int *first_int_ptr, int *second_int_ptr) {
+/*readFirstTwoIntegersFromStr:
+	input:
+		mathstring - a string conatin two integers and one charcter seprates between them
+	output:
+		first_int = X, second_int = Y
+*/
+bool readFirstTwoIntegersFromStr(const char *mathstring, int *first_int_ptr, int *second_int_ptr) {
 	char *first_split_ptr = NULL;
 	*first_int_ptr = (int)strtol(mathstring, &first_split_ptr, 10);
 	*second_int_ptr = (int)strtol(++first_split_ptr, (char**)NULL, 10);
 }
 
-int parseMathString(const char *mathstring, int *first_int_ptr, int *second_int_ptr, char op_ptr[]) {
+/*parseMathString:
+	input: 
+		mathstring - a string in one of the following formats: 'X+Y' or 'X*Y'
+	output:	
+		first_int = X, second_int = Y, op_ptr[0] = '+'/'*'
+*/
+bool parseMathString(const char *mathstring, int *first_int_ptr, int *second_int_ptr, char op_ptr[]) {
 	op_ptr[0] = findOperatorBetweenTwoNumbers(mathstring);
 	if (op_ptr[0] == NULL) 
 	{
