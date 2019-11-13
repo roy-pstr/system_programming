@@ -12,6 +12,7 @@ void runParsing(char *math_expression, char **parser_outputs) {
 
 	next_close_brkt_ptr = strchr(math_expression, ')');
 	writeStringToOutputsArray(parser_outputs, output_ind, math_expression);
+
 	while (next_close_brkt_ptr!=NULL) {
 		output_ind++;
 		next_close_brks_ind = (int)(next_close_brkt_ptr - math_expression);
@@ -26,10 +27,6 @@ void runParsing(char *math_expression, char **parser_outputs) {
 }
  
 void releaseOutputsMemory(char **parser_outputs) {
-
-}
-
-void writeParsingsToFile(char **parser_outputs) {
 
 }
 

@@ -31,6 +31,8 @@ int calcResultUsingSon(char *args_line)
 {
 	PROCESS_INFORMATION procinfo;
 	DWORD				exitcode;
+	DWORD				waitcode; 
+	BOOL				handlecheck;
 	char command_line[CMD_LINE_MAX_LEN];
 	strcpy_s(command_line,sizeof(command_line) , SON_EXE_NAME);
 	strcat_s(command_line, sizeof(command_line), args_line);
@@ -38,13 +40,22 @@ int calcResultUsingSon(char *args_line)
 	BOOL retVal = CreateProcessSimple(&command_line, &procinfo);
 	if (retVal == 0)
 	{
-		printf("FATAL! process not created, Aborting...");
+		printf("FATAL Error! process is not created, Aborting...");
 		return 1;
 	}
-	WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS);
+	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS);
+	if (waitcode != 0)
+	{
+		printf("TIMEOUT failure! Aborting...");
+		return 1;
+	}
 	GetExitCodeProcess(procinfo.hProcess, &exitcode);
-	//printf("ILAY EXIT CODE %d\n", exitcode);
-	CloseHandle(procinfo.hProcess);
-		//WAITCODE ILAY
+	handlecheck = CloseHandle(procinfo.hProcess);
+	if (!handlecheck)
+	{
+		printf("HANDLE failure! Aborting...");
+		return 1;
+	}
+
 	return exitcode;
 }
