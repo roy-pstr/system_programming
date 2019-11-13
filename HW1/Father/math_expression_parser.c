@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "math_expression_parser.h"
-#include "hard_coded_defiens.h"
+#include "hard_coded_data.h"
 
 void intToStr(int num, char* num_str) {
 	sprintf(num_str, "%d", num);
@@ -47,5 +47,13 @@ int updateMathExpWithResult(char * math_expression, const char * simpleMathExp, 
 	strcat_s(math_expression_temp, sizeof(math_expression_temp), &math_expression[len_until_end]);
 	strcpy_s(math_expression, strlen(math_expression), math_expression_temp);
 	return 0;
+}
+
+void writeStringToOutputsArray(char ** parser_outputs, int ind, char * math_expression)
+{
+	if (sizeof(parser_outputs) / sizeof(parser_outputs[0]) < ind) {
+
+	}
+	strcpy_s(parser_outputs[ind], sizeof(parser_outputs[ind]), math_expression);
 }
 

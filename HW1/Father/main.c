@@ -1,33 +1,42 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "hard_coded_defiens.h"
+#include "hard_coded_data.h"
 #include "process_handler.h"
 #include "math_expression_parser.h"
 
-int calculateResult(char *math_expression) {
-	int result = 0, next_closing_brks_ind = 0;
-	char* closing_brkts_ptr;
-	char simpleMathExp[SIMPLE_MATH_STRING_MAX_LEN];
+void runParsing(char *math_expression, char **parser_outputs) {
+	int result = 0, next_close_brks_ind = 0, output_ind = 0;
+	char* next_close_brkt_ptr;
+	char simple_math_exp[SIMPLE_MATH_STRING_MAX_LEN];
 
-	closing_brkts_ptr = strchr(math_expression, ')');
-	while (closing_brkts_ptr!=NULL) {
-		next_closing_brks_ind = closing_brkts_ptr - math_expression;
-		extractSimpleMathExpression(simpleMathExp, math_expression, next_closing_brks_ind);
-		result = calcResultUsingSon(simpleMathExp);
-
-		updateMathExpWithResult(math_expression, simpleMathExp, result);
+	next_close_brkt_ptr = strchr(math_expression, ')');
+	writeStringToOutputsArray(parser_outputs, output_ind, math_expression);
+	while (next_close_brkt_ptr!=NULL) {
+		output_ind++;
+		next_close_brks_ind = (int)(next_close_brkt_ptr - math_expression);
+		extractSimpleMathExpression(simple_math_exp, math_expression, next_close_brks_ind);
+		result = calcResultUsingSon(simple_math_exp);
+		updateMathExpWithResult(math_expression, simple_math_exp, result);
+		writeStringToOutputsArray(parser_outputs, math_expression);
 		printf("%s\n", math_expression);
 
-		closing_brkts_ptr = strchr(math_expression, ')');
+		next_close_brkt_ptr = strchr(math_expression, ')');
 	}
+}
+ 
+void releaseOutputsMemory(char **parser_outputs) {
 
-	return result;
+}
+
+void writeParsingsToFile(char **parser_outputs) {
+
 }
 
 int main(int argc, char *argv[])
 {
 	int result = 0;
+	char **parser_outputs;
 
 	if (argc != 2)
 	{
@@ -35,7 +44,18 @@ int main(int argc, char *argv[])
 		return ERROR_CODE;
 	}
 
-	printf("%s\n", argv[1]);
-	result = calculateResult(argv[1]);
-	return 0;
+	parser_outputs = malloc(1*sizeof(char*));
+	if (parser_outputs) {
+		parser_outputs[0] = malloc(MATH_STRING_MAX_LEN);
+	}
+	else {
+		printf("memory allocation have been failed.\n");
+		return ERROR_CODE;
+	}
+
+	printf("%s\n", argv[1]); //debug
+	runParsing(argv[1], parser_outputs);
+	writeParsingsToFile(parser_outputs);
+	releaseOutputsMemory(parser_outputs);
+	return SUCCESS_CODE;
 }
