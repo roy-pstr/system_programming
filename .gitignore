@@ -51,3 +51,4 @@ HW1/x64/Debug/Father.pdb
 *.obj
 *.log
 HW1/Son/x64/Debug/Son.tlog/unsuccessfulbuild
+HW1/Father/Computation.txt

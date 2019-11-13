@@ -2,6 +2,7 @@
 #include <string.h>
 #include <windows.h>
 #include "process_handler.h"
+#include "hard_coded_data.h"
 
 // This module create opens a son process and return its exit code //
 
@@ -36,25 +37,24 @@ int calcResultUsingSon(char *args_line)
 	char command_line[CMD_LINE_MAX_LEN];
 	strcpy_s(command_line,sizeof(command_line) , SON_EXE_NAME);
 	strcat_s(command_line, sizeof(command_line), args_line);
-	//printf("%s\n", command_line); //debug
 	BOOL retVal = CreateProcessSimple(&command_line, &procinfo);
 	if (retVal == 0)
 	{
 		printf("FATAL Error! process is not created, Aborting...");
-		return 1;
+		return ERROR_CODE;
 	}
 	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS);
 	if (waitcode != 0)
 	{
 		printf("TIMEOUT failure! Aborting...");
-		return 1;
+		return ERROR_CODE;
 	}
 	GetExitCodeProcess(procinfo.hProcess, &exitcode);
 	handlecheck = CloseHandle(procinfo.hProcess);
 	if (!handlecheck)
 	{
 		printf("HANDLE failure! Aborting...");
-		return 1;
+		return ERROR_CODE;
 	}
 
 	return exitcode;

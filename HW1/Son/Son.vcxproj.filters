@@ -21,17 +21,11 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Son_functions.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="simple_math_str_parser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Son_functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="simple_math_str_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>

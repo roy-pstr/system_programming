@@ -139,13 +139,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="simple_math_str_parser.c" />
-    <ClCompile Include="Son_functions.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\hard_coded_data.h" />
     <ClInclude Include="simple_math_str_parser.h" />
-    <ClInclude Include="Son_functions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
