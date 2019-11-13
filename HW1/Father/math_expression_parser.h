@@ -4,4 +4,3 @@ int extractSimpleMathExpression(char simple_expression[], const char *math_expre
 
 int updateMathExpWithResult(char *math_expression,const char *simpleMathExp, int result);
 
-void writeStringToOutputsArray(char ** parser_outputs, int ind, char * math_expression);
