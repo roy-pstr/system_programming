@@ -1,3 +1,8 @@
+//Authors – Roy Pasternak(204219273) & Ilay Amar(308520857)
+//Project – EX1
+//Description – Son project's main.c file. it's goal is to calculate the given math expression (X+Y OR X*Y) and to return the 
+//				result as it's exit code.
+
 #include <stdio.h>
 #include <stdbool.h>
 #include "simple_math_str_parser.h"

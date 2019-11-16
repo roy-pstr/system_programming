@@ -1,3 +1,4 @@
+//Description – Handling strings from the following format: X+Y OR X*Y.
 #ifndef _SIMPLE_MATH_STR_PARSER_H
 #define _SIMPLE_MATH_STR_PARSER_H
 #include <stdbool.h>

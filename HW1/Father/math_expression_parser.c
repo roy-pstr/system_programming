@@ -1,8 +1,13 @@
+//Description – Handling strings represting math expression with only + and * operators and each operator and two numbers is 
+//				Surronded by barckets.
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include "math_expression_parser.h"
 #include "hard_coded_data.h"
+
+#define INT_STRING_MAX_SIZE 11
 
 void intToStr(int num, char* num_str) {
 	sprintf(num_str, "%d", num);
@@ -15,9 +20,11 @@ void intToStr(int num, char* num_str) {
 
 	description:
 		The function start sreaching from math_expression[string_ing] towards the start of the string
-		for '('. if found, returns the '(' position in string. if not found return -1
+		for '('.
+	returns:
+		if found, returns the '(' index position in string. if not found return -1
 */
-int findFirstLeftOpeaningBarckets(const char *math_expression, int string_ind) {
+int searchForLeftOpeaningBarckets(const char *math_expression, int string_ind) {
 	while (string_ind >= 0) {
 		string_ind--;
 		if (math_expression[string_ind]=='(') {
@@ -41,7 +48,7 @@ int findFirstLeftOpeaningBarckets(const char *math_expression, int string_ind) {
 int extractSimpleMathExpression(char simple_expression[], const char *math_expression, int closing_barckets_ind)
 {
 	int simple_exp_len = 0;
-	int open_barckets_ind = findFirstLeftOpeaningBarckets(math_expression, closing_barckets_ind);
+	int open_barckets_ind = searchForLeftOpeaningBarckets(math_expression, closing_barckets_ind);
 	if (open_barckets_ind == -1) {
 		return -1;
 	}
@@ -68,18 +75,22 @@ int extractSimpleMathExpression(char simple_expression[], const char *math_expre
 */
 int updateMathExpWithResult(char * math_expression, const char * simple_math_exp, int result)
 {
-	char result_str[INT_STRING_MAX_SIZE];
-	char *start_ptr;
-	char math_expression_temp[MATH_STRING_MAX_LEN];
-	int len_until_start = 0, len_until_end = 0, tail_len = 0;
+	char result_str[INT_STRING_MAX_SIZE], math_expression_temp[MATH_STRING_MAX_LEN];
+	char *substr_start_ptr;
+	int distance_to_begining = 0, distance_to_end = 0, tail_len = 0;
+
 	intToStr(result, &result_str);
-	start_ptr = strstr(math_expression, simple_math_exp);
-	len_until_start = start_ptr - math_expression-1;
-	len_until_end = len_until_start + strlen(simple_math_exp) + 2;
-	strncpy_s(math_expression_temp, sizeof(math_expression_temp), math_expression, len_until_start);
-	strcat_s(math_expression_temp, sizeof(math_expression_temp), result_str);
-	strcat_s(math_expression_temp, sizeof(math_expression_temp), &math_expression[len_until_end]);
-	strcpy_s(math_expression, strlen(math_expression), math_expression_temp);
-	return 0;
+	if (NULL == (substr_start_ptr = strstr(math_expression, simple_math_exp)) )
+	{
+		printf("can not find simple_math_string in math_expression");
+		return ERROR_CODE;
+	}
+	distance_to_begining = substr_start_ptr - math_expression-1; 
+	distance_to_end = distance_to_begining + strlen(simple_math_exp) + 2; // the +2 is for skipping also the ( .. )
+	strncpy_s(math_expression_temp, sizeof(math_expression_temp), math_expression, distance_to_begining); //copy math_exp until the substr
+	strcat_s(math_expression_temp, sizeof(math_expression_temp), result_str); // add the substr the end of the string
+	strcat_s(math_expression_temp, sizeof(math_expression_temp), &math_expression[distance_to_end]); //copy the rest of the math exp to the end of the modified string
+	strcpy_s(math_expression, strlen(math_expression), math_expression_temp); //copy temp back to the original varaible.
+	return SUCCESS_CODE;
 }
 

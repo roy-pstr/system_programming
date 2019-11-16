@@ -1,10 +1,11 @@
+//Description: This module create opens a son process and return its exit code 
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
 #include "process_handler.h"
 #include "hard_coded_data.h"
 
-// This module create opens a son process and return its exit code //
+
 
 //Program for process creation simple fuicntion from recitation//
 BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr)
