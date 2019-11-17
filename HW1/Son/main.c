@@ -10,20 +10,6 @@
 
 #define CHECK_MAIN_STATUS(status) if(status!=SUCCESS_CODE){ return ERROR_CODE;}
 
-int calcResult(int *result, int first_int, int second_int, char operator_ch[]) {
-	switch (operator_ch[0]) {
-	case PLUS_SIGN:
-		*result = first_int + second_int;
-		break;
-	case MULTIPLE_SIGN:
-		*result = first_int * second_int;
-		break;
-	default:
-		return ERROR_CODE;
-	}
-	return SUCCESS_CODE;
-}
-
 int main(int argc, char *argv[])
 {
 	int first_int=0, second_int=0, result=0;
