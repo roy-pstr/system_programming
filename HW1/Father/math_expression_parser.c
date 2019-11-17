@@ -54,7 +54,7 @@ int extractSimpleMathExpression(char simple_expression[], const char *math_expre
 	}
 	else {
 		simple_exp_len = closing_barckets_ind - open_barckets_ind-1;
-		strncpy_s(simple_expression, sizeof(simple_expression), &math_expression[++open_barckets_ind], simple_exp_len);
+		strncpy_s(simple_expression, SIMPLE_MATH_STRING_MAX_LEN, &math_expression[++open_barckets_ind], simple_exp_len);
 	}
 	return 0;
 }
