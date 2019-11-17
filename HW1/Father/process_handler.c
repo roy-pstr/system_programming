@@ -36,7 +36,7 @@ int calcResultUsingSon(char *args_line)
 	DWORD				waitcode; 
 	BOOL				handlecheck;
 	char command_line[CMD_LINE_MAX_LEN];
-	strcpy_s(command_line,sizeof(command_line) , SON_EXE_NAME);
+	strcpy_s(command_line, CMD_LINE_MAX_LEN, SON_EXE_NAME);
 	strcat_s(command_line, sizeof(command_line), args_line);
 	BOOL retVal = CreateProcessSimple(&command_line, &procinfo);
 	if (retVal == 0)
