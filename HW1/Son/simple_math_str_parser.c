@@ -43,7 +43,7 @@ void readFirstTwoIntegersFromStr(const char *mathstring, int *first_int_ptr, int
 	output:	
 		first_int = X, second_int = Y, op_ptr[0] = '+'/'*'
 */
-bool parseMathString(const char *mathstring, int *first_int_ptr, int *second_int_ptr, char op_ptr[]) {
+int parseMathString(const char *mathstring, int *first_int_ptr, int *second_int_ptr, char op_ptr[]) {
 	op_ptr[0] = findOperatorBetweenTwoNumbers(mathstring);
 	if (op_ptr[0] == NOT_FOUND)
 	{

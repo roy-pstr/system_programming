@@ -8,9 +8,9 @@
 #include "simple_math_str_parser.h"
 #include "hard_coded_data.h"
 
-#define CHECK_MAIN_STATUS(status) if(status!=true){ return ERROR_CODE;}
+#define CHECK_MAIN_STATUS(status) if(status!=SUCCESS_CODE){ return ERROR_CODE;}
 
-bool calcResult(int *result, int first_int, int second_int, char operator_ch[]) {
+int calcResult(int *result, int first_int, int second_int, char operator_ch[]) {
 	switch (operator_ch[0]) {
 	case PLUS_SIGN:
 		*result = first_int + second_int;
@@ -19,16 +19,16 @@ bool calcResult(int *result, int first_int, int second_int, char operator_ch[]) 
 		*result = first_int * second_int;
 		break;
 	default:
-		return false;
+		return ERROR_CODE;
 	}
-	return true;
+	return SUCCESS_CODE;
 }
 
 int main(int argc, char *argv[])
 {
 	int first_int=0, second_int=0, result=0;
 	char operator_ch[1];
-	int main_status = true;
+	int main_status = SUCCESS_CODE;
 	
 	if (argc != 2)
 	{
