@@ -1,4 +1,5 @@
 #include "file_handler.h"
+#include "wire_handler.h"
 #include <stdio.h>
 #include <stdlib.h>
 int main(int argc, char *argv[]) 
@@ -17,7 +18,13 @@ int main(int argc, char *argv[])
 																	   "ex09.txt", "ex10.txt", 
 																	   "midterm.txt", "moedA.txt", "moedB.txt"}; // DEBUG GLOBAL
 	WritefileToGradesArray(argv[1], &GradesArray[0], GradesTypesArray[0]);
-	//WritefileToGradesArray(file_paths[1], &GradesArray, 1);
 	printf("Print from main: %d\n", GradesArray[0]);
+	int check[13] = { 10, 90, 30, 40, 50, 60, 70, 80, 90, 100, 70, 60 };
+	float exes = AverageMaxEightEx(check);
+	printf("Final Ex Grade = %f \n", exes);
+	int moeds = handleMoedAB(check[11],check[12]);
+	printf("Final MOED Grade = %d \n", moeds);
+	float final_grade = finalStudentGrade(exes, check[10], moeds);
+	printf("Final Grade = %f \n", final_grade);
 	return 0;
 }

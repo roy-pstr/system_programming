@@ -124,11 +124,11 @@
   <ItemGroup>
     <ClCompile Include="file_handler.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="wires_handler.c" />
     <ClCompile Include="wire_handler.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_handler.h" />
+    <ClInclude Include="wire_handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

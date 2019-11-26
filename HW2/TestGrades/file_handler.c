@@ -2,26 +2,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-int WritefileToGradesArray(char *filepath, int *grade_ptr, char *gradetype_ptr)
+int WritefileToGradesArray(const char *filepath, int *grade_ptr, const char *gradetype_ptr)
 {
 	FILE *fp;
-	char filename[MAX_CMD_LENGTH + MAX_FILENMAE_LENGTH];
-	printf("filepath_BEFORE = %s\n", filepath);
-	strcpy_s(filename, sizeof(filename), filepath);
-	strcat_s(filename, sizeof(filename), gradetype_ptr);
-	printf("filepath_AFTER = %s\n", filename);
+	char *filename;
+	char gradeFromFile[MAX_LINE_LENGTH];
+	int size_of_filename = strlen(filepath) + strlen(gradetype_ptr) + 1 ;
+	int grade = 0;
+
+	if ( NULL == (filename = (char *) malloc(size_of_filename)))
+	{
+		printf("Memory Allocation failed! Try again...");
+		return -1; // DEBUG ERROR_CODE
+	}
+	strcpy_s(filename, sizeof(char) * size_of_filename, filepath);
+	strcat_s(filename, sizeof(char) * size_of_filename, gradetype_ptr);
 	if (NULL == (fp = fopen(filename, "r")))
 	{
 		printf("File ERROR\n");
 		return -1; // DEBUG ERROR_CODE
 	}
-	int grade = 0; // DEBUG NUM_OF_GRADES
-	char gradeFromFile[MAX_LINE_LENGTH]; // DEBUG MAX_LINE_LENGTH
 	fgets(gradeFromFile, MAX_LINE_LENGTH, fp); fclose(fp);
-	printf("STR GRADE = %s \n", gradeFromFile);
 	grade = (int)atol(gradeFromFile);
-	printf("INT GRADE = %d \n", grade);//
+	if (grade < 60)
+	{
+		grade = 0;
+	}
 	*grade_ptr = grade;
-	printf("ARRAY GRADE = %d \n", *grade_ptr); //WORKS
+	free(filename);
 	return 0;
 }

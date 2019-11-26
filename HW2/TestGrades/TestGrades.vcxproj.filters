@@ -24,12 +24,12 @@
     <ClCompile Include="wire_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wires_handler.c">
-      <Filter>Header Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wire_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
