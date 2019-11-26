@@ -52,3 +52,17 @@ int parseMathString(const char *mathstring, int *first_int_ptr, int *second_int_
 	readFirstTwoIntegersFromStr(mathstring, first_int_ptr, second_int_ptr);
 	return SUCCESS_CODE;
 }
+
+int calcResult(int *result, int first_int, int second_int, char operator_ch[]) {
+	switch (operator_ch[0]) {
+	case PLUS_SIGN:
+		*result = first_int + second_int;
+		break;
+	case MULTIPLE_SIGN:
+		*result = first_int * second_int;
+		break;
+	default:
+		return ERROR_CODE;
+	}
+	return SUCCESS_CODE;
+}
