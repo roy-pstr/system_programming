@@ -121,8 +121,8 @@
   <ItemGroup>
     <ClCompile Include="file_handler.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="wires_handler.c" />
-    <ClCompile Include="wire_handler.c" />
+    <ClCompile Include="thread_handler.h" />
+    <ClCompile Include="thread_handler.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_handler.h" />

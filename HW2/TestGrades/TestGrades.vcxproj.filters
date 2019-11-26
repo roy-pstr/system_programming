@@ -21,10 +21,10 @@
     <ClCompile Include="file_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wire_handler.c">
+    <ClCompile Include="thread_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wires_handler.c">
+    <ClCompile Include="thread_handler.h">
       <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
