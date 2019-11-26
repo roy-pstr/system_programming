@@ -4,6 +4,7 @@
 #define SUCCESS_CODE ((int)(0))
 #define MAX_STRING 50
 #define NUM_THREADS 2
+#define TIMEOUT_IN_MILLISECONDS 5000
 
 static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	LPVOID p_thread_parameters,
@@ -42,32 +43,35 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	return thread_handle;
 }
 
-int GetAllGrades(int *grades, int grades_size) {
-	HANDLE p_thread_handles[NUM_THREADS];
-	DWORD p_thread_ids[NUM_THREADS];
+int RunMultiplayThreads(LPTHREAD_START_ROUTINE thread_routine,
+	HANDLE *p_thread_handles,
+	get_grade_params *p_thread_args,
+	DWORD *p_thread_ids)
+{
+	/*create NUM_THREADS threads:*/
+	int i;
+	for (i = 0; i < NUM_THREADS; i++) {
+		p_thread_handles[i] = CreateThreadSimple(thread_routine, &p_thread_args[i], &p_thread_ids[i]);
+	}
 
+	/*handle wait code*/
 	DWORD wait_code;
-	BOOL ret_val;
-	/* Prepare parameters for thread */
-
-	int g1 = 20;
-	int g2 = 50;
-	get_grade_params p_thread_args[NUM_THREADS] = {	{ "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt", &g1 },
-										{ "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex02.txt", &g2 }, };
-	//InitParams(&p_thread_args, "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt", &g);
-	/* Create thread */
-	p_thread_handles[0] = CreateThreadSimple(GetGrade, &p_thread_args[0], &p_thread_ids[0]);
-	p_thread_handles[1] = CreateThreadSimple(GetGrade, &p_thread_args[1], &p_thread_ids[1]);
-	//p_thread_handles[1] = CreateThreadSimple(GetGrade, &p_thread_ids[1]);
-	// Wait for IO thread to receive exit command and terminate
-	wait_code = WaitForSingleObject(p_thread_handles[0], INFINITE);
+	wait_code = WaitForMultipleObjects(NUM_THREADS, p_thread_handles, TRUE, TIMEOUT_IN_MILLISECONDS);
 	if (WAIT_OBJECT_0 != wait_code)
 	{
 		printf("Error when waiting");
 		return ERROR_CODE;
 	}
-	// Close thread handles
-	int i;
+
+	/*handle exit code*/
+	DWORD lpExitCode;
+	for (i = 0; i < NUM_THREADS; i++) {
+		GetExitCodeThread(p_thread_handles[i], &lpExitCode);
+	}
+
+
+	/*close threads handels*/
+	BOOL ret_val;
 	for (i = 0; i < NUM_THREADS; i++)
 	{
 		ret_val = CloseHandle(p_thread_handles[i]);
@@ -77,4 +81,23 @@ int GetAllGrades(int *grades, int grades_size) {
 			return ERROR_CODE;
 		}
 	}
+	return SUCCESS_CODE;
 }
+
+int GetAllGrades(int *grades, int grades_size) {
+	HANDLE p_thread_handles[NUM_THREADS];
+	DWORD p_thread_ids[NUM_THREADS];
+
+	
+	/* Prepare parameters for thread */
+
+	int g1 = 20;
+	int g2 = 50;
+	get_grade_params p_thread_args[NUM_THREADS] = {	{ "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt", &g1 },
+										{ "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex02.txt", &g2 }, };
+	//InitParams(&p_thread_args, "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt", &g);
+	/* Create multiplay theards */
+	RunMultiplayThreads(GetGrade, p_thread_handles, p_thread_args, p_thread_ids);
+	return SUCCESS_CODE;
+}
+
