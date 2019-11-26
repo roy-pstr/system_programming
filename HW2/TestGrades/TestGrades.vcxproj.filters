@@ -15,21 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="file_handler.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="file_handler.c">
+    <ClCompile Include="get_grade_thread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thread_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="thread_handler.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="get_grade_thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
