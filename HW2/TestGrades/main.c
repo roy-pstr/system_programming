@@ -4,7 +4,7 @@
 #define NUM_THREADS 2
 
 #include "file_handler.h"
-#include "wire_handler.h"
+#include "grades_handler.h"
 #include <stdio.h>
 #include <stdlib.h>
 int main(int argc, char *argv[]) 
@@ -22,6 +22,10 @@ int main(int argc, char *argv[])
 																	   "ex07.txt", "ex08.txt", 
 																	   "ex09.txt", "ex10.txt", 
 																	   "midterm.txt", "moedA.txt", "moedB.txt"}; // DEBUG GLOBAL
+	const char file_paths_arr[NUM_OF_GRADES][MAX_FILENMAE_LENGTH] = { "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt",
+																		"C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex02.txt"};
+	GetAllGrades(&GradesArray[0], NUM_THREADS, &file_paths_arr);
+	return 0;
 	WritefileToGradesArray(argv[1], &GradesArray[0], GradesTypesArray[0]);
 	printf("Print from main: %d\n", GradesArray[0]);
 	int check[13] = { 10, 90, 30, 40, 50, 60, 70, 80, 90, 100, 70, 60 };
@@ -31,7 +35,9 @@ int main(int argc, char *argv[])
 	printf("Final MOED Grade = %d \n", moeds);
 	float final_grade = finalStudentGrade(exes, check[10], moeds);
 	printf("Final Grade = %f \n", final_grade);
+
+	
+
 	return 0;
-	//int grades[NUM_THREADS];
-	//GetAllGrades(&grades[0], NUM_THREADS);
+	
 }

@@ -27,6 +27,9 @@
     <ClCompile Include="thread_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grades_handler.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_handler.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="thread_handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grades_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

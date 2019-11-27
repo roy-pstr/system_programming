@@ -2,21 +2,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+int concatFileNameToPath(char *filepath, const char *folderpath, const char *filename) {
+	int size_of_filepath = strlen(folderpath) + strlen(filename) + 1;
+	//if (NULL == (filepath = (char *)realloc(filepath, size_of_filepath)))
+	//{
+	//	printf("Memory Allocation failed! Try again...");
+	//	return -1; // DEBUG ERROR_CODE
+	//}
+	strcpy_s(filepath, sizeof(char) * size_of_filepath, folderpath);
+	strcat_s(filepath, sizeof(char) * size_of_filepath, filename);
+}
+
 int WritefileToGradesArray(const char *filepath, int *grade_ptr, const char *gradetype_ptr)
 {
 	FILE *fp;
-	char *filename;
+	char *filename = NULL;
 	char gradeFromFile[MAX_LINE_LENGTH];
-	int size_of_filename = strlen(filepath) + strlen(gradetype_ptr) + 1 ;
 	int grade = 0;
-
-	if ( NULL == (filename = (char *) malloc(size_of_filename)))
+	int size_of_filepath = strlen(filepath) + strlen(gradetype_ptr) + 1;
+	if (NULL == (filename = (char *)malloc(size_of_filepath)))
 	{
 		printf("Memory Allocation failed! Try again...");
 		return -1; // DEBUG ERROR_CODE
 	}
-	strcpy_s(filename, sizeof(char) * size_of_filename, filepath);
-	strcat_s(filename, sizeof(char) * size_of_filename, gradetype_ptr);
+	concatFileNameToPath(filename, filepath, gradetype_ptr);
+	//int size_of_filename = strlen(filepath) + strlen(gradetype_ptr) + 1 ;
+	
+
+	//if ( NULL == (filename = (char *) malloc(size_of_filename)))
+	//{
+	//	printf("Memory Allocation failed! Try again...");
+	//	return -1; // DEBUG ERROR_CODE
+	//}
+	//strcpy_s(filename, sizeof(char) * size_of_filename, filepath);
+	//strcat_s(filename, sizeof(char) * size_of_filename, gradetype_ptr);
 	if (NULL == (fp = fopen(filename, "r")))
 	{
 		printf("File ERROR\n");

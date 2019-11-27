@@ -1,9 +1,11 @@
 #include "thread_handler.h"
+
 #include <stdbool.h>
+#include <stdio.h>
 #define ERROR_CODE ((int)(-1))
 #define SUCCESS_CODE ((int)(0))
 #define MAX_STRING 50
-#define NUM_THREADS 2
+
 #define TIMEOUT_IN_MILLISECONDS 5000
 
 static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
@@ -84,17 +86,23 @@ int RunMultiplayThreads(LPTHREAD_START_ROUTINE thread_routine,
 	return SUCCESS_CODE;
 }
 
-int GetAllGrades(int *grades, int grades_size) {
+int GetAllGrades(int *grades, int grades_size, const char file_paths_arr[NUM_THREADS][MAX_FILENMAE_LENGTH]) {
 	HANDLE p_thread_handles[NUM_THREADS];
 	DWORD p_thread_ids[NUM_THREADS];
 
 	
 	/* Prepare parameters for thread */
-
-	int g1 = 20;
-	int g2 = 50;
-	get_grade_params p_thread_args[NUM_THREADS] = {	{ "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt", &g1 },
-										{ "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex02.txt", &g2 }, };
+	int i;
+	get_grade_params p_thread_args[NUM_THREADS];
+	for (i = 0; i < NUM_THREADS; i++) {
+		if (NULL == (p_thread_args[i].file_path = (char *)malloc(strlen(file_paths_arr[i]) + 1)))
+		{
+			printf("Memory Allocation failed! Try again...");
+			return -1; // DEBUG ERROR_CODE
+		}
+		strcpy_s(p_thread_args[i].file_path, sizeof(char) * (strlen(p_thread_args[i].file_path)+1), file_paths_arr[i]);
+		p_thread_args[i].grade = &grades[i];
+	}
 	//InitParams(&p_thread_args, "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt", &g);
 	/* Create multiplay theards */
 	RunMultiplayThreads(GetGrade, p_thread_handles, p_thread_args, p_thread_ids);

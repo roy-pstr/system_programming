@@ -1,4 +1,5 @@
 #include "get_grade_thread.h"
+#include "file_handler.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -24,7 +25,7 @@ DWORD WINAPI GetGrade(LPVOID lpParam)
 	Args = (get_grade_params*)lpParam;
 
 	printf("Args are: %s ; %d \n", Args->file_path, *Args->grade);
-
+	//WritefileToGradesArray(Args->file_path, *Args->grade);
 	return 0;
 }
 

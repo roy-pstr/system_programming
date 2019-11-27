@@ -139,11 +139,13 @@
     <ClCompile Include="get_grade_thread.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="thread_handler.c" />
+    <ClCompile Include="grades_handler.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_handler.h" />
     <ClInclude Include="get_grade_thread.h" />
     <ClInclude Include="thread_handler.h" />
+    <ClInclude Include="grades_handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
