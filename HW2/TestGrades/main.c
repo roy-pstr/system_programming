@@ -1,20 +1,21 @@
-#include "get_grade_thread.h"
-#include <stdbool.h>
-#define ERROR_CODE ((int)(-1))
-#define NUM_THREADS 2
-
-#include "file_handler.h"
-#include "grades_handler.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "defines.h"
+#include "file_handler.h"
+#include "thread_handler.h"
+#include "grades_handler.h"
+
 int main(int argc, char *argv[]) 
 {
-	//check inputs
+	//check argv:
 	if (argc != 2)
 	{
 		printf("Illegal number of arguents! Try again\n");
 		return -1;  // DEBUG ERROR_CODE
 	}
+
+	//define arrays:
 	int GradesArray[NUM_OF_GRADES];
 	const char GradesTypesArray[NUM_OF_GRADES][MAX_FILENMAE_LENGTH] = {"ex01.txt", "ex02.txt", 
 																	   "ex03.txt", "ex04.txt", 
@@ -22,11 +23,13 @@ int main(int argc, char *argv[])
 																	   "ex07.txt", "ex08.txt", 
 																	   "ex09.txt", "ex10.txt", 
 																	   "midterm.txt", "moedA.txt", "moedB.txt"}; // DEBUG GLOBAL
-	const char file_paths_arr[NUM_OF_GRADES][MAX_FILENMAE_LENGTH] = { "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt",
-																		"C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex02.txt"};
-	GetAllGrades(&GradesArray[0], NUM_THREADS, &file_paths_arr);
-	return 0;
-	WritefileToGradesArray(argv[1], &GradesArray[0], GradesTypesArray[0]);
+	const char file_paths_arr[NUM_OF_GRADES][MAX_FILENMAE_LENGTH] = { "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW2\\students_gardes\\grades_204219273\\ex01.txt",
+		"C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW2\\students_gardes\\grades_204219273\\ex02.txt" };
+	int status = RunMultiplayThreads(&GradesArray[0], file_paths_arr);
+	return 0; 
+	//int status = GetAllGrades(&GradesArray[0], NUM_THREADS, file_paths_arr);
+	
+	ReadGradeFromFile(argv[1], &GradesArray[0]);
 	printf("Print from main: %d\n", GradesArray[0]);
 	int check[13] = { 10, 90, 30, 40, 50, 60, 70, 80, 90, 100, 70, 60 };
 	float exes = AverageMaxEightEx(check);

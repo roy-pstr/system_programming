@@ -1,10 +1,6 @@
-#include "thread_handler.h"
-
 #include <stdbool.h>
 #include <stdio.h>
-#define ERROR_CODE ((int)(-1))
-#define SUCCESS_CODE ((int)(0))
-#define MAX_STRING 50
+#include "thread_handler.h"
 
 #define TIMEOUT_IN_MILLISECONDS 5000
 
@@ -45,15 +41,26 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	return thread_handle;
 }
 
-int RunMultiplayThreads(LPTHREAD_START_ROUTINE thread_routine,
-	HANDLE *p_thread_handles,
-	get_grade_params *p_thread_args,
-	DWORD *p_thread_ids)
+int RunMultiplayThreads(int *grades, const char file_paths_arr[NUM_THREADS][MAX_FILENMAE_LENGTH])
 {
-	/*create NUM_THREADS threads:*/
+	HANDLE p_thread_handles[NUM_THREADS];
+	DWORD p_thread_ids[NUM_THREADS];
+	get_grade_params p_thread_args[NUM_THREADS];
+
+	/* Prepare parameters for thread */
 	int i;
 	for (i = 0; i < NUM_THREADS; i++) {
-		p_thread_handles[i] = CreateThreadSimple(thread_routine, &p_thread_args[i], &p_thread_ids[i]);
+		if (NULL == (p_thread_args[i].file_path = (char *)malloc(strlen(file_paths_arr[i]) + 1)))
+		{
+			printf("Memory Allocation failed! Try again...");
+			exit(ERROR_CODE); // DEBUG ERROR_CODE
+		}
+		strcpy_s(p_thread_args[i].file_path, sizeof(char) * (strlen(p_thread_args[i].file_path) + 1), file_paths_arr[i]);
+		p_thread_args[i].grade = &grades[i];
+	}
+	/*create NUM_THREADS threads:*/
+	for (i = 0; i < NUM_THREADS; i++) {
+		p_thread_handles[i] = CreateThreadSimple(GetGrade, &p_thread_args[i], &p_thread_ids[i]);
 	}
 
 	/*handle wait code*/
@@ -90,7 +97,6 @@ int GetAllGrades(int *grades, int grades_size, const char file_paths_arr[NUM_THR
 	HANDLE p_thread_handles[NUM_THREADS];
 	DWORD p_thread_ids[NUM_THREADS];
 
-	
 	/* Prepare parameters for thread */
 	int i;
 	get_grade_params p_thread_args[NUM_THREADS];
@@ -98,14 +104,14 @@ int GetAllGrades(int *grades, int grades_size, const char file_paths_arr[NUM_THR
 		if (NULL == (p_thread_args[i].file_path = (char *)malloc(strlen(file_paths_arr[i]) + 1)))
 		{
 			printf("Memory Allocation failed! Try again...");
-			return -1; // DEBUG ERROR_CODE
+			exit(ERROR_CODE); // DEBUG ERROR_CODE
 		}
 		strcpy_s(p_thread_args[i].file_path, sizeof(char) * (strlen(p_thread_args[i].file_path)+1), file_paths_arr[i]);
 		p_thread_args[i].grade = &grades[i];
 	}
-	//InitParams(&p_thread_args, "C:\Users\roypa\OneDrive\Documents\GitHub\system_programming\HW2\students_gardes\grades_204219273\ex01.txt", &g);
+
 	/* Create multiplay theards */
-	RunMultiplayThreads(GetGrade, p_thread_handles, p_thread_args, p_thread_ids);
+	//RunMultiplayThreads(GetGrade, p_thread_handles, p_thread_args, p_thread_ids);
 	return SUCCESS_CODE;
 }
 

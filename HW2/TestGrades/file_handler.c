@@ -13,41 +13,64 @@ int concatFileNameToPath(char *filepath, const char *folderpath, const char *fil
 	strcat_s(filepath, sizeof(char) * size_of_filepath, filename);
 }
 
-int WritefileToGradesArray(const char *filepath, int *grade_ptr, const char *gradetype_ptr)
+int ReadGradeFromFile(const char *filepath, int *grade_ptr)
 {
+	/* open file: */
 	FILE *fp;
-	char *filename = NULL;
-	char gradeFromFile[MAX_LINE_LENGTH];
-	int grade = 0;
-	int size_of_filepath = strlen(filepath) + strlen(gradetype_ptr) + 1;
-	if (NULL == (filename = (char *)malloc(size_of_filepath)))
-	{
-		printf("Memory Allocation failed! Try again...");
-		return -1; // DEBUG ERROR_CODE
-	}
-	concatFileNameToPath(filename, filepath, gradetype_ptr);
-	//int size_of_filename = strlen(filepath) + strlen(gradetype_ptr) + 1 ;
-	
-
-	//if ( NULL == (filename = (char *) malloc(size_of_filename)))
-	//{
-	//	printf("Memory Allocation failed! Try again...");
-	//	return -1; // DEBUG ERROR_CODE
-	//}
-	//strcpy_s(filename, sizeof(char) * size_of_filename, filepath);
-	//strcat_s(filename, sizeof(char) * size_of_filename, gradetype_ptr);
-	if (NULL == (fp = fopen(filename, "r")))
+	if (NULL == (fp = fopen(filepath, "r")))
 	{
 		printf("File ERROR\n");
-		return -1; // DEBUG ERROR_CODE
+		exit(ERROR_CODE); // DEBUG ERROR_CODE
 	}
-	fgets(gradeFromFile, MAX_LINE_LENGTH, fp); fclose(fp);
-	grade = (int)atol(gradeFromFile);
-	if (grade < 60)
+	/* read grade from file: */
+	char gradeFromFile[MAX_GRADE_LENGTH];
+	fgets(gradeFromFile, MAX_GRADE_LENGTH, fp);
+	fclose(fp);
+
+	/* convert to int and save in pointer value */
+	*grade_ptr = (int)atol(gradeFromFile);
+	if (*grade_ptr < 60)
 	{
-		grade = 0;
+		*grade_ptr = 0;
 	}
-	*grade_ptr = grade;
-	free(filename);
-	return 0;
+	return SUCCESS_CODE;
 }
+
+//int WritefileToGradesArray(const char *filepath, int *grade_ptr, const char *gradetype_ptr)
+//{
+//	FILE *fp;
+//	char *filename = NULL;
+//	char gradeFromFile[MAX_LINE_LENGTH];
+//	int grade = 0;
+//	int size_of_filepath = strlen(filepath) + strlen(gradetype_ptr) + 1;
+//	if (NULL == (filename = (char *)malloc(size_of_filepath)))
+//	{
+//		printf("Memory Allocation failed! Try again...");
+//		return -1; // DEBUG ERROR_CODE
+//	}
+//	concatFileNameToPath(filename, filepath, gradetype_ptr);
+//	//int size_of_filename = strlen(filepath) + strlen(gradetype_ptr) + 1 ;
+//
+//
+//	//if ( NULL == (filename = (char *) malloc(size_of_filename)))
+//	//{
+//	//	printf("Memory Allocation failed! Try again...");
+//	//	return -1; // DEBUG ERROR_CODE
+//	//}
+//	//strcpy_s(filename, sizeof(char) * size_of_filename, filepath);
+//	//strcat_s(filename, sizeof(char) * size_of_filename, gradetype_ptr);
+//	if (NULL == (fp = fopen(filename, "r")))
+//	{
+//		printf("File ERROR\n");
+//		return -1; // DEBUG ERROR_CODE
+//	}
+//	fgets(gradeFromFile, MAX_LINE_LENGTH, fp); fclose(fp);
+//	grade = (int)atol(gradeFromFile);
+//	if (grade < 60)
+//	{
+//		grade = 0;
+//	}
+//	*grade_ptr = grade;
+//	free(filename);
+//	return 0;
+//}

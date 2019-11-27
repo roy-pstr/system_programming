@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{396678a0-8feb-4e81-8182-e2215a91915d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file_handler.c">
@@ -21,13 +24,13 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="get_grade_thread.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="thread_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grades_handler.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="getGrade_thread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,13 +38,16 @@
     <ClInclude Include="file_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="get_grade_thread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="thread_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grades_handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shared\defines.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="getGrade_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
