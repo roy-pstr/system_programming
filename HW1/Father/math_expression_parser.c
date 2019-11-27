@@ -90,7 +90,7 @@ int updateMathExpWithResult(char *math_expression, const char *simple_math_exp, 
 	strncpy_s(math_expression_temp, sizeof(math_expression_temp), math_expression, distance_to_begining); //copy math_exp until the substr
 	strcat_s(math_expression_temp, sizeof(math_expression_temp), result_str); // add the substr the end of the string
 	strcat_s(math_expression_temp, sizeof(math_expression_temp), &math_expression[distance_to_end]); //copy the rest of the math exp to the end of the modified string
-	strcpy_s(math_expression, strlen(math_expression), math_expression_temp); //copy temp back to the original varaible.
+	strcpy_s(math_expression, MATH_STRING_MAX_LEN, math_expression_temp); //copy temp back to the original varaible.
 	return SUCCESS_CODE;
 }
 
