@@ -76,6 +76,10 @@ int RunMultiplayThreads(int *grades, const char file_paths_arr[NUM_THREADS][MAX_
 	DWORD lpExitCode;
 	for (i = 0; i < NUM_THREADS; i++) {
 		GetExitCodeThread(p_thread_handles[i], &lpExitCode);
+		if (lpExitCode != 0) {
+			printf("Error with thread exit code");
+			return ERROR_CODE;
+		}
 	}
 
 

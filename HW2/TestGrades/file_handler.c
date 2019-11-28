@@ -11,6 +11,7 @@ int concatFileNameToPath(char *filepath, const char *folderpath, const char *fil
 	//}
 	strcpy_s(filepath, sizeof(char) * size_of_filepath, folderpath);
 	strcat_s(filepath, sizeof(char) * size_of_filepath, filename);
+	return 0;
 }
 
 int ReadGradeFromFile(const char *filepath, int *grade_ptr)

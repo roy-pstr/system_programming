@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
 																	   "midterm.txt", "moedA.txt", "moedB.txt"}; // DEBUG GLOBAL
 	const char file_paths_arr[NUM_OF_GRADES][MAX_FILENMAE_LENGTH] = { "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW2\\students_gardes\\grades_204219273\\ex01.txt",
 		"C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW2\\students_gardes\\grades_204219273\\ex02.txt" };
-	int status = RunMultiplayThreads(&GradesArray[0], file_paths_arr);
-	return 0; 
+	//int status = RunMultiplayThreads(&GradesArray[0], file_paths_arr);
+	//return 0; 
 	//int status = GetAllGrades(&GradesArray[0], NUM_THREADS, file_paths_arr);
 	
 	ReadGradeFromFile(argv[1], &GradesArray[0]);
