@@ -1,5 +1,5 @@
-#ifndef _THREAD_HANDLER_H
-#define _THREAD_HANDLER_H
+#ifndef _FILE_HANDLER_H
+#define _FILE_HANDLER_H
 
 #include "defines.h"
 
