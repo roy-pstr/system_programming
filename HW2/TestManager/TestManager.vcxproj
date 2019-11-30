@@ -123,6 +123,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
+    <ClCompile Include="manager_handler.c" />
+    <ClCompile Include="process_handler.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="manager_handler.h" />
+    <ClInclude Include="process_handler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

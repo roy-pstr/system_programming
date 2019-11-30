@@ -40,13 +40,13 @@ float AverageMaxEightEx(int *grades_arr)
 int handleMoedAB(int A, int B)
 {
 	int result;
-	if (A > B)
+	if (B > 0)
 	{
-		result = A;
+		result = B;
 	}
 	else
 	{
-		result = B;
+		result = A;
 	}
 	if (result < 60)
 	{
@@ -54,16 +54,16 @@ int handleMoedAB(int A, int B)
 	}
 	return result;
 }// DEBUG THIS TO GET FINAL GRADE
-float finalStudentGrade(float exes, int midterm, int moed)
+int finalStudentGrade(float exes, int midterm, int moed)
 {
 	float tmp_midterm = 0.0;
 	float tmp_moed = moed + 0.0;
-	float result = 0.0;
+	int result = 0;
 	if (midterm >= 60)
 	{
 		tmp_midterm = midterm + 0.0;
 	}
-	result = 0.2*exes + 0.2*tmp_midterm + 0.6*moed;
+	result = (int)(ceil(0.2*exes + 0.2*tmp_midterm + 0.6*moed));
 
 	return result;
 
