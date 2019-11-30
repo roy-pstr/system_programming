@@ -4,6 +4,5 @@
 #include "getGrade_thread.h"
 #include "file_handler.h"
 #include "defines.h"
-int GetAllGrades(int *grades, int grades_size, const char file_paths_arr[NUM_THREADS][MAX_FILENMAE_LENGTH]);
-int RunMultiplayThreads(int *grades, const char file_paths_arr[NUM_THREADS][MAX_FILENMAE_LENGTH]);
+int RunMultiplayThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, GetGrade_params *p_thread_params);
 #endif
