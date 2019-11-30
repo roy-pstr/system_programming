@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "thread_handler.h"
 
-#define TIMEOUT_IN_MILLISECONDS 5000
+#define MAX_THREAD_WAIT_TIME 10000
 
 static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	LPVOID p_thread_parameters,
@@ -41,81 +41,61 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	return thread_handle;
 }
 
-int RunMultiplayThreads(int *grades, const char file_paths_arr[NUM_THREADS][MAX_FILENMAE_LENGTH])
+int RunMultiplayThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, GetGrade_params *p_thread_params)
 {
-	HANDLE p_thread_handles[NUM_THREADS];
-	DWORD p_thread_ids[NUM_THREADS];
-	get_grade_params p_thread_args[NUM_THREADS];
-
-	/* Prepare parameters for thread */
 	int i;
-	for (i = 0; i < NUM_THREADS; i++) {
-		if (NULL == (p_thread_args[i].file_path = (char *)malloc(strlen(file_paths_arr[i]) + 1)))
+
+	/*create threads:*/
+	for (i = 0; i < number_of_threads; i++) {
+		p_thread_handles[i] = CreateThreadSimple(GetGradeThread, &p_thread_params[i], &p_thread_ids[i]);
+		if (NULL == p_thread_handles[i])
 		{
-			printf("Memory Allocation failed! Try again...");
-			exit(ERROR_CODE); // DEBUG ERROR_CODE
+			printf("Error when creating thread (thread number %d): %d\n",i, GetLastError());
+			return ERROR_CODE;
 		}
-		strcpy_s(p_thread_args[i].file_path, sizeof(char) * (strlen(p_thread_args[i].file_path) + 1), file_paths_arr[i]);
-		p_thread_args[i].grade = &grades[i];
-	}
-	/*create NUM_THREADS threads:*/
-	for (i = 0; i < NUM_THREADS; i++) {
-		p_thread_handles[i] = CreateThreadSimple(GetGrade, &p_thread_args[i], &p_thread_ids[i]);
 	}
 
 	/*handle wait code*/
 	DWORD wait_code;
-	wait_code = WaitForMultipleObjects(NUM_THREADS, p_thread_handles, TRUE, TIMEOUT_IN_MILLISECONDS);
-	if (WAIT_OBJECT_0 != wait_code)
+	wait_code = WaitForMultipleObjects(number_of_threads, p_thread_handles, TRUE, MAX_THREAD_WAIT_TIME);
+	if (WAIT_TIMEOUT == wait_code)
 	{
-		printf("Error when waiting");
+		printf("Timeout error when waiting\n");
+		return ERROR_CODE;
+	}
+	else if (WAIT_FAILED == wait_code)
+	{
+		printf("WaitForMultipleObjects has failed\n");
+		return ERROR_CODE;
+	}
+	else if (WAIT_OBJECT_0 != wait_code)
+	{
+		printf("Error when waiting\n");
 		return ERROR_CODE;
 	}
 
 	/*handle exit code*/
 	DWORD lpExitCode;
-	for (i = 0; i < NUM_THREADS; i++) {
+	for (i = 0; i < number_of_threads; i++) {
 		GetExitCodeThread(p_thread_handles[i], &lpExitCode);
 		if (lpExitCode != 0) {
-			printf("Error with thread exit code");
+			printf("Error with thread (thread number: %d) exit code\n", i);
 			return ERROR_CODE;
 		}
 	}
-
 
 	/*close threads handels*/
 	BOOL ret_val;
-	for (i = 0; i < NUM_THREADS; i++)
+	for (i = 0; i < number_of_threads; i++)
 	{
 		ret_val = CloseHandle(p_thread_handles[i]);
-		if (false == ret_val)
+		if (FALSE == ret_val)
 		{
-			printf("Error when closing\n");
+			printf("Error when closing thread: %d\n", GetLastError());
 			return ERROR_CODE;
 		}
 	}
 	return SUCCESS_CODE;
 }
 
-int GetAllGrades(int *grades, int grades_size, const char file_paths_arr[NUM_THREADS][MAX_FILENMAE_LENGTH]) {
-	HANDLE p_thread_handles[NUM_THREADS];
-	DWORD p_thread_ids[NUM_THREADS];
-
-	/* Prepare parameters for thread */
-	int i;
-	get_grade_params p_thread_args[NUM_THREADS];
-	for (i = 0; i < NUM_THREADS; i++) {
-		if (NULL == (p_thread_args[i].file_path = (char *)malloc(strlen(file_paths_arr[i]) + 1)))
-		{
-			printf("Memory Allocation failed! Try again...");
-			exit(ERROR_CODE); // DEBUG ERROR_CODE
-		}
-		strcpy_s(p_thread_args[i].file_path, sizeof(char) * (strlen(p_thread_args[i].file_path)+1), file_paths_arr[i]);
-		p_thread_args[i].grade = &grades[i];
-	}
-
-	/* Create multiplay theards */
-	//RunMultiplayThreads(GetGrade, p_thread_handles, p_thread_args, p_thread_ids);
-	return SUCCESS_CODE;
-}
 
