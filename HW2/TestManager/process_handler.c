@@ -42,8 +42,9 @@ int callTestGragesProcess(char *directory_arg, char *id_str)
 	strcat(command_line, directory_arg); 
 	strcat(command_line, DIRECTORY_FOR_SON);
 	strcat(command_line, id_str);
+	strcat(command_line, "\\");
 	printf("command_line = %s\n", command_line);
-	free(command_line);  // DEBUG - Till here works great
+	
 	BOOL retVal = CreateProcessSimple(&command_line, &procinfo); // DEBUG - THIS IS 0 maybe because of problems in TestGrades.exe
 	if (retVal == 0)
 	{
@@ -63,6 +64,6 @@ int callTestGragesProcess(char *directory_arg, char *id_str)
 		printf("HANDLE failure! Aborting...\n");
 		return ERROR_CODE;
 	}
-
+	free(command_line);  // DEBUG - Till here works great
 	return exitcode;
 }

@@ -17,7 +17,7 @@ const char file_names_arr[NUM_OF_GRADES][MAX_FILE_NAME] = { "ex01.txt", "ex02.tx
 int main(int argc, char *argv[]) 
 {
 	int grades_arr[NUM_OF_GRADES];
-
+	printf("TestGrades.exe\n");
 	//check argv:
 	if (argc != 2)
 	{
