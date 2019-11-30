@@ -12,10 +12,6 @@ int main(int argc, char *argv[])
 		printf("Illegal number of arguents! Try again\n");
 		return -1;  // DEBUG ERROR_CODE
 	}
-	printf("ARG1 = %s\n", argv[1]);
 	MultipleProcessesCalling(argv[1]);
-
-	printf("DONE");
-
 	return 0;
 }
