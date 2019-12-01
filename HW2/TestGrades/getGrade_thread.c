@@ -30,7 +30,7 @@ DWORD WINAPI GetGradeThread(LPVOID lpParam)
 	}
 	strcpy_s(file_path, sizeof(char) * size_of_filepath, Args->folder_path);
 	strcat_s(file_path, sizeof(char) * size_of_filepath, Args->file_name);
-	
+	printf("File path = %s\n", file_path);
 	/* open file and save grade to *Args->grade */
 	ReadGradeFromFile(file_path, Args->grade);
 

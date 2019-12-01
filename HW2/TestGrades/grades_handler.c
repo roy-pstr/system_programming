@@ -1,7 +1,9 @@
 #include "grades_handler.h"
+#include "defines.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 float sumOfTwoMin(int *grades_arr, int arr_size)
 {
@@ -63,9 +65,38 @@ int finalStudentGrade(float exes, int midterm, int moed)
 	{
 		tmp_midterm = midterm + 0.0;
 	}
-	result = (int)(ceil(0.2*exes + 0.2*tmp_midterm + 0.6*moed));
-
+	result = ceil(0.2*exes + 0.2*tmp_midterm + 0.6*moed);
 	return result;
+}
+void MainThreadFinalGradeHandle(char *path, int grades_arr[NUM_OF_GRADES], char *id_ptr)
+{
+	char *final_student_grade_file;
+	FILE *fp_final;
+	if (NULL == (final_student_grade_file = (char *)malloc(strlen(path) + ID_LENGTH + strlen(FINAL_STUDENT_FILE_NAME) +strlen(TXT) + 3)))  // student Ids directory name memory allocation
+	{
+	printf("Memory Allocation failed! Try again...");
+	exit(ERROR_CODE);
+	}
+	MergeStringsForStudentFinalGrade(final_student_grade_file, path, FINAL_STUDENT_FILE_NAME, id_ptr, TXT);
 
+	float exes = AverageMaxEightEx(grades_arr);
+	int moeds = handleMoedAB(grades_arr[11], grades_arr[12]);
+	int final_grade = finalStudentGrade(exes, grades_arr[10], moeds);
 
+	if (NULL == (fp_final = fopen(final_student_grade_file, "w")))
+	{
+		printf("File ERROR\n");
+		exit(ERROR_CODE);
+	}
+	fprintf(fp_final,"%d",final_grade);
+
+	fclose(fp_final);
+	free(final_student_grade_file);
+}
+void MergeStringsForStudentFinalGrade(char *target, char *first, char *second, char *third, char *forth)
+{
+	strcpy(target, first);
+	strcat(target, second);
+	strcat(target, third);
+	strcat(target, forth);
 }
