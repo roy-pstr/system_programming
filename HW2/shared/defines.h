@@ -10,5 +10,6 @@
 #define ID_LENGTH 10
 #define FINAL_STUDENT_FILE_NAME "\\final_"
 #define TXT ".txt"
-
+#define GRADE_MAX 101
+#define NUM_OF_EXES 10
 #endif

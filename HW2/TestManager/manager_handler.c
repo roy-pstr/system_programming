@@ -4,6 +4,7 @@
 #include <windows.h>
 #include "manager_handler.h"
 #include "process_handler.h"
+
 void allocateString(char **str_ptr, int len) {
 	if (NULL == (*str_ptr = (char *)malloc(len)))
 	{

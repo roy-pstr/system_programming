@@ -1,9 +1,16 @@
+/* Description: 
+	thread_handler module handles the running of mutiplay threads
+*/
+
 #include <stdbool.h>
 #include <stdio.h>
 #include "thread_handler.h"
 
-#define MAX_THREAD_WAIT_TIME 10000
+#define MAX_THREAD_WAIT_TIME 5000
 
+/*
+	Simplify version of CreateThread
+*/
 static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	LPVOID p_thread_parameters,
 	LPDWORD p_thread_id)
@@ -41,6 +48,17 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	return thread_handle;
 }
 
+/*
+	Input:
+		int number_of_threads				- total number of threads
+		HANDLE *p_thread_handles			- thread handles array (size of number_of_threads)
+		DWORD *p_thread_ids					- thread ids array (size of number_of_threads)
+		GetGrade_params *p_thread_params	- thread params array (size of number_of_threads)
+
+	Returns:
+		SUCCESS_CODE (0) -	on success of all threads.
+		ERROR_CODE (-1) -	on failure of one of the threads.
+*/
 int RunMultiplayThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, GetGrade_params *p_thread_params)
 {
 	int i;
@@ -76,16 +94,21 @@ int RunMultiplayThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *
 
 	/*handle exit code*/
 	DWORD lpExitCode;
+	BOOL ret_val;
 	for (i = 0; i < number_of_threads; i++) {
-		GetExitCodeThread(p_thread_handles[i], &lpExitCode);
-		if (lpExitCode != 0) {
-			printf("Error with thread (thread number: %d) exit code\n", i);
+		ret_val = GetExitCodeThread(p_thread_handles[i], &lpExitCode);
+		if (FALSE == ret_val)
+		{
+			printf("Error when getting thread exit code\n");
+			return ERROR_CODE;
+		}
+		if (lpExitCode == ERROR_CODE) {
+			printf("Error with thread (thread number: %d) exit code (%d)\n", i, ERROR_CODE);
 			return ERROR_CODE;
 		}
 	}
 
 	/*close threads handels*/
-	BOOL ret_val;
 	for (i = 0; i < number_of_threads; i++)
 	{
 		ret_val = CloseHandle(p_thread_handles[i]);
@@ -95,6 +118,7 @@ int RunMultiplayThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *
 			return ERROR_CODE;
 		}
 	}
+
 	return SUCCESS_CODE;
 }
 

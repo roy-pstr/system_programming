@@ -1,10 +1,16 @@
+//Authors – Roy Pasternak(204219273) & Ilay Amar(308520857)
+//Project – TestGrades.exe
+//Description – The program read gardes from all the files in the given folder (argv[1])
+//				Then it calculates the final grade of the student and write it to 'final_ID.txt'
+//				where ID is the students ID.
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <windows.h>
 #include <string.h>
 #include "defines.h"
-#include "file_handler.h"
 #include "thread_handler.h"
 #include "grades_handler.h"
 
@@ -18,9 +24,8 @@ const char file_names_arr[NUM_OF_GRADES][MAX_FILE_NAME] = { "\\ex01.txt", "\\ex0
 int main(int argc, char *argv[]) 
 {
 	int grades_arr[NUM_OF_GRADES];
-	printf("TestGrades.exe\n");
 
-	//check argv:
+	/* check argv */
 	if (argc != 2)
 	{
 		printf("Illegal number of arguents! Try again\n");
@@ -33,25 +38,22 @@ int main(int argc, char *argv[])
 	GetGrade_params thread_params_arr[NUM_THREADS];
 
 	/* Prepare parameters for thread */
-	int i, status=0;
-	char *id = argv[1] + strlen(argv[1]) - ID_LENGTH + 1 ; // Parsing id from argument
+	int i;
 	for (i = 0; i < NUM_THREADS; i++) {
 		InitGetGradeParams(&thread_params_arr[i], &grades_arr[i], argv[1], file_names_arr[i]);
 	}
+	
+	/* parse id number out of argv[1] */
+	char *id = argv[1] + strlen(argv[1]) - ID_LENGTH + 1;
 
-	/* run mulitplay threads */
+	/* run mulitplay threads - each read one grade from file */
 	if (ERROR_CODE == RunMultiplayThreads(NUM_THREADS, thread_handles_arr, thread_ids_arr, thread_params_arr)) {
 		printf("Error when trying to run multiplay threads.\n");
 		return ERROR_CODE;
 	}
+
+	/* calculate final grade */
 	MainThreadFinalGradeHandle(argv[1], grades_arr, id);
 	
-		
- /*float exes = AverageMaxEightEx(grades_arr);
-	printf("Final Ex Grade = %f \n", exes);
-	int moeds = handleMoedAB(grades_arr[11], grades_arr[12]);
-	printf("Final MOED Grade = %d \n", moeds);
-	int final_grade = finalStudentGrade(exes, grades_arr[10], moeds);
-	printf("Final Grade = %d \n", final_grade);
-	return 0;*/
+	return SUCCESS_CODE;
 }

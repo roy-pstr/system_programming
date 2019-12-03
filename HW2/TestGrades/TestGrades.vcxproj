@@ -150,7 +150,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="file_handler.c" />
     <ClCompile Include="getGrade_thread.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="thread_handler.c" />
@@ -158,7 +157,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\defines.h" />
-    <ClInclude Include="file_handler.h" />
     <ClInclude Include="getGrade_thread.h" />
     <ClInclude Include="thread_handler.h" />
     <ClInclude Include="grades_handler.h" />
