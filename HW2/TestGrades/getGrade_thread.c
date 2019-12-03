@@ -24,7 +24,7 @@ void InitGetGradeParams(GetGrade_params *params, int *grade_ptr, char* folder_pa
 */
 DWORD WINAPI GetGradeThread(LPVOID lpParam)
 {
-	Sleep(10);
+	Sleep(6000);
 
 	/* Handle arguments passed */
 	GetGrade_params *Args;
