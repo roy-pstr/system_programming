@@ -30,7 +30,7 @@ void allocateString(char **str_ptr, int len) {
 	Description:
 		The function that runs on main and call the son process TestGrades.
 */
-void MultipleProcessesCalling(char *directory)
+int MultipleProcessesCalling(char *directory)
 {
 	char id_number[ID_LENGTH];
 	char *id_filepath, *final_filepath, *student_dir;
@@ -45,13 +45,14 @@ void MultipleProcessesCalling(char *directory)
 	MergeStrings(final_filepath, directory, FINAL_GRADES_FILE_NAME);
 
 	/* call process */
-	ReadIdsAndCallProcess(id_number, directory, student_dir, id_filepath, final_filepath);
+	int ret_val = ReadIdsAndCallProcess(id_number, directory, student_dir, id_filepath, final_filepath);
 
 	/* free memory allocated in this scope */
 	free(id_filepath);
 	free(final_filepath);
 	free(student_dir);
 
+	return ret_val;
 }
 /*ReadIdsAndCallProcess:
 	inputs:
@@ -62,7 +63,7 @@ void MultipleProcessesCalling(char *directory)
 		This function creates a son process for each id from studentsIds.txt,
 		after the processes are finished, it writes the final results to final_grades.txt.
 */
-void ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_ptr, char *id_file, char *final_file_dir)
+int ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_ptr, char *id_file, char *final_file_dir)
 {
 	FILE *fp_ids, *fp_students;
 	/* studentsIds.txt */
@@ -78,7 +79,7 @@ void ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_
 		printf("File ERROR\n");
 		exit(ERROR_CODE);
 	}
-
+	int ret_val = 0;
 	while (fgets(id_ptr, ID_LENGTH , fp_ids)) // get ids from studentsIds.txt and call son process 
 	{
 		if (strlen(id_ptr) != ID_LENGTH - 1) // avoid bugs on id number
@@ -86,14 +87,18 @@ void ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_
 			continue;
 		}
 		MergeStringsForProcessCmd(student_dir_ptr, directory_ptr, DIRECTORY_FOR_SON, id_ptr); // /grades_#ID
-
-		callTestGradesProcess(student_dir_ptr, id_ptr); /// Calling Son
+		/*Calling son*/
+		if (SUCCESS_CODE != callTestGradesProcess(student_dir_ptr, id_ptr)) {
+			ret_val = ERROR_CODE;
+		}
 		WriteFinalGradeToFile(&fp_students, id_ptr, final_file_dir, student_dir_ptr);
 
 	}
 	fclose(fp_ids);
 	fclose(fp_students);
+	return ret_val;
 }
+
 /*MergeStrings, MergeStringsForProcessCmd, MergeStringsForStudentFinalGrade :
 	inputs:
 		char *target, char *first, char *second (etc...)

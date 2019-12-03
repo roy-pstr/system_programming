@@ -83,10 +83,7 @@ int callTestGradesProcess(char *directory_arg, char *id_str)
 		return ERROR_CODE;
 
 	}
-	else
-	{
-		printf("The grades have arrived, captain\n");
-	}
+
 
 	handlecheck = CloseHandle(procinfo.hProcess);
 	if (!handlecheck)

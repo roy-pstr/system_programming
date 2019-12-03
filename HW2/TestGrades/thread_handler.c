@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "thread_handler.h"
 
-#define MAX_THREAD_WAIT_TIME 5000
+#define MAX_THREAD_WAIT_TIME 10000
 
 /*
 	Simplify version of CreateThread

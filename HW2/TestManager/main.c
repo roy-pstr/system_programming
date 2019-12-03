@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
 		return ERROR_CODE;
 	}
 	// main process function for TestManager:
-	MultipleProcessesCalling(argv[1]);
-	return 0;
+	int ret_val = 0;
+	if (SUCCESS_CODE == (ret_val = MultipleProcessesCalling(argv[1]))) {
+		printf("The grades have arrived, captain\n");
+	}
+	return ret_val;
 }
