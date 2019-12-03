@@ -55,8 +55,16 @@ int MultipleProcessesCalling(char *directory)
 
 void ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_ptr, char *id_file, char *final_file_dir)
 {
-	FILE *fp_ids;
-	if (NULL == (fp_ids = fopen(id_file, "r")))
+	FILE *fp_ids, *fp_students;
+	/* studentsIds.txt */
+	if (NULL == (fp_ids = fopen(id_file, "r"))) 
+	{
+		printf("File ERROR\n");
+		exit(ERROR_CODE);
+	}
+
+	/* final_grades.txt */
+	if (NULL == (fp_students = fopen(final_file_dir, "w"))) 
 	{
 		printf("File ERROR\n");
 		exit(ERROR_CODE);
@@ -68,13 +76,14 @@ void ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_
 		{
 			continue;
 		}
-		MergeStringsForProcessCmd(student_dir_ptr, directory_ptr, DIRECTORY_FOR_SON, id_ptr);
+		MergeStringsForProcessCmd(student_dir_ptr, directory_ptr, DIRECTORY_FOR_SON, id_ptr); // grades_#ID
 
 		callTestGradesProcess(student_dir_ptr, id_ptr); /// Calling Son
-		WriteFinalGradeToFile(id_ptr, final_file_dir, student_dir_ptr);
+		WriteFinalGradeToFile(&fp_students, id_ptr, final_file_dir, student_dir_ptr);
 
 	}
 	fclose(fp_ids);
+	fclose(fp_students);
 }
 
 void MergeStrings(char *target, char *first, char *second)
@@ -101,10 +110,17 @@ void MergeStringsForStudentFinalGrade(char *target, char *first, char *second, c
 }
 
 
-void WriteFinalGradeToFile(char *id_num, char *filename, char *student_path)
+void WriteFinalGradeToFile(FILE **fp_students, char *id_num, char *filename, char *student_path)
 {
-	FILE *fp_students, *fp_final;
+	FILE /**fp_students,*/ *fp_final;
 	char *student_file, grade[4];
+
+	////files handling
+	//if (NULL == (fp_students = fopen(filename, "a"))) // final_grades.txt
+	//{
+	//	printf("File ERROR\n");
+	//	exit(ERROR_CODE);
+	//}
 	if (NULL == (student_file = (char *)malloc(strlen(student_path) + ID_LENGTH + strlen(FINAL_STUDENT_FILE_NAME) + strlen(TXT) + 3)))  // student Ids directory name memory allocation
 	{
 		printf("Memory Allocation failed! Try again...");
@@ -112,12 +128,6 @@ void WriteFinalGradeToFile(char *id_num, char *filename, char *student_path)
 	}
 	MergeStringsForStudentFinalGrade(student_file, student_path, FINAL_STUDENT_FILE_NAME, id_num, TXT);
 
-	//files handling
-	if (NULL == (fp_students = fopen(filename, "a"))) // final_grades.txt
-	{
-		printf("File ERROR\n");
-		exit(ERROR_CODE);
-	}
 	if (NULL == (fp_final = fopen(student_file, "r"))) //final_#ID.txt
 	{
 		printf("File ERROR\n");
@@ -130,9 +140,8 @@ void WriteFinalGradeToFile(char *id_num, char *filename, char *student_path)
 		{
 			continue;
 		}
-		fprintf(fp_students, "%s %s\n", id_num, grade);
+		fprintf(*fp_students, "%s %s\n", id_num, grade);
 	}
-	fclose(fp_students);
 	fclose(fp_final);
 	free(student_file);
 }
