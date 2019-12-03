@@ -12,4 +12,7 @@
 #define TXT ".txt"
 #define GRADE_MAX 101
 #define NUM_OF_EXES 10
+
+
+
 #endif

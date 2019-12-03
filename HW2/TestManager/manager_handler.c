@@ -5,6 +5,15 @@
 #include "manager_handler.h"
 #include "process_handler.h"
 
+/*allocateString:
+	inputs:
+		char **str_ptr 
+		int len
+	outputs: 
+		None
+	Description:
+		This is a malloc function with all the needed debugging.
+*/
 void allocateString(char **str_ptr, int len) {
 	if (NULL == (*str_ptr = (char *)malloc(len)))
 	{
@@ -13,7 +22,15 @@ void allocateString(char **str_ptr, int len) {
 	}
 }
 
-int MultipleProcessesCalling(char *directory)
+/*MultipleProcessesCalling:
+	inputs:
+		char *directory
+	outputs:
+		None
+	Description:
+		The function that runs on main and call the son process TestGrades.
+*/
+void MultipleProcessesCalling(char *directory)
 {
 	char id_number[ID_LENGTH];
 	char *id_filepath, *final_filepath, *student_dir;
@@ -22,22 +39,6 @@ int MultipleProcessesCalling(char *directory)
 	allocateString(&id_filepath, (strlen(directory) + strlen(ID_FILE_NAME) + 2)); //malloc, must free!
 	allocateString(&final_filepath, (strlen(directory) + strlen(FINAL_GRADES_FILE_NAME) + 2)); //malloc, must free!
 	allocateString(&student_dir, (strlen(directory) + ID_LENGTH + strlen(DIRECTORY_FOR_SON) + 2)); //malloc, must free!
-	// DEBUG DO FUNCTION FOR ALL MALLOCS
-	//if (NULL == (id_filepath = (char *)malloc(strlen(directory) + strlen(ID_FILE_NAME) + 2)))  // student Ids memory allocation
-	//{
-	//	printf("Memory Allocation failed! Try again...\n");
-	//	exit(ERROR_CODE); 
-	//}
-	//if (NULL == (final_filepath = (char *)malloc(strlen(directory) + strlen(FINAL_GRADES_FILE_NAME) + 2)))  // student Ids memory allocation
-	//{
-	//	printf("Memory Allocation failed! Try again...\n");
-	//	exit(ERROR_CODE);
-	//}
-	//if (NULL == (student_dir = (char *)malloc(strlen(directory) + ID_LENGTH + strlen(DIRECTORY_FOR_SON) + 2)))  // student Ids directory name memory allocation
-	//{
-	//	printf("Memory Allocation failed! Try again...");
-	//	exit(ERROR_CODE);
-	//}
 
 	/* merge strings */
 	MergeStrings(id_filepath, directory, ID_FILE_NAME); // concat dir name and studentIds.txt
@@ -50,10 +51,17 @@ int MultipleProcessesCalling(char *directory)
 	free(id_filepath);
 	free(final_filepath);
 	free(student_dir);
-	return 0;
 
 }
-
+/*ReadIdsAndCallProcess:
+	inputs:
+		char *id_ptr, char *directory_ptr, char *student_dir_ptr, char *id_file, char *final_file_dir
+	outputs:
+		None
+	Description:
+		This function creates a son process for each id from studentsIds.txt,
+		after the processes are finished, it writes the final results to final_grades.txt.
+*/
 void ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_ptr, char *id_file, char *final_file_dir)
 {
 	FILE *fp_ids, *fp_students;
@@ -71,13 +79,13 @@ void ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_
 		exit(ERROR_CODE);
 	}
 
-	while (fgets(id_ptr, ID_LENGTH , fp_ids)) // get ids from file and call son process 
+	while (fgets(id_ptr, ID_LENGTH , fp_ids)) // get ids from studentsIds.txt and call son process 
 	{
 		if (strlen(id_ptr) != ID_LENGTH - 1) // avoid bugs on id number
 		{
 			continue;
 		}
-		MergeStringsForProcessCmd(student_dir_ptr, directory_ptr, DIRECTORY_FOR_SON, id_ptr); // grades_#ID
+		MergeStringsForProcessCmd(student_dir_ptr, directory_ptr, DIRECTORY_FOR_SON, id_ptr); // /grades_#ID
 
 		callTestGradesProcess(student_dir_ptr, id_ptr); /// Calling Son
 		WriteFinalGradeToFile(&fp_students, id_ptr, final_file_dir, student_dir_ptr);
@@ -86,13 +94,20 @@ void ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_
 	fclose(fp_ids);
 	fclose(fp_students);
 }
-
+/*MergeStrings, MergeStringsForProcessCmd, MergeStringsForStudentFinalGrade :
+	inputs:
+		char *target, char *first, char *second (etc...)
+	outputs:
+		None
+	Description:
+		The following 3 functions are concating strings in order to creates full paths for directories and files
+		that are sent to process, or need to be read/write. (for all the project).
+*/
 void MergeStrings(char *target, char *first, char *second)
 {
-	strcpy(target, first);  // DEBUG strcpy_s and strcat_s WHY DOESNT IT WORK?!
+	strcpy(target, first); 
 	strcat(target, second); 
-	//strcpy_s(target, sizeof(char) * (strlen(target) + strlen(first) + strlen(second) + 1), first);
-	//strcat_s(target, sizeof(char) * (strlen(target) + strlen(first) + strlen(second) + 1), second);
+	
 }
 
 void MergeStringsForProcessCmd(char *target, char *first, char *second, char *third)
@@ -110,18 +125,19 @@ void MergeStringsForStudentFinalGrade(char *target, char *first, char *second, c
 	strcat(target, forth);
 }
 
-
+/*WriteFinalGradeToFile:
+	inputs:
+		char FILE **fp_students, char *id_num, char *filename, char *student_path
+	outputs:
+		None
+	Description:
+		This is a helping function in order to write the final grades to final_grades.txt
+*/
 void WriteFinalGradeToFile(FILE **fp_students, char *id_num, char *filename, char *student_path)
 {
 	FILE /**fp_students,*/ *fp_final;
 	char *student_file, grade[4];
 
-	////files handling
-	//if (NULL == (fp_students = fopen(filename, "a"))) // final_grades.txt
-	//{
-	//	printf("File ERROR\n");
-	//	exit(ERROR_CODE);
-	//}
 	if (NULL == (student_file = (char *)malloc(strlen(student_path) + ID_LENGTH + strlen(FINAL_STUDENT_FILE_NAME) + strlen(TXT) + 3)))  // student Ids directory name memory allocation
 	{
 		printf("Memory Allocation failed! Try again...");
