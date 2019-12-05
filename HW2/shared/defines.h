@@ -12,7 +12,8 @@
 #define TXT ".txt"
 #define GRADE_MAX 101
 #define NUM_OF_EXES 10
-
-
-
+#define SON_PROC_NAME "TestGrades.exe "
+#define PROCESS_TIMEOUT_IN_MILLISECONDS 5000
+#define THREAD_TIMEOUT_IN_MILLISECONDS 5000
+#define SLEEP_TIME 10
 #endif

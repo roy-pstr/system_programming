@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* calculate final grade */
-	MainThreadFinalGradeHandle(argv[1], grades_arr, id);
+	int ret_val = MainThreadFinalGradeHandle(argv[1], grades_arr, id);
 	
-	return SUCCESS_CODE;
+	return ret_val;
 }

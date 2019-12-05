@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "thread_handler.h"
 
-#define MAX_THREAD_WAIT_TIME 10000
+
 
 /*
 	Simplify version of CreateThread
@@ -21,14 +21,14 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	{
 		printf("Error when creating a thread");
 		printf("Received null pointer");
-		exit(ERROR_CODE);
+		return NULL;
 	}
 
 	if (NULL == p_thread_id)
 	{
 		printf("Error when creating a thread");
 		printf("Received null pointer");
-		exit(ERROR_CODE);
+		return NULL;
 	}
 
 	thread_handle = CreateThread(
@@ -42,7 +42,7 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	if (NULL == thread_handle)
 	{
 		printf("Couldn't create thread\n");
-		exit(ERROR_CODE);
+		return NULL;
 	}
 
 	return thread_handle;
@@ -62,64 +62,68 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 int RunMultiplayThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, GetGrade_params *p_thread_params)
 {
 	int i;
-
+	int ret_val = SUCCESS_CODE;
 	/*create threads:*/
 	for (i = 0; i < number_of_threads; i++) {
-		p_thread_handles[i] = CreateThreadSimple(GetGradeThread, &p_thread_params[i], &p_thread_ids[i]);
-		if (NULL == p_thread_handles[i])
+		if (NULL == (p_thread_handles[i] = CreateThreadSimple(GetGradeThread, &p_thread_params[i], &p_thread_ids[i])))
 		{
 			printf("Error when creating thread (thread number %d): %d\n",i, GetLastError());
-			return ERROR_CODE;
+			ret_val = ERROR_CODE;
+			goto EXIT;
 		}
 	}
 
 	/*handle wait code*/
 	DWORD wait_code;
-	wait_code = WaitForMultipleObjects(number_of_threads, p_thread_handles, TRUE, MAX_THREAD_WAIT_TIME);
+	wait_code = WaitForMultipleObjects(number_of_threads, p_thread_handles, TRUE, THREAD_TIMEOUT_IN_MILLISECONDS);
 	if (WAIT_TIMEOUT == wait_code)
 	{
 		printf("Timeout error when waiting\n");
-		return ERROR_CODE;
+		ret_val = ERROR_CODE;
+		goto EXIT;
 	}
 	else if (WAIT_FAILED == wait_code)
 	{
 		printf("WaitForMultipleObjects has failed\n");
-		return ERROR_CODE;
+		ret_val = ERROR_CODE;
+		goto EXIT;
 	}
 	else if (WAIT_OBJECT_0 != wait_code)
 	{
 		printf("Error when waiting\n");
-		return ERROR_CODE;
+		ret_val = ERROR_CODE;
+		goto EXIT;
 	}
 
 	/*handle exit code*/
 	DWORD lpExitCode;
-	BOOL ret_val;
 	for (i = 0; i < number_of_threads; i++) {
-		ret_val = GetExitCodeThread(p_thread_handles[i], &lpExitCode);
-		if (FALSE == ret_val)
+		if (FALSE == GetExitCodeThread(p_thread_handles[i], &lpExitCode))
 		{
 			printf("Error when getting thread exit code\n");
-			return ERROR_CODE;
+			ret_val = ERROR_CODE;
+			goto EXIT;
 		}
 		if (lpExitCode == ERROR_CODE) {
 			printf("Error with thread (thread number: %d) exit code (%d)\n", i, ERROR_CODE);
-			return ERROR_CODE;
+			ret_val = ERROR_CODE;
+			goto EXIT;
 		}
 	}
 
 	/*close threads handels*/
+	EXIT:
 	for (i = 0; i < number_of_threads; i++)
 	{
-		ret_val = CloseHandle(p_thread_handles[i]);
-		if (FALSE == ret_val)
-		{
-			printf("Error when closing thread: %d\n", GetLastError());
-			return ERROR_CODE;
+		if (NULL != p_thread_handles[i]) {
+			if (FALSE == CloseHandle(p_thread_handles[i]))
+			{
+				printf("Error when closing thread: %d\n", GetLastError());
+				return ERROR_CODE;
+			}
 		}
 	}
-
-	return SUCCESS_CODE;
+	return ret_val;
 }
 
 

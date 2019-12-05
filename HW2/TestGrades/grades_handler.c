@@ -23,7 +23,7 @@ int ReadGradeFromFile(const char *filepath, int *grade_ptr)
 	if (NULL == (fp = fopen(filepath, "r")))
 	{
 		printf("File ERROR\n");
-		exit(ERROR_CODE); 
+		return ERROR_CODE; 
 	}
 	/* read grade from file: */
 	char gradeFromFile[MAX_GRADE_LENGTH];
@@ -115,14 +115,15 @@ int finalStudentGrade(float exes, int midterm, int moed)
 	return result;
 }
 /* write the final grade calculted inro 'final_id.txt' file */
-void MainThreadFinalGradeHandle(char *path, int grades_arr[NUM_OF_GRADES], char *id_ptr)
+int MainThreadFinalGradeHandle(char *path, int grades_arr[NUM_OF_GRADES], char *id_ptr)
 {
+	int ret_val=SUCCESS_CODE;
 	char *final_student_grade_file;
 	FILE *fp_final;
 	if (NULL == (final_student_grade_file = (char *)malloc(strlen(path) + ID_LENGTH + strlen(FINAL_STUDENT_FILE_NAME) +strlen(TXT) + 3)))  // student Ids directory name memory allocation
 	{
-	printf("Memory Allocation failed! Try again...");
-	exit(ERROR_CODE);
+		printf("Memory Allocation failed! Try again...");
+		return ERROR_CODE;
 	}
 	MergeStringsForStudentFinalGrade(final_student_grade_file, path, FINAL_STUDENT_FILE_NAME, id_ptr, TXT);
 
@@ -133,12 +134,18 @@ void MainThreadFinalGradeHandle(char *path, int grades_arr[NUM_OF_GRADES], char 
 	if (NULL == (fp_final = fopen(final_student_grade_file, "w")))
 	{
 		printf("File ERROR\n");
-		exit(ERROR_CODE);
+		ret_val=ERROR_CODE;
+		goto EXIT;
 	}
 	fprintf(fp_final,"%d",final_grade);
-
-	fclose(fp_final);
-	free(final_student_grade_file);
+EXIT:
+	if (NULL!= fp_final) {
+		fclose(fp_final);
+	}
+	if (NULL != final_student_grade_file) {
+		free(final_student_grade_file);
+	}
+	return ret_val;
 }
 /*merge the given strings and write to target */
 void MergeStringsForStudentFinalGrade(char *target, char *first, char *second, char *third, char *forth)

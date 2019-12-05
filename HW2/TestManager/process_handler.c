@@ -38,65 +38,77 @@ int callTestGradesProcess(char *directory_arg, char *id_str)
 	BOOL				handlecheck;
 	char *command_line;
 	int curr_id = (int)atol(id_str); 
+	int ret_val = SUCCESS_CODE;
 	if (NULL == (command_line = (char *)malloc(strlen(SON_PROC_NAME) + strlen(directory_arg) + 3)))  // student Ids directory name memory allocation
 	{
 		printf("Memory Allocation failed! Try again...");
-		exit(ERROR_CODE);
+		return ERROR_CODE;
 	}
 	strcpy(command_line, SON_PROC_NAME); 
 	strcat(command_line, "\"");
 	strcat(command_line, directory_arg); 
 	strcat(command_line, "\"");
 	
-	BOOL retVal = CreateProcessSimple(command_line, &procinfo); 
-	if (!retVal)
+	if (!CreateProcessSimple(command_line, &procinfo))
 	{
-		printf("Error! Process is not created. (Process: %d)\n", GetLastError());
-		return ERROR_CODE;
+		printf("Error! Fail to create process. (GetLastError: %d)\n", GetLastError());
+		ret_val = ERROR_CODE;
+		goto EXIT;
 	}
-	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS);
+
+	waitcode = WaitForSingleObject(procinfo.hProcess, PROCESS_TIMEOUT_IN_MILLISECONDS);
 	if (WAIT_TIMEOUT == waitcode)
 	{
 		printf("Timeout error when waiting\n");
-		return ERROR_CODE;
+		ret_val = ERROR_CODE;
+		goto EXIT;
 	}
 	else if (WAIT_FAILED == waitcode)
 	{
 		printf("WaitForSingleObject has failed\n");
-		return ERROR_CODE;
+		ret_val = ERROR_CODE;
+		goto EXIT;
 	}
 	else if (WAIT_OBJECT_0 != waitcode)
 	{
 		printf("Error when waiting\n");
-		return ERROR_CODE;
+		ret_val = ERROR_CODE;
+		goto EXIT;
 	}
 
-	BOOL exitVal = GetExitCodeProcess(procinfo.hProcess, &exitcode);
-	if (exitVal == 0)
+	if (!GetExitCodeProcess(procinfo.hProcess, &exitcode))
 	{
 		printf("Error when getting process exit code\n");
-		return ERROR_CODE;
+		ret_val = ERROR_CODE;
+		goto EXIT;
 	}
 	if (exitcode != 0)
 	{
 		printf("Captain, we were unable to calculate %d\n", curr_id);
-		return ERROR_CODE;
+		ret_val = ERROR_CODE;
+		goto EXIT;
 
 	}
 
-
-	handlecheck = CloseHandle(procinfo.hProcess);
-	if (!handlecheck)
-	{
-		printf("HANDLE failure! Aborting...\n");
-		return ERROR_CODE;
+EXIT:
+	if (NULL != command_line) {
+		free(command_line);
 	}
-	handlecheck = CloseHandle(procinfo.hThread);
-	if (!handlecheck)
-	{
-		printf("HANDLE failure! Aborting...\n");
-		return ERROR_CODE;
+	if (NULL != procinfo.hProcess) {
+		handlecheck = CloseHandle(procinfo.hProcess);
+		if (!handlecheck)
+		{
+			printf("HANDLE failure! Aborting...\n");
+			return ERROR_CODE;
+		}
 	}
-	free(command_line);  
-	return exitcode;
+	if (NULL != procinfo.hThread) {
+		handlecheck = CloseHandle(procinfo.hThread);
+		if (!handlecheck)
+		{
+			printf("HANDLE failure! Aborting...\n");
+			return ERROR_CODE;
+		}
+	}
+	return ret_val;
 }

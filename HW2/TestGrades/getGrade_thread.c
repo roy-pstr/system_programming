@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "getGrade_thread.h"
+#include "grades_handler.h"
 
 /*
 	Initailaize 'GetGrade_params' struct
@@ -24,7 +25,7 @@ void InitGetGradeParams(GetGrade_params *params, int *grade_ptr, char* folder_pa
 */
 DWORD WINAPI GetGradeThread(LPVOID lpParam)
 {
-	Sleep(10);
+	Sleep(SLEEP_TIME);
 
 	/* Handle arguments passed */
 	GetGrade_params *Args;
@@ -46,12 +47,12 @@ DWORD WINAPI GetGradeThread(LPVOID lpParam)
 	strcat_s(file_path, sizeof(char) * size_of_filepath, Args->file_name);
 
 	/* open file and save grade to *Args->grade */
-	ReadGradeFromFile(file_path, Args->grade);
+	int ret_val = ReadGradeFromFile(file_path, Args->grade);
 
 	/* free memory allcoated in this scope */
 	free(file_path);
 
-	return SUCCESS_CODE;
+	return ret_val;
 }
 
 

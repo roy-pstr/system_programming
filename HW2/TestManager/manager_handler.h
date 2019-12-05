@@ -13,6 +13,6 @@ void MergeStringsForProcessCmd(char *target, char *first, char *second, char *th
 int MultipleProcessesCalling(char *directory);
 int ReadIdsAndCallProcess(char *id_ptr, char *directory_ptr, char *student_dir_ptr, char *id_file, char *final_file_dir);
 void MergeStringsForStudentFinalGrade(char *target, char *first, char *second, char *third, char *forth);
-void WriteFinalGradeToFile(FILE **fp_students, char *id_num, char *filename, char *student_path);
+int WriteFinalGradeToFile(FILE **fp_students, char *id_num, char *filename, char *student_path);
 
 #endif
