@@ -1,9 +1,9 @@
 #ifndef _FILE_HANDLER_H
 #define _FILE_HANDLER_H
 
-int HandleRoomsFile(char *dir, Room *room_arr);
+int HandleRoomsFile(char *dir, Room_t *room_arr);
 
-int HandleNamesFile(char *dir, Guest *guest_arr);
+int HandleNamesFile(char *dir, Guest_t *guest_arr);
 
 int AllocateString(char **str_ptr, int len);
 

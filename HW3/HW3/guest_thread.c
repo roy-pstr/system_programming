@@ -43,7 +43,7 @@ void checkOut(guest_params_t *Args) {
 
 	/*release semaphore*/
 	rel_code = ReleaseSemaphore(
-		Args->room->capacity,
+		Args->room->capacity_sem,
 		1, 		/* Signal that exactly one cell was filled */
 		&previous_count);
 	if (rel_code == FALSE)
@@ -62,7 +62,7 @@ void tryToCheckIn(guest_params_t *Args) {
 	
 
 	/* wait for semaphore*/
-	wait_code = WaitForSingleObject(Args->room->capacity, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
+	wait_code = WaitForSingleObject(Args->room->capacity_sem, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
 	if (wait_code != WAIT_OBJECT_0) {
 		printf("Error when waiting for simaphore: %d\n", wait_code);
 		return SEMAPHORE_WAIT_FAILED;

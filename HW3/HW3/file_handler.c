@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "defines.h"
 /*Read and get data from rooms.txt*/
-int HandleRoomsFile(char *dir, Room *room_arr)
+int HandleRoomsFile(char *dir, Room_t *room_arr)
 {
 	char *rooms_file_path, room_file_line[MAX_LINE_LEN], *line_res;// *final_filepath, *student_dir;
 	int room_price, room_capacitance, i, num_of_rooms = 0;
@@ -36,7 +36,7 @@ int HandleRoomsFile(char *dir, Room *room_arr)
 	return 0;
 }
 /*Read and get data from names.txt*/
-int HandleNamesFile(char *dir, Guest *guest_arr)
+int HandleNamesFile(char *dir, Guest_t *guest_arr)
 {
 	char *names_file_path, names_file_line[MAX_LINE_LEN];
 	int guest_budget, i, num_of_guests = 0;

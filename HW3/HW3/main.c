@@ -2,10 +2,6 @@
 #include "defines.h"
 #include "file_handler.h"
 
-bool parseRooms(Room *rooms_arr, const char *file_path);
-
-bool nextDay(int *counter);
-
 int main(int argc, char *argv[]) {
 	Room_t rooms_arr[MAX_ROOMS];
 	Guest_t guests_arr[MAX_GUESTS];
