@@ -21,10 +21,7 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="thread_handler.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="guest_thread.c">
+    <ClCompile Include="file_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +29,7 @@
     <ClInclude Include="..\shared\defines.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="thread_handler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="guest_thread.h">
+    <ClInclude Include="file_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
