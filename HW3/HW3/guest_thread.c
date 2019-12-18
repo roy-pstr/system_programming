@@ -75,7 +75,6 @@ void tryToCheckIn(guest_params_t *Args) {
 	
 }
 
-
 DWORD WINAPI GuestThread(LPVOID lpParam)
 {
 	/* Handle arguments passed */
@@ -90,14 +89,14 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 	{
 		Sleep(SLEEP_TIME);
 		if (Args->guest->checked_in) {
-			spendTheDay(&Args);
+			spendTheDay(Args);
 		}
 		else{
-			tryToCheckIn(&Args);
+			tryToCheckIn(Args);
 		}
 	}
 
-	checkOut(&Args);
+	checkOut(Args);
 
 	return (SUCCESS);
 }

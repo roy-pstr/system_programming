@@ -4,9 +4,8 @@
 #include "defines.h"
 
 typedef struct {
-	int a;
-	int b;
-	int sleep;
+	Guest_t *guest;
+	Room_t *room;
 }guest_params_t;
 
 DWORD WINAPI GuestThread(LPVOID lpParam);
