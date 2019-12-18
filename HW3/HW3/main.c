@@ -1,36 +1,24 @@
 #include <stdbool.h>
 #include "defines.h"
-
-typedef struct Room_st {
-	char *name;
-	int price;
-	int capacity;
-	bool occupied;
-} Room;
-
-typedef struct Guest_st {
-	char *name;
-	int budget;
-	bool checked;
-} Guest;
-
+#include "file_handler.h"
 
 bool parseRooms(Room *rooms_arr, const char *file_path);
 
 bool nextDay(int *counter);
 
 int main(int argc, char *argv[]) {
-	
+	Room rooms_arr[MAX_ROOMS];
+	Guest guests_arr[MAX_GUESTS];
 	//check argv:
 	if (argc != 2)
 	{
 		printf("Illegal number of arguents! Try again\n");
 		return ERROR_CODE;
 	}
-
+	HandleRoomsFile(argv[1],&rooms_arr);
+	HandleNamesFile(argv[1],&guests_arr);
 	int day_counter = 1;
-	Room rooms_arr[MAX_ROOMS];
-	Guest guests_arr[MAX_GUESTS];
+
 
 
 	printf("day_counter: %d", day_counter);
