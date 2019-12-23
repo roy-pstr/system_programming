@@ -75,6 +75,9 @@ void tryToCheckIn(guest_params_t *Args) {
 	
 }
 
+void waitForNextDay(HANDLE MutexHandle) {
+
+}
 DWORD WINAPI GuestThread(LPVOID lpParam)
 {
 	/* Handle arguments passed */
@@ -85,8 +88,9 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 	}
 	Args = (guest_params_t*)lpParam;
 
-	while (Args->guest->budget>0)
+	while (!Args->guest->checked_out) 
 	{
+		/* meaning he is still in the hotel, looking for a room or spending the day */
 		Sleep(SLEEP_TIME);
 		if (Args->guest->checked_in) {
 			spendTheDay(Args);
@@ -94,6 +98,8 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 		else{
 			tryToCheckIn(Args);
 		}
+		/* wait for all guests to enter 'waitForNextDay' state and then release the mutex */
+		waitForNextDay(Args->guest->next_day_mutex); 
 	}
 
 	checkOut(Args);

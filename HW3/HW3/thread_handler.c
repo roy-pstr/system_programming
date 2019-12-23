@@ -18,9 +18,6 @@ static HANDLE CreateSemaphoreSimple(int initial_count, int max_count)
 		max_count,		/* Maximum Count */
 		NULL); /* name */
 }
-/*
-	Simplify version of CreateThread
-*/
 static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	LPVOID p_thread_parameters,
 	LPDWORD p_thread_id)
@@ -73,7 +70,7 @@ int RunThreadsForAllGuests(int number_of_threads, HANDLE *p_thread_handles, DWOR
 {
 	int i;
 	int ret_val = SUCCESS;
-
+	
 	/*create threads:*/
 	for (i = 0; i < number_of_threads; i++) {
 		if (NULL == (p_thread_handles[i] = CreateThreadSimple(GuestThread, &p_thread_params[i], &p_thread_ids[i])))
