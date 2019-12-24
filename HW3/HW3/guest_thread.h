@@ -7,7 +7,7 @@ typedef struct {
 	char name[MAX_NAME_LEN];
 	int budget;
 	Room_t *guests_room;
-	HANDLE next_day_mutex;
+	HANDLE start_day_sema;
 	bool checked_in;
 	bool checked_out;
 } Guest_t;
@@ -18,5 +18,7 @@ typedef struct {
 }guest_params_t;
 
 DWORD WINAPI GuestThread(LPVOID lpParam);
+
+int InitGuestThreadParams(guest_params_t * p_thread_params, Guest_t * guests_arr, int num_of_guests);
 
 #endif

@@ -1,9 +1,11 @@
 #ifndef _FILE_HANDLER_H
 #define _FILE_HANDLER_H
+#include "defines.h"
+#include "guest_thread.h"
 
-int HandleRoomsFile(char *dir, Room_t *room_arr);
+int LoadRoomList(char *dir, Room_t *room_arr);
 
-int HandleNamesFile(char *dir, Guest_t *guest_arr);
+int LoadGuestList(char *dir, int *guest_number, Guest_t *guests_arr);
 
 int AllocateString(char **str_ptr, int len);
 

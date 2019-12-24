@@ -2,10 +2,12 @@
 #include <string.h>
 #include "guest_thread.h"
 
+/* global semaphore */
+extern HANDLE guest_per_day_count;
+extern int guests_per_day_count;
+
 DWORD LockUpdateAndUnlock(HANDLE MutexHandle)
 {
-	BOOL ReleaseRes;
-
 	/* wait for mutex*/
 	DWORD wait_code = WaitForSingleObject(MutexHandle, MUTEX_TIMEOUT_IN_MILLISECONDS);
 	if (wait_code != WAIT_OBJECT_0)
@@ -37,29 +39,34 @@ DWORD LockUpdateAndUnlock(HANDLE MutexHandle)
 	return (SUCCESS);
 }
 
-void checkOut(guest_params_t *Args) {
+int checkOut(guest_params_t *Args) {
 	DWORD rel_code;
 	LONG previous_count;
-
-	/*release semaphore*/
-	rel_code = ReleaseSemaphore(
-		Args->room->capacity_sem,
-		1, 		/* Signal that exactly one cell was filled */
-		&previous_count);
-	if (rel_code == FALSE)
-		return (SEMAPHORE_RELEASE_FAILED);
+	/*release semaphore of room capacity so other guests may check in */
+	rel_code = ReleaseSemaphore(Args->room->capacity_sem,1,&previous_count);
+	if (rel_code == FALSE) {
+		return SEMAPHORE_RELEASE_FAILED;
+	}
 	printf("(from thread %d): Previous count is: %ld\n", GetCurrentThreadId(), previous_count);
+
+	/*release mutex of start new day before closing thread... */
+	rel_code = ReleaseMutex(Args->guest->start_day_sema);
+	if (rel_code == FALSE) {
+		return MUTEX_RELEASE_FAILED;
+	}
+	printf("(from thread %d): released mutex\n", GetCurrentThreadId());
 	Args->guest->checked_out = true;
+	return SUCCESS;
 }
 
 void spendTheDay(guest_params_t *Args) {
 	Args->guest->budget -= Args->room->price;
 }
 
-void tryToCheckIn(guest_params_t *Args) {
-	DWORD wait_code, rel_code;
+int tryToCheckIn(guest_params_t *Args) {
+	DWORD wait_code;
 	BOOL ret_val;
-	
+
 
 	/* wait for semaphore*/
 	wait_code = WaitForSingleObject(Args->room->capacity_sem, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
@@ -72,12 +79,41 @@ void tryToCheckIn(guest_params_t *Args) {
 
 	LockUpdateAndUnlock(NULL);
 
+	return SUCCESS;
+
+}
+
+int StartDay() {
 	
+	/* wait for semaphore*/
+	DWORD wait_code = WaitForSingleObject(guest_per_day_count, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
+	if (wait_code != WAIT_OBJECT_0) {
+		printf("Error when waiting for simaphore: %d\n", wait_code);
+		return SEMAPHORE_WAIT_FAILED;
+	}
+	return SUCCESS;
 }
 
-void waitForNextDay(HANDLE MutexHandle) {
+int waitForDayStart(HANDLE MutexHandle) {
+	/* wait for mutex*/
+	DWORD wait_code = WaitForSingleObject(MutexHandle, MUTEX_TIMEOUT_IN_MILLISECONDS);
+	if (wait_code != WAIT_OBJECT_0)
+	{
+		if (wait_code == WAIT_ABANDONED)
+		{
+			printf("Some thread has previously exited without releasing a mutex."
+				" This is not good programming. Please fix the code.\n");
+			return (MUTEX_ABANDONED);
+		}
+		else {
+			printf("Mutex wait failed\n");
+			return(MUTEX_WAIT_FAILED);
+		}
 
+	}
+	return SUCCESS;
 }
+
 DWORD WINAPI GuestThread(LPVOID lpParam)
 {
 	/* Handle arguments passed */
@@ -88,21 +124,51 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 	}
 	Args = (guest_params_t*)lpParam;
 
-	while (!Args->guest->checked_out) 
+	int ret_val = SUCCESS;
+	while (!Args->guest->checked_out)
 	{
 		/* meaning he is still in the hotel, looking for a room or spending the day */
+
 		Sleep(SLEEP_TIME);
-		if (Args->guest->checked_in) {
-			spendTheDay(Args);
+
+		/* wait until a start of a new day - wait for mutex*/
+		if (SUCCESS != (ret_val = waitForDayStart(Args->guest->start_day_sema))) {
+			printf("waitForDayStart failed with error code: %d\n", ret_val);
+			return GUEST_THREAD_FAILED;
 		}
-		else{
-			tryToCheckIn(Args);
+		printf("guest %s -> started a new day\n", Args->guest->name);
+
+		guests_per_day_count--;
+
+		/* let guest spend the day or if not in a room - try to check in a room if available */
+		//if (Args->guest->checked_in) {
+		//	spendTheDay(Args);
+		//}
+		//else {
+		//	tryToCheckIn(Args);
+		//}
+
+
+		/* guest ran out of budget -> checkout - release mutex and semaphore*/
+		if (Args->guest->budget == 0) {
+			if (SUCCESS != (ret_val = checkOut(Args))) {
+				printf("checkOut failed with error code: %d\n", ret_val);
+				return GUEST_THREAD_FAILED;
+			}
+			printf("guest %s -> checked out", Args->guest->name);
 		}
-		/* wait for all guests to enter 'waitForNextDay' state and then release the mutex */
-		waitForNextDay(Args->guest->next_day_mutex); 
 	}
+	return SUCCESS;
+}
 
-	checkOut(Args);
-
-	return (SUCCESS);
+int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, int num_of_guests) {
+	for (int i = 0; i < num_of_guests; i++)
+	{
+		p_thread_params->guest = guests_arr;
+		p_thread_params->guest->checked_in = false;
+		p_thread_params->guest->checked_out = false;
+		p_thread_params->guest->start_day_sema = CreateSemaphoreSimple(1,1);
+		p_thread_params++;
+		guests_arr++;
+	}
 }

@@ -2,15 +2,16 @@
 #include <stdio.h>
 #include "defines.h"
 #include "thread_handler.h"
+#include "day_thread.h"
 
-static HANDLE CreateMutexSimple()
+HANDLE CreateMutexSimple()
 {
 	return CreateMutex(
 		NULL,              // default security attributes
 		FALSE,             // initially not owned
 		NULL);
 }
-static HANDLE CreateSemaphoreSimple(int initial_count, int max_count)
+HANDLE CreateSemaphoreSimple(int initial_count, int max_count)
 {
 	return CreateSemaphore(
 		NULL,	/* Default security attributes */
@@ -70,8 +71,20 @@ int RunThreadsForAllGuests(int number_of_threads, HANDLE *p_thread_handles, DWOR
 {
 	int i;
 	int ret_val = SUCCESS;
-	
-	/*create threads:*/
+	/* create day thread */
+	HANDLE day_handle;
+	DWORD day_thread_id;
+	day_params_t day_params;
+	day_params.guests_params = p_thread_params;
+	day_params.num_of_guests = number_of_threads;
+	if (NULL == (day_handle = CreateThreadSimple(DayThread, &day_params, &day_thread_id)))
+	{
+		printf("Error when creating day thread: %d\n", GetLastError());
+		ret_val = THREAD_CREATE_FAILED;
+		goto EXIT; /* must updated!!!! */
+	}
+
+	/*create guests threads:*/
 	for (i = 0; i < number_of_threads; i++) {
 		if (NULL == (p_thread_handles[i] = CreateThreadSimple(GuestThread, &p_thread_params[i], &p_thread_ids[i])))
 		{

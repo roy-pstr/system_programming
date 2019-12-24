@@ -2,8 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include "defines.h"
+#include "thread_handler.h"
+#include "guest_thread.h"
+
 /*Read and get data from rooms.txt*/
-int HandleRoomsFile(char *dir, Room_t *room_arr)
+int LoadRoomList(char *dir, Room_t *room_arr)
 {
 	char *rooms_file_path, room_file_line[MAX_LINE_LEN], *line_res;// *final_filepath, *student_dir;
 	int room_price, room_capacitance, i, num_of_rooms = 0;
@@ -24,6 +27,7 @@ int HandleRoomsFile(char *dir, Room_t *room_arr)
 		room_capacitance = (int)strtol(line_res, &line_res, 10);
 		room_arr->price = room_price;
 		room_arr->capacity = room_capacitance;
+		room_arr->capacity_sem = CreateSemaphoreSimple(room_arr->capacity, room_arr->capacity);
 		printf("PRICE = %d\n", room_arr->price);
 		printf("CAP = %d\n", room_arr->capacity);
 		strtok(room_file_line, " ");
@@ -36,7 +40,7 @@ int HandleRoomsFile(char *dir, Room_t *room_arr)
 	return 0;
 }
 /*Read and get data from names.txt*/
-int HandleNamesFile(char *dir, Guest_t *guest_arr)
+int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 {
 	char *names_file_path, names_file_line[MAX_LINE_LEN];
 	int guest_budget, i, num_of_guests = 0;
@@ -55,14 +59,15 @@ int HandleNamesFile(char *dir, Guest_t *guest_arr)
 		for (i = 0; names_file_line[i] != ' '; i++);
 		guest_budget = (int)atol((names_file_line + i));
 		strtok(names_file_line, " ");
-		strcpy(guest_arr->name, names_file_line);
-		guest_arr->budget = guest_budget;
-		printf("BUDGET = %d\n", guest_arr->budget);
-		printf("GUEST NAME = %s\n", guest_arr->name);
-		guest_arr++;
+		guests_arr->budget = guest_budget;
+		strcpy(guests_arr->name, names_file_line);
+		printf("BUDGET = %d\n", guests_arr->budget);
+		printf("GUEST NAME = %s\n", guests_arr->name);
+		guests_arr++;
 	}
 	free(names_file_path);
 	fclose(fp_names);
+	*guests_number = num_of_guests;
 	return 0;
 }
 int AllocateString(char **str_ptr, int len) {
