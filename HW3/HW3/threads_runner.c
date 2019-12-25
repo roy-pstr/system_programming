@@ -3,9 +3,7 @@
 #include "threads_runner.h"
 #include "day_thread.h"
 
-
 extern bool all_guests_checked_out;
-
 
 int HandlerExitCode(HANDLE p_thread_handle) {
 	int ret_val = SUCCESS;

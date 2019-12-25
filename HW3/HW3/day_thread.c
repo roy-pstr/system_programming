@@ -12,10 +12,10 @@ int startNewDay(day_params_t *Args) {
 	LONG previous_count;
 	for (int i = 0; i < Args->num_of_guests; i++)
 	{
-		if (Args->guests_params[i].guest->checked_out) { continue; }
+		if (Args->guests_params[i].checked_out) { continue; }
 
 		/*release semaphore of start day for each guest */
-		rel_code = ReleaseSemaphore(Args->guests_params[i].guest->start_day_sema, 1, &previous_count);
+		rel_code = ReleaseSemaphore(Args->guests_params[i].start_day_sema, 1, &previous_count);
 		if (rel_code == FALSE) {
 			return SEMAPHORE_RELEASE_FAILED;
 		}

@@ -35,10 +35,9 @@ int main(int argc, char *argv[]) {
 	LoadGuestList(argv[1], &num_of_guests, guests_arr);
 
 	
-	InitGuestThreadParams(p_thread_params, guests_arr, num_of_guests);
-	RoomToGuest(rooms_arr, p_thread_params);
-	/* move to a function */
+	InitGuestThreadParams(p_thread_params, guests_arr, num_of_guests, rooms_arr);
 	
+	/* initailize this counter */
 	guests_per_day_count = num_of_guests;
 
 	if (SUCCESS != (ret_val = RunGuestsThreads(num_of_guests, p_thread_handles, p_thread_ids, p_thread_params))) {

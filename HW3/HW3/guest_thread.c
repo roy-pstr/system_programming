@@ -42,24 +42,24 @@ int checkOut(guest_params_t *Args) {
 	DWORD rel_code;
 	LONG previous_count;
 	/*release semaphore of room capacity so other guests may check in */
-	rel_code = ReleaseSemaphore(Args->room->capacity_sem,1,&previous_count);
+	rel_code = ReleaseSemaphore(Args->guests_room->capacity_sem,1,&previous_count);
 	if (rel_code == FALSE) {
 		return SEMAPHORE_RELEASE_FAILED;
 	}
 	printf("(from thread %d): Previous count is: %ld\n", GetCurrentThreadId(), previous_count);
 
 	/*release semaphore of start new day before closing thread... */
-	rel_code = ReleaseSemaphore(Args->guest->start_day_sema, 1, &previous_count);
+	rel_code = ReleaseSemaphore(Args->start_day_sema, 1, &previous_count);
 	if (rel_code == FALSE) {
 		return MUTEX_RELEASE_FAILED;
 	}
 	printf("(from thread %d): released mutex\n", GetCurrentThreadId());
-	Args->guest->checked_out = true;
+	Args->checked_out = true;
 	return SUCCESS;
 }
 
 void spendTheDay(guest_params_t *Args) {
-	Args->guest->budget -= Args->room->price;
+	Args->guest->budget -= Args->guests_room->price;
 }
 
 int tryToCheckIn(guest_params_t *Args) {
@@ -68,7 +68,7 @@ int tryToCheckIn(guest_params_t *Args) {
 
 
 	/* wait for semaphore*/
-	wait_code = WaitForSingleObject(Args->room->capacity_sem, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
+	wait_code = WaitForSingleObject(Args->guests_room->capacity_sem, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
 	if (wait_code != WAIT_OBJECT_0) {
 		printf("Error when waiting for simaphore: %d\n", wait_code);
 		return SEMAPHORE_WAIT_FAILED;
@@ -113,7 +113,7 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 	Args = (guest_params_t*)lpParam;
 
 	int ret_val = SUCCESS;
-	while (!Args->guest->checked_out)
+	while (!Args->checked_out)
 	{
 		/*	guest is still in the hotel,
 			looking for a room
@@ -123,7 +123,7 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 
 		/* Args->guest->start_day_sema is a semaphore works as mutex 
 			it's role is to make sure each guest procceds only one day.*/
-		if (SUCCESS != (ret_val = waitForDayStart(Args->guest->start_day_sema))) {
+		if (SUCCESS != (ret_val = waitForDayStart(Args->start_day_sema))) {
 			printf("waitForDayStart failed with error code: %d\n", ret_val);
 			return ret_val;
 		}
@@ -152,7 +152,7 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 			printf("guest %s -> checked out", Args->guest->name);
 		}
 
-		Args->guest->checked_out = true;
+		Args->checked_out = true;
 	}
 	return SUCCESS;
 }

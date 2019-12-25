@@ -18,6 +18,6 @@ typedef struct {
 
 DWORD WINAPI GuestThread(LPVOID lpParam);
 
-int InitGuestThreadParams(guest_params_t * p_thread_params, Guest_t * guests_arr, int num_of_guests);
+int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, int num_of_guests, Room_t *room_arr);
 
 #endif
