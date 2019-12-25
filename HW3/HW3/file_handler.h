@@ -3,7 +3,7 @@
 #include "defines.h"
 #include "guest_thread.h"
 
-int LoadRoomList(char *dir, Room_t *room_arr);
+int LoadRoomList(char *dir, int *room_number, Room_t *room_arr);
 
 int LoadGuestList(char *dir, int *guest_number, Guest_t *guests_arr);
 
