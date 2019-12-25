@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "thread_handler.h"
 #include "threads_runner.h"
-#include "day_thread.h"
+
 
 extern bool all_guests_checked_out;
 extern HANDLE end_day_lock;
@@ -33,7 +33,7 @@ int HandlerExitCode(HANDLE p_thread_handle) {
 		SUCCESS_CODE (0) -	on success of all threads.
 		ERROR_CODE (-1) -	on failure of one of the threads.
 */
-int RunGuestsThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, guest_params_t *p_thread_params)
+int RunGuestsThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, guest_params_t *p_thread_params, day_params_t *day_params)
 {
 	int i;
 	int ret_val = SUCCESS;
@@ -41,9 +41,7 @@ int RunGuestsThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_t
 	end_day_lock = CreateSemaphoreSimple(0,1);
 	HANDLE day_handle;
 	DWORD day_thread_id;
-	day_params_t day_params;
-	day_params.guests_params = p_thread_params;
-	day_params.num_of_guests = number_of_threads;
+	
 	/*create day thread:*/
 	if (NULL == (day_handle = CreateThreadSimple(DayThread, &day_params, &day_thread_id)))
 	{

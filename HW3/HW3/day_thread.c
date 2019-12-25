@@ -2,7 +2,7 @@
 #include <string.h>
 #include "defines.h"
 #include "day_thread.h"
-
+#include "file_handler.h"
 /* global semaphore */
 extern int guests_per_day_count;
 extern bool all_guests_checked_out;
@@ -27,8 +27,22 @@ int WaitEndDayLock() {
 	}
 	return SUCCESS;
 }
+int isCheckedInToday(guest_params_t *guest_params) {
+	return (guest_params->checked_in == true &&
+		(guest_params->guest->initail_budget - guest_params->guest->budget) == guest_params->guests_room->price);
+}
 
-int tryCheckOutGuests(day_params_t *Args){
+int WriteCheckInLog(day_params_t *Args, int day_count) {
+	int ret_val = SUCCESS;
+	for (int i = 0; i < Args->num_of_guests; i++)
+	{
+		if (isCheckedInToday(&Args->guests_params[i])) {
+			WriteLog(Args->guests_params[i].guests_room, Args->guests_params[i].guest->name, "IN", day_count, Args->fp);
+		}
+	}
+	return ret_val;
+}
+int tryCheckOutGuests(day_params_t *Args, int day_count){
 	int ret_val = SUCCESS;
 	for (int i = 0; i < Args->num_of_guests; i++)
 	{
@@ -38,6 +52,7 @@ int tryCheckOutGuests(day_params_t *Args){
 			/* update that the guest has checked out */
 			Args->guests_params[i].checked_out = true;
 			printf("guest %s checked out.\n", Args->guests_params[i].guest->name);
+			WriteLog(Args->guests_params[i].guests_room, Args->guests_params[i].guest->name, "OUT", day_count, Args->fp);
 		}
 	}
 	return ret_val;
@@ -95,6 +110,21 @@ bool GuestsInHotel(day_params_t *Args) {
 	return false;
 }
 
+int WriteLog(char *room, char *name, char *in_or_out, int day, FILE *fp)
+{
+	char line_to_file[MAX_LINE_LEN];
+	char day_str[MAX_LINE_LEN];
+	sprintf(day_str, "%d", day);
+	strcpy(line_to_file, room);
+	strcat(line_to_file, " ");
+	strcat(line_to_file, name);
+	strcat(line_to_file, " ");
+	strcat(line_to_file, in_or_out);
+	strcat(line_to_file, " ");
+	strcat(line_to_file, day_str);
+	fprintf(fp, "%s\n", line_to_file);
+}
+
 DWORD WINAPI DayThread(LPVOID lpParam)
 {
 	/* Handle arguments passed */
@@ -116,27 +146,11 @@ DWORD WINAPI DayThread(LPVOID lpParam)
 		WaitEndDayLock(); /* wait until day ended by guest*/
 		/* end day */
 		printf("day %d ended.\n", day_counter);
+		WriteCheckInLog(Args, day_counter);
 		day_counter++;
-		tryCheckOutGuests(Args);
+		tryCheckOutGuests(Args, day_counter);
 		all_guests_checked_out = !GuestsInHotel(Args);
 	}
-	//while (true)
-	//{
-	//	Sleep(SLEEP_TIME);
-	//	printf("day %d started.\n", day_counter);
-	//	
-	//	if (all_guests_checked_out == true) {
-	//		break;
-	//	}
-	//	day_counter++;
-	//	WaitEndDayLock(); //add return handler
-	//	printf("day %d ended.\n", day_counter);
-
-	//	if (SUCCESS != (ret_val = startNewDay(Args))) {
-	//		printf("startNewDay in DayThread failed.\n");
-	//		return ret_val;
-	//	}
-	//}
 	printf("day thread exit\n");
 	return SUCCESS;
 }

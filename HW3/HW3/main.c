@@ -31,21 +31,26 @@ int main(int argc, char *argv[]) {
 	int num_of_guests = 0;
 	int num_of_rooms = 0;
 	int ret_val = SUCCESS;
-
+	FILE *fp;
+	
 	/* load rooms and guests from .txt files: */
 	LoadRoomList(argv[1], &num_of_rooms, rooms_arr);
 	LoadGuestList(argv[1], &num_of_guests, guests_arr);
-
+	OpenLogFile(&fp, argv[1]);
 
 	/* initailize parameters for theards */
 	InitGuestThreadParams(p_thread_params, guests_arr, num_of_guests, num_of_rooms, rooms_arr);
-	
-	/* initailize counter */
-	//guests_per_day_count = num_of_guests;
+	day_params.guests_params = p_thread_params;
+	day_params.num_of_guests = num_of_guests;
+	day_params.fp = fp;
 
-	if (SUCCESS != (ret_val = RunGuestsThreads(num_of_guests, p_thread_handles, p_thread_ids, p_thread_params))) {
+	if (SUCCESS != (ret_val = RunGuestsThreads(num_of_guests, p_thread_handles, p_thread_ids, p_thread_params, day_params))) {
 		printf("RunGuestsThreads failed.");
 		return ret_val;
+	}
+
+	if (NULL != fp) {
+		fclose(fp);
 	}
 	return ret_val;
 }

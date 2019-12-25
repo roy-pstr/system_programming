@@ -38,6 +38,7 @@ typedef enum {
 	THREAD_WAIT_FAILED,
 	THREAD_FAILED,
 	THREAD_CLOSE_ERROR,
+	FILE_ERROR
 	
 } ErrorCode_t;
 

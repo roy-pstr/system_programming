@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "guest_thread.h"
+#include "file_handler.h"
 
 /* global semaphore */
 extern int guests_per_day_count;
@@ -101,7 +102,7 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 	Args = (guest_params_t*)lpParam;
 
 	int ret_val = SUCCESS;
-	while (Args->checked_out == false)
+	while (Args->guest->budget != 0)
 	{
 		/*	guest is still in the hotel,
 			looking for a room
@@ -115,7 +116,6 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 			printf("waitForDayStart failed with error code: %d\n", ret_val);
 			return ret_val;
 		}
-		if (Args->checked_out == true) { break; }
 		//printf("guest %s -> started a new day\n", Args->guest->name);
 
 		/* let guest spend the day or if not in a room - 
@@ -127,6 +127,7 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 			tryToCheckIn(Args);
 			if (Args->checked_in) {
 				printf("guest %s is checked in room: %s\n", Args->guest->name, Args->guests_room->name);
+				//WriteLog(Args->guests_room, Args->guest->name, "IN", day_count, Args->fp);
 				spendTheDay(Args);
 			}
 		}
@@ -138,7 +139,6 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 			ReleaseEndDayLock();
 		}
 	}
-	printf("guest %s checked out\n", Args->guest->name);
 	return SUCCESS;
 }
 
@@ -161,6 +161,7 @@ int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, 
 	for (int i = 0; i < num_of_guests; i++)
 	{
 		p_thread_params->guest = guests_arr;
+		p_thread_params->guest->initail_budget = p_thread_params->guest->budget;
 		p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms);
 		p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity;
 		p_thread_params->guests_room->room_mutex = CreateMutexSimple();

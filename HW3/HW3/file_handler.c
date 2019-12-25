@@ -84,27 +84,17 @@ int MergeStrings(char *target, char *first, char *second)
 	strcat(target, second);
 	return 0;
 }
-int WriteRoomLog(char *room, char *name, char *in_or_out, int day, char *dir)
+int OpenLogFile(FILE ** fp_roomlog, char *dir)
 {
-	char line_to_file[MAX_LINE_LEN]; // DEBUG
-	char day_str[MAX_LINE_LEN], *roomlog_file_path;
-	FILE * fp_roomlog;
-	sprintf(day_str, "%d", day);
-	strcpy(line_to_file, room);
-	strcat(line_to_file, " ");
-	strcat(line_to_file, name);
-	strcat(line_to_file, " ");
-	strcat(line_to_file, in_or_out);
-	strcat(line_to_file, " ");
-	strcat(line_to_file, day_str);
-	AllocateString(&roomlog_file_path, (strlen(dir) + strlen(ROOMS_TXT_FILE) + 2)); //malloc, must free!
+	char *roomlog_file_path;
+	AllocateString(&roomlog_file_path, (strlen(dir) + strlen(LOG_FILE) + 2)); //malloc, must free!
 	MergeStrings(roomlog_file_path, dir, LOG_FILE);
-	if (NULL == (fp_roomlog = fopen(roomlog_file_path, "w")))
+	if (NULL == (*fp_roomlog = fopen(roomlog_file_path, "w")))
 	{
 		printf("File ERROR\n");
-		exit(ERROR_CODE);
+		return FILE_ERROR;
 	}
-	fprintf(fp_roomlog ,"%s\n", line_to_file);
-	free(roomlog_file_path);
-	fclose(fp_roomlog);
+	if (NULL != roomlog_file_path) {
+		free(roomlog_file_path);
+	}
 }
