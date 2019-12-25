@@ -171,6 +171,8 @@ int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, 
 	{
 		p_thread_params->guest = guests_arr;
 		p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms);
+		p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity;
+		p_thread_params->guests_room->room_mutex = CreateMutexSimple();
 		p_thread_params->checked_in = false;
 		p_thread_params->checked_out = false;
 		p_thread_params->start_day_sema = CreateSemaphoreSimple(1,1);
