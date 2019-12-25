@@ -126,8 +126,7 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 		else {
 			tryToCheckIn(Args);
 			if (Args->checked_in) {
-				printf("guest %s is checked in room: %s\n", Args->guest->name, Args->guests_room->name);
-				//WriteLog(Args->guests_room, Args->guest->name, "IN", day_count, Args->fp);
+				//printf("guest %s is checked in room: %s\n", Args->guest->name, Args->guests_room->name);
 				spendTheDay(Args);
 			}
 		}

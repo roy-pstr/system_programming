@@ -2,6 +2,7 @@
 #define _DEFINES_H
 #include <stdbool.h>
 #include <windows.h>
+
 #define ERROR_CODE ((int)(-1))
 #define SUCCESS_CODE ((int)(0))
 #define MAX_LINE_LEN 100
@@ -13,7 +14,7 @@
 #define DAY_THREAD_TIMEOUT_IN_MILLISECONDS 2000
 #define MUTEX_TIMEOUT_IN_MILLISECONDS 10000
 #define SEMAPHORE_TIMEOUT_IN_MILLISECONDS 10000
-#define SLEEP_TIME 100
+#define SLEEP_TIME 50
 #define ROOMS_TXT_FILE "\\rooms.txt"
 #define NAMES_TXT_FILE "\\names.txt"
 #define LOG_FILE "\\roomLog.txt"

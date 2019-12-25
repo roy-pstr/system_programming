@@ -4,6 +4,7 @@
 #include "defines.h"
 #include "thread_handler.h"
 #include "guest_thread.h"
+#include "file_handler.h"
 
 /*Read and get data from rooms.txt*/
 int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
@@ -97,4 +98,19 @@ int OpenLogFile(FILE ** fp_roomlog, char *dir)
 	if (NULL != roomlog_file_path) {
 		free(roomlog_file_path);
 	}
+}
+int WriteLog(char *room, char *name, char *in_or_out, int day, FILE *fp)
+{
+	char line_to_file[MAX_LINE_LEN];
+	char day_str[MAX_LINE_LEN];
+	sprintf(day_str, "%d", day);
+	strcpy(line_to_file, room);
+	strcat(line_to_file, " ");
+	strcat(line_to_file, name);
+	strcat(line_to_file, " ");
+	strcat(line_to_file, in_or_out);
+	strcat(line_to_file, " ");
+	strcat(line_to_file, day_str);
+	fprintf(fp, "%s\n", line_to_file);
+	return SUCCESS;
 }

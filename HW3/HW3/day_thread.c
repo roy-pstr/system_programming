@@ -3,6 +3,7 @@
 #include "defines.h"
 #include "day_thread.h"
 #include "file_handler.h"
+
 /* global semaphore */
 extern int guests_per_day_count;
 extern bool all_guests_checked_out;
@@ -27,6 +28,7 @@ int WaitEndDayLock() {
 	}
 	return SUCCESS;
 }
+
 int isCheckedInToday(guest_params_t *guest_params) {
 	return (guest_params->checked_in == true &&
 		(guest_params->guest->initail_budget - guest_params->guest->budget) == guest_params->guests_room->price);
@@ -42,6 +44,7 @@ int WriteCheckInLog(day_params_t *Args, int day_count) {
 	}
 	return ret_val;
 }
+
 int tryCheckOutGuests(day_params_t *Args, int day_count){
 	int ret_val = SUCCESS;
 	for (int i = 0; i < Args->num_of_guests; i++)
@@ -51,12 +54,13 @@ int tryCheckOutGuests(day_params_t *Args, int day_count){
 			Args->guests_params[i].guests_room->vacancy_counter++;
 			/* update that the guest has checked out */
 			Args->guests_params[i].checked_out = true;
-			printf("guest %s checked out.\n", Args->guests_params[i].guest->name);
+			//printf("guest %s checked out.\n", Args->guests_params[i].guest->name);
 			WriteLog(Args->guests_params[i].guests_room, Args->guests_params[i].guest->name, "OUT", day_count, Args->fp);
 		}
 	}
 	return ret_val;
 }
+
 int HowManyGuestsInHotel(day_params_t *Args) {
 	int ret_val = SUCCESS;
 	for (int i = 0; i < Args->num_of_guests; i++)
@@ -67,26 +71,7 @@ int HowManyGuestsInHotel(day_params_t *Args) {
 	}
 	return ret_val;
 }
-int startNewDay(day_params_t *Args) {
-	DWORD rel_code;
-	LONG previous_count;
-	for (int i = 0; i < Args->num_of_guests; i++)
-	{
-		//tryCheckOutGuests(&Args->guests_params[i]);
-		if (!Args->guests_params[i].checked_out) {
-			guests_per_day_count++;
-		}
-		/*release semaphore of start day for each guest */
-		rel_code = ReleaseSemaphore(Args->guests_params[i].start_day_sema, 1, &previous_count);
-		if (rel_code == FALSE) {
-			return SEMAPHORE_RELEASE_FAILED;
-		}
 
-		if (Args->guests_params[i].checked_out) { continue; }
-		guests_per_day_count++;
-	}
-	return SUCCESS;
-}
 int ReleaseAllGuests(day_params_t *Args) {
 	DWORD rel_code;
 	LONG previous_count;
@@ -102,27 +87,27 @@ int ReleaseAllGuests(day_params_t *Args) {
 	return SUCCESS;
 }
 
-bool GuestsInHotel(day_params_t *Args) {
+bool areAllGuestsCheckedOut(day_params_t *Args) {
 	for (int i = 0; i < Args->num_of_guests; i++)
 	{
-		if (Args->guests_params[i].checked_out==false) { return true; }
+		if (Args->guests_params[i].checked_out==false) { return false; }
 	}
-	return false;
+	return true;
 }
 
-int WriteLog(char *room, char *name, char *in_or_out, int day, FILE *fp)
-{
-	char line_to_file[MAX_LINE_LEN];
-	char day_str[MAX_LINE_LEN];
-	sprintf(day_str, "%d", day);
-	strcpy(line_to_file, room);
-	strcat(line_to_file, " ");
-	strcat(line_to_file, name);
-	strcat(line_to_file, " ");
-	strcat(line_to_file, in_or_out);
-	strcat(line_to_file, " ");
-	strcat(line_to_file, day_str);
-	fprintf(fp, "%s\n", line_to_file);
+int StartDay(day_params_t *Args, int day_count) {
+	//printf("day %d started.\n", day_count);
+	HowManyGuestsInHotel(Args);
+	ReleaseAllGuests(Args);
+	return SUCCESS;
+}
+
+int EndDay(day_params_t *Args, int *day_count) {
+	//printf("day %d ended.\n", *day_count);
+	WriteCheckInLog(Args, *day_count);
+	(*day_count)++;
+	tryCheckOutGuests(Args, *day_count);
+	return SUCCESS;
 }
 
 DWORD WINAPI DayThread(LPVOID lpParam)
@@ -138,20 +123,23 @@ DWORD WINAPI DayThread(LPVOID lpParam)
 	int ret_val = SUCCESS;
 	int day_counter = 1;
 	while (all_guests_checked_out == false) {
+
 		Sleep(SLEEP_TIME);
+
 		/* start day */
-		printf("day %d started.\n", day_counter);
-		HowManyGuestsInHotel(Args);
-		ReleaseAllGuests(Args);
-		WaitEndDayLock(); /* wait until day ended by guest*/
+		StartDay(Args, day_counter);
+
+		/* wait until day ended by guest*/
+		WaitEndDayLock(); 
+
 		/* end day */
-		printf("day %d ended.\n", day_counter);
-		WriteCheckInLog(Args, day_counter);
-		day_counter++;
-		tryCheckOutGuests(Args, day_counter);
-		all_guests_checked_out = !GuestsInHotel(Args);
+		EndDay(Args, &day_counter);
+		
+		/* end condition */
+		all_guests_checked_out = areAllGuestsCheckedOut(Args);
 	}
-	printf("day thread exit\n");
+
+	printf("Total days: %d\n", day_counter);
 	return SUCCESS;
 }
 

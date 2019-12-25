@@ -6,7 +6,7 @@
 typedef struct {
 	guest_params_t *guests_params;
 	int num_of_guests;
-	FILE **fp;
+	FILE *fp;
 } day_params_t;
 
 int WaitEndDayLock();
