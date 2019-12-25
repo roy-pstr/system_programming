@@ -45,7 +45,7 @@ typedef struct {
 	char name[MAX_NAME_LEN];
 	int price;
 	int capacity;
-	HANDLE capacity_sem;
+	int vacancy_counter; 
 	HANDLE room_mutex;
 } Room_t;
 

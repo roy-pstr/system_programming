@@ -34,13 +34,13 @@ int main(int argc, char *argv[]) {
 	LoadRoomList(argv[1], rooms_arr);
 	LoadGuestList(argv[1], &num_of_guests, guests_arr);
 
-	
+	/* initailize parameters for theards */
 	InitGuestThreadParams(p_thread_params, guests_arr, num_of_guests, rooms_arr);
 	
-	/* initailize this counter */
+	/* initailize counter */
 	guests_per_day_count = num_of_guests;
 
-	if (SUCCESS != (ret_val = RunGuestsThreads(num_of_guests, p_thread_handles, p_thread_ids, p_thread_params))) {
+	if (SUCCESS != (ret_val = RunGuestsThreads(1, p_thread_handles, p_thread_ids, p_thread_params))) {
 		printf("RunGuestsThreads failed.");
 		return ret_val;
 	}

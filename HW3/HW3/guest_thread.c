@@ -5,10 +5,10 @@
 /* global semaphore */
 extern int guests_per_day_count;
 
-DWORD LockUpdateAndUnlock(HANDLE MutexHandle)
+DWORD LockUpdateRoomUnlock(Room_t *room, bool *checked_in)
 {
-	/* wait for mutex*/
-	DWORD wait_code = WaitForSingleObject(MutexHandle, MUTEX_TIMEOUT_IN_MILLISECONDS);
+	/* wait for room mutex to be available */
+	DWORD wait_code = WaitForSingleObject(room->room_mutex, MUTEX_TIMEOUT_IN_MILLISECONDS);
 	if (wait_code != WAIT_OBJECT_0)
 	{
 		if (wait_code == WAIT_ABANDONED)
@@ -26,12 +26,17 @@ DWORD LockUpdateAndUnlock(HANDLE MutexHandle)
 	printf("(from thread %d): inside mutex\n", GetCurrentThreadId());
 
 	/* ........Critical Section Start................ */
-
+	if (room->vacancy_counter > 0)
+	{
+		room->vacancy_counter--;
+		*checked_in = true;
+	}
 	/* ........Critical Section End.................. */
 
 	/*release mutex*/
-	DWORD rel_code = ReleaseMutex(MutexHandle);
-	if (rel_code == FALSE) {
+	DWORD rel_code;
+	if (FALSE == (rel_code = ReleaseMutex(room->room_mutex))) {
+		printf("released mutex failed with %d\n", GetLastError());
 		return (MUTEX_RELEASE_FAILED);
 	}
 	printf("(from thread %d): released mutex\n", GetCurrentThreadId());
@@ -41,12 +46,8 @@ DWORD LockUpdateAndUnlock(HANDLE MutexHandle)
 int checkOut(guest_params_t *Args) {
 	DWORD rel_code;
 	LONG previous_count;
-	/*release semaphore of room capacity so other guests may check in */
-	rel_code = ReleaseSemaphore(Args->guests_room->capacity_sem,1,&previous_count);
-	if (rel_code == FALSE) {
-		return SEMAPHORE_RELEASE_FAILED;
-	}
-	printf("(from thread %d): Previous count is: %ld\n", GetCurrentThreadId(), previous_count);
+	/* update number of available places in room after guest checked out */
+	Args->guests_room->vacancy_counter++;
 
 	/*release semaphore of start new day before closing thread... */
 	rel_code = ReleaseSemaphore(Args->start_day_sema, 1, &previous_count);
@@ -63,23 +64,13 @@ void spendTheDay(guest_params_t *Args) {
 }
 
 int tryToCheckIn(guest_params_t *Args) {
-	DWORD wait_code;
 	BOOL ret_val;
 
-
-	/* wait for semaphore*/
-	wait_code = WaitForSingleObject(Args->guests_room->capacity_sem, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
-	if (wait_code != WAIT_OBJECT_0) {
-		printf("Error when waiting for simaphore: %d\n", wait_code);
-		return SEMAPHORE_WAIT_FAILED;
+	if (SUCCESS != (ret_val = LockUpdateRoomUnlock(Args->guests_room, &Args->checked_in ))) {
+		printf("LockUpdateRoomUnlock failed!\n");
+		return ret_val;
 	}
-
-	//printf("(from thread %d): inside empty_semaphore\n", Args->a);
-
-	LockUpdateAndUnlock(NULL);
-
 	return SUCCESS;
-
 }
 
 int waitForDayStart(HANDLE SemaHandle) {
@@ -134,12 +125,15 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 
 		/* let guest spend the day or if not in a room - 
 			try to check in a room if available */
-		//if (Args->guest->checked_in) {
-		//	spendTheDay(Args);
-		//}
-		//else {
-		//	tryToCheckIn(Args);
-		//}
+		if (Args->checked_in) {
+			spendTheDay(Args);
+		}
+		else {
+			tryToCheckIn(Args);
+			if (Args->checked_in) {
+				spendTheDay(Args);
+			}
+		}
 
 
 		/* guest ran out of budget -> 

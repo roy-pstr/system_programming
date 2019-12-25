@@ -27,7 +27,6 @@ int LoadRoomList(char *dir, Room_t *room_arr)
 		room_capacitance = (int)strtol(line_res, &line_res, 10);
 		room_arr->price = room_price;
 		room_arr->capacity = room_capacitance;
-		room_arr->capacity_sem = CreateSemaphoreSimple(room_arr->capacity, room_arr->capacity);
 		printf("PRICE = %d\n", room_arr->price);
 		printf("CAP = %d\n", room_arr->capacity);
 		strtok(room_file_line, " ");
