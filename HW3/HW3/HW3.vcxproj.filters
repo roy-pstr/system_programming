@@ -30,6 +30,9 @@
     <ClCompile Include="day_thread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="threads_runner.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_handler.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="day_thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="threads_runner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

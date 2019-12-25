@@ -9,4 +9,5 @@ typedef struct {
 } day_params_t;
 
 DWORD WINAPI DayThread(LPVOID lpParam);
+
 #endif
