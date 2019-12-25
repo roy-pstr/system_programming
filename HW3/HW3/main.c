@@ -28,14 +28,16 @@ int main(int argc, char *argv[]) {
 	DWORD day_thread_id;
 	day_params_t day_params;
 	int num_of_guests = 0;
+	int num_of_rooms = 0;
 	int ret_val = SUCCESS;
 
 	/* load rooms and guests from .txt files: */
-	LoadRoomList(argv[1], rooms_arr);
+	LoadRoomList(argv[1], &num_of_rooms, rooms_arr);
 	LoadGuestList(argv[1], &num_of_guests, guests_arr);
 
+
 	/* initailize parameters for theards */
-	InitGuestThreadParams(p_thread_params, guests_arr, num_of_guests, rooms_arr);
+	InitGuestThreadParams(p_thread_params, guests_arr, num_of_guests, num_of_rooms, rooms_arr);
 	
 	/* initailize counter */
 	guests_per_day_count = num_of_guests;

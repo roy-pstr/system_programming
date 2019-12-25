@@ -6,7 +6,7 @@
 #include "guest_thread.h"
 
 /*Read and get data from rooms.txt*/
-int LoadRoomList(char *dir, Room_t *room_arr)
+int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 {
 	char *rooms_file_path, room_file_line[MAX_LINE_LEN], *line_res;// *final_filepath, *student_dir;
 	int room_price, room_capacitance, i, num_of_rooms = 0;
@@ -36,6 +36,7 @@ int LoadRoomList(char *dir, Room_t *room_arr)
 	}
 	free(rooms_file_path);
 	fclose(fp_rooms);
+	*rooms_number = num_of_rooms;
 	return 0;
 }
 /*Read and get data from names.txt*/
