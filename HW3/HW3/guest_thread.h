@@ -5,16 +5,15 @@
 
 typedef struct {
 	char name[MAX_NAME_LEN];
-	int budget;
-	Room_t *guests_room;
-	HANDLE start_day_sema;
-	bool checked_in;
-	bool checked_out;
+	int budget;	
 } Guest_t;
 
 typedef struct {
 	Guest_t *guest;
-	Room_t *room;
+	Room_t *guests_room;
+	HANDLE start_day_sema;
+	bool checked_in;
+	bool checked_out;
 }guest_params_t;
 
 DWORD WINAPI GuestThread(LPVOID lpParam);

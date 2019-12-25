@@ -34,10 +34,9 @@ int main(int argc, char *argv[]) {
 	LoadRoomList(argv[1], rooms_arr);
 	LoadGuestList(argv[1], &num_of_guests, guests_arr);
 
-	//RoomToGuest(&rooms_arr[0], &p_thread_params[0]);
-
-
+	
 	InitGuestThreadParams(p_thread_params, guests_arr, num_of_guests);
+	RoomToGuest(rooms_arr, p_thread_params);
 	/* move to a function */
 	
 	guests_per_day_count = num_of_guests;

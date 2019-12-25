@@ -157,13 +157,16 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 	return SUCCESS;
 }
 
-int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, int num_of_guests) {
+Room_t * RoomToGuest(guests_arr, room_arr);
+
+int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, int num_of_guests, Room_t *room_arr) {
 	for (int i = 0; i < num_of_guests; i++)
 	{
 		p_thread_params->guest = guests_arr;
-		p_thread_params->guest->checked_in = false;
-		p_thread_params->guest->checked_out = false;
-		p_thread_params->guest->start_day_sema = CreateSemaphoreSimple(1,1);
+		p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr);
+		p_thread_params->checked_in = false;
+		p_thread_params->checked_out = false;
+		p_thread_params->start_day_sema = CreateSemaphoreSimple(1,1);
 		p_thread_params++;
 		guests_arr++;
 	}
