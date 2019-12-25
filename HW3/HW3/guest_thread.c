@@ -4,6 +4,19 @@
 
 /* global semaphore */
 extern int guests_per_day_count;
+extern HANDLE end_day_lock;
+
+int ReleaseEndDayLock() {
+	DWORD rel_code;
+	LONG previous_count;
+	/*release semaphore */
+	rel_code = ReleaseSemaphore(end_day_lock, 1, &previous_count);
+	if (rel_code == FALSE) {
+		printf("released semaphore failed with %d\n", GetLastError());
+		return SEMAPHORE_RELEASE_FAILED;
+	}
+	return SUCCESS;
+}
 
 DWORD LockUpdateRoomUnlock(Room_t *room, bool *checked_in)
 {
@@ -103,7 +116,7 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 			return ret_val;
 		}
 		if (Args->checked_out == true) { break; }
-		printf("guest %s -> started a new day\n", Args->guest->name);
+		//printf("guest %s -> started a new day\n", Args->guest->name);
 
 		/* let guest spend the day or if not in a room - 
 			try to check in a room if available */
@@ -113,16 +126,17 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 		else {
 			tryToCheckIn(Args);
 			if (Args->checked_in) {
+				printf("guest %s is checked in room: %s\n", Args->guest->name, Args->guests_room->name);
 				spendTheDay(Args);
 			}
 		}
 
-		if (Args->checked_in) {
-			printf("guest %s is checked in room: %s\n", Args->guest->name, Args->guests_room->name);
-		}
 		/* global counter of guests that started a new day.*/
 		guests_per_day_count--;
 
+		if (guests_per_day_count == 0) {
+			ReleaseEndDayLock();
+		}
 	}
 	printf("guest %s checked out\n", Args->guest->name);
 	return SUCCESS;
@@ -134,7 +148,7 @@ Room_t * RoomToGuest(Guest_t *guests_arr, Room_t *room_arr, int num_of_guests, i
 	{
 		for (j = 0; j < num_of_rooms; j++)
 		{
-			if (!((guests_arr->budget % room_arr->price) && (guests_arr->budget >= room_arr->price))) {
+			if (((!(guests_arr->budget % room_arr->price)) && (guests_arr->budget >= room_arr->price))) {
 				return room_arr;
 			}
 			room_arr++;
@@ -152,7 +166,7 @@ int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, 
 		p_thread_params->guests_room->room_mutex = CreateMutexSimple();
 		p_thread_params->checked_in = false;
 		p_thread_params->checked_out = false;
-		p_thread_params->start_day_sema = CreateSemaphoreSimple(1,1);
+		p_thread_params->start_day_sema = CreateSemaphoreSimple(0,1);
 		p_thread_params++;
 		guests_arr++;
 	}

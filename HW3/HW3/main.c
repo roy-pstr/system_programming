@@ -9,6 +9,7 @@
 /* global semaphore */
 int guests_per_day_count = 0;
 bool all_guests_checked_out = false;
+HANDLE end_day_lock;
 
 int main(int argc, char *argv[]) {
 
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
 	InitGuestThreadParams(p_thread_params, guests_arr, num_of_guests, num_of_rooms, rooms_arr);
 	
 	/* initailize counter */
-	guests_per_day_count = num_of_guests;
+	//guests_per_day_count = num_of_guests;
 
 	if (SUCCESS != (ret_val = RunGuestsThreads(num_of_guests, p_thread_handles, p_thread_ids, p_thread_params))) {
 		printf("RunGuestsThreads failed.");

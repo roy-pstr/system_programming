@@ -4,6 +4,7 @@
 #include "day_thread.h"
 
 extern bool all_guests_checked_out;
+extern HANDLE end_day_lock;
 
 int HandlerExitCode(HANDLE p_thread_handle) {
 	int ret_val = SUCCESS;
@@ -37,6 +38,7 @@ int RunGuestsThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_t
 	int i;
 	int ret_val = SUCCESS;
 
+	end_day_lock = CreateSemaphoreSimple(0,1);
 	HANDLE day_handle;
 	DWORD day_thread_id;
 	day_params_t day_params;

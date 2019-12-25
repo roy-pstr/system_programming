@@ -8,6 +8,8 @@ typedef struct {
 	int num_of_guests;
 } day_params_t;
 
+int WaitEndDayLock();
+
 DWORD WINAPI DayThread(LPVOID lpParam);
 
 #endif
