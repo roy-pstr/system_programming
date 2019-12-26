@@ -9,4 +9,5 @@ HANDLE CreateSemaphoreSimple(int initial_count, int max_count);
 HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	LPVOID p_thread_parameters,
 	LPDWORD p_thread_id);
+int HandlerExitCode(HANDLE p_thread_handle);
 #endif

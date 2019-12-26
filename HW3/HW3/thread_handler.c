@@ -1,3 +1,6 @@
+/* Description:
+	thread_handler module handles simple threading functions implemnation.
+*/
 #include <stdbool.h>
 #include <stdio.h>
 #include "defines.h"
@@ -55,4 +58,19 @@ HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	return thread_handle;
 }
 
-
+/* Handle exit code of an handler */
+int HandlerExitCode(HANDLE p_thread_handle) {
+	int ret_val = SUCCESS;
+	/*handle exit code*/
+	DWORD lpExitCode;
+	if (FALSE == GetExitCodeThread(p_thread_handle, &lpExitCode))
+	{
+		printf("Error when getting thread exit code: %d\n", GetLastError());
+		ret_val = THREAD_GET_EXIT_CODE_FAILED;
+	}
+	else if (lpExitCode != SUCCESS) {
+		printf("Error with thread exit code (%d)\n", lpExitCode);
+		ret_val = THREAD_FAILED;
+	}
+	return ret_val;
+}

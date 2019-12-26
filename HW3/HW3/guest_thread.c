@@ -1,7 +1,11 @@
+/* Description:
+	guest_thread module handles all the guest thread methods involving check in and out from a room.
+*/
 #include <stdio.h>
 #include <string.h>
 #include "guest_thread.h"
 #include "file_handler.h"
+#include "thread_handler.h"
 
 /* global semaphore */
 extern int guests_per_day_count;
@@ -19,6 +23,9 @@ int ReleaseEndDayLock() {
 	return SUCCESS;
 }
 
+/* lock mutex of room so only one guest will try to update room vacancy at a time
+	update the vacancy if there is place
+	release the mutex*/
 DWORD LockUpdateRoomUnlock(Room_t *room, bool *checked_in)
 {
 	/* wait for room mutex to be available */
@@ -58,17 +65,18 @@ DWORD LockUpdateRoomUnlock(Room_t *room, bool *checked_in)
 	return (SUCCESS);
 }
 
+/* update guest budget */
 void spendTheDay(guest_params_t *Args) {
 	Args->guest->budget -= Args->guests_room->price;
 }
 
+/* if there is space in room guest will check in*/
 int tryToCheckIn(guest_params_t *Args) {
 	BOOL ret_val;
-	if (SUCCESS != (ret_val = LockUpdateRoomUnlock(Args->guests_room, &Args->checked_in ))) {
-		printf("LockUpdateRoomUnlock failed!\n");
-		return ret_val;
-	}
-	return SUCCESS;
+	ret_val = LockUpdateRoomUnlock(Args->guests_room, &Args->checked_in);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "LockUpdateRoomUnlock failed!");
+EXIT:
+	return ret_val;
 }
 
 int waitForDayStart(HANDLE SemaHandle) {
@@ -91,6 +99,13 @@ int waitForDayStart(HANDLE SemaHandle) {
 	return SUCCESS;
 }
 
+/* Guest Thread:
+	handles guest - each day a guest will try to check in if his not already
+	then a guest will spend the day which is updating the budget
+	when the guests budget is finished the thread will exit
+	it updates the guest_pre_day counter so the day thread will know when all guests 
+	went through a day. untill it happens the thread is in wait for the mutex to be released.
+	*/
 DWORD WINAPI GuestThread(LPVOID lpParam)
 {
 	/* Handle arguments passed */
@@ -112,11 +127,8 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 
 		/* Args->guest->start_day_sema is a semaphore works as mutex 
 			it's role is to make sure each guest procceds only one day.*/
-		if (SUCCESS != (ret_val = waitForDayStart(Args->start_day_sema))) {
-			printf("waitForDayStart failed with error code: %d\n", ret_val);
-			return ret_val;
-		}
-		//printf("guest %s -> started a new day\n", Args->guest->name);
+		ret_val = waitForDayStart(Args->start_day_sema);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "waitForDayStart failed!");
 
 		/* let guest spend the day or if not in a room - 
 			try to check in a room if available */
@@ -124,9 +136,9 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 			spendTheDay(Args);
 		}
 		else {
-			tryToCheckIn(Args);
+			ret_val = tryToCheckIn(Args);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "tryToCheckIn failed!");
 			if (Args->checked_in) {
-				//printf("guest %s is checked in room: %s\n", Args->guest->name, Args->guests_room->name);
 				spendTheDay(Args);
 			}
 		}
@@ -138,9 +150,11 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 			ReleaseEndDayLock();
 		}
 	}
-	return SUCCESS;
+EXIT:
+	return ret_val;
 }
 
+/* need to update this function */
 Room_t * RoomToGuest(Guest_t *guests_arr, Room_t *room_arr, int num_of_guests, int num_of_rooms) {
 	int i,j;
 	for (i = 0 ; i < num_of_guests ; i++)
@@ -156,19 +170,25 @@ Room_t * RoomToGuest(Guest_t *guests_arr, Room_t *room_arr, int num_of_guests, i
 	}
 }
 
-int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, int num_of_guests, int num_of_rooms, Room_t *room_arr) {
+int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, int num_of_guests, int num_of_rooms, Room_t *room_arr, FILE *fp) {
+	int ret_val = SUCCESS;
 	for (int i = 0; i < num_of_guests; i++)
 	{
 		p_thread_params->guest = guests_arr;
 		p_thread_params->guest->initail_budget = p_thread_params->guest->budget;
 		p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms);
 		p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity;
-		p_thread_params->guests_room->room_mutex = CreateMutexSimple();
 		p_thread_params->checked_in = false;
 		p_thread_params->checked_out = false;
-		p_thread_params->start_day_sema = CreateSemaphoreSimple(0,1);
+		p_thread_params->fp = fp;
+		if (NULL == (p_thread_params->start_day_sema = CreateSemaphoreSimple(0, 1))) {
+			printf("Error when creating Semaphore: %d\n", GetLastError());
+			ret_val = SEMAPHORE_CREATE_FAILED;
+			goto EXIT;
+		}
 		p_thread_params++;
 		guests_arr++;
 	}
+	EXIT:
+	return ret_val;
 }
-

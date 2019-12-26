@@ -9,6 +9,7 @@
 /*Read and get data from rooms.txt*/
 int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 {
+	int ret_val = SUCCESS;
 	char *rooms_file_path, room_file_line[MAX_LINE_LEN], *line_res;// *final_filepath, *student_dir;
 	int room_price, room_capacitance, i, num_of_rooms = 0;
 	FILE *fp_rooms;
@@ -18,7 +19,8 @@ int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 	if (NULL == (fp_rooms = fopen(rooms_file_path, "r")))
 	{
 		printf("File ERROR\n");
-		exit(ERROR_CODE); // DEBUG EXIT
+		ret_val = FILE_ERROR;
+		goto EXIT;
 	}
 	while (fgets(room_file_line, MAX_LINE_LEN, fp_rooms)) // get ids from studentsIds.txt and call son process 
 	{
@@ -33,8 +35,14 @@ int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 		strtok(room_file_line, " ");
 		strcpy(room_arr->name, room_file_line);
 		printf("ROOM NAME = %s\n", room_arr->name);
+		if (NULL == (room_arr->room_mutex = CreateMutexSimple())) {
+			printf("Error when creating Mutex: %d\n", GetLastError());
+			ret_val = MUTEX_CREATE_FAILED;
+			goto EXIT;
+		}
 		room_arr++;
 	}
+EXIT:
 	free(rooms_file_path);
 	fclose(fp_rooms);
 	*rooms_number = num_of_rooms;
@@ -52,7 +60,7 @@ int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 	if (NULL == (fp_names = fopen(names_file_path, "r")))
 	{
 		printf("File ERROR\n");
-		exit(ERROR_CODE); // DEBUG EXIT
+		return(FILE_ERROR); // DEBUG EXIT
 	}
 	while (fgets(names_file_line, MAX_LINE_LEN, fp_names)) // get ids from studentsIds.txt and call son process 
 	{

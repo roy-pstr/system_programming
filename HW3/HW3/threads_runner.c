@@ -1,49 +1,44 @@
+/* Description:
+	thread_handler module handles the running of mutiplay threads
+*/
+
 #include <stdio.h>
 #include "thread_handler.h"
 #include "threads_runner.h"
 
-
+/* global vars */
 extern bool all_guests_checked_out;
 extern HANDLE end_day_lock;
-
-int HandlerExitCode(HANDLE p_thread_handle) {
-	int ret_val = SUCCESS;
-	/*handle exit code*/
-	DWORD lpExitCode;
-	if (FALSE == GetExitCodeThread(p_thread_handle, &lpExitCode))
-	{
-		printf("Error when getting thread exit code: %d\n", GetLastError());
-		ret_val = THREAD_GET_EXIT_CODE_FAILED;
-	}
-	else if (lpExitCode != SUCCESS) {
-		printf("Error with thread exit code (%d)\n", lpExitCode);
-		ret_val = THREAD_FAILED;
-	}
-	return ret_val;
-}
-
 /*
 	Input:
 		int number_of_threads				- total number of threads
 		HANDLE *p_thread_handles			- thread handles array (size of number_of_threads)
 		DWORD *p_thread_ids					- thread ids array (size of number_of_threads)
-		GetGrade_params *p_thread_params	- thread params array (size of number_of_threads)
-
+		guest_params_t *p_thread_params		- thread params array (size of number_of_threads)
+		day_params_t *day_params			- day thread params
 	Returns:
-		SUCCESS_CODE (0) -	on success of all threads.
-		ERROR_CODE (-1) -	on failure of one of the threads.
+		SUCCESS (0) -	on success of all threads.
+		else		-	failure.
+	The functions first run the DayThread then run all of GuestThreads and wait for all of the guests thread.
+	Then it will procced and wait for DayThread to finish running (which should be immidently)
+	Then handle exit codes and close all handels.
 */
 int RunGuestsThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, guest_params_t *p_thread_params, day_params_t *day_params)
 {
 	int i;
 	int ret_val = SUCCESS;
-
-	end_day_lock = CreateSemaphoreSimple(0,1);
-	HANDLE day_handle;
+	HANDLE day_handle = NULL;
 	DWORD day_thread_id;
+
+	if (NULL == (end_day_lock = CreateSemaphoreSimple(0, 1))) {
+		printf("Error when creating end_day_lock Semaphore: %d\n", GetLastError());
+		ret_val = SEMAPHORE_CREATE_FAILED;
+		goto EXIT;
+	}
+	
 	
 	/*create day thread:*/
-	if (NULL == (day_handle = CreateThreadSimple(DayThread, &day_params, &day_thread_id)))
+	if (NULL == (day_handle = CreateThreadSimple(DayThread, day_params, &day_thread_id)))
 	{
 		printf("Error when creating day thread: %d\n", GetLastError());
 		ret_val = THREAD_CREATE_FAILED;
@@ -114,6 +109,13 @@ EXIT:
 		{
 			printf("Error when closing thread: %d\n", GetLastError());
 			return THREAD_CLOSE_ERROR;
+		}
+	}
+	if (NULL != end_day_lock) {
+		if (FALSE == CloseHandle(end_day_lock))
+		{
+			printf("Error when closing end_day_lock semaphore: %d\n", GetLastError());
+			return SEMAPHORE_CLOSE_FAILED;
 		}
 	}
 	return ret_val;

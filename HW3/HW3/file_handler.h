@@ -11,6 +11,8 @@ int AllocateString(char **str_ptr, int len);
 
 int MergeStrings(char *target, char *first, char *second);
 
+int OpenLogFile(FILE ** fp_roomlog, char * dir);
+
 int WriteLog(char * room, char * name, char * in_or_out, int day, FILE * fp);
 
 int WriteRoomLog(char *room, char *name, char *in_or_out, int day, char *dir);
