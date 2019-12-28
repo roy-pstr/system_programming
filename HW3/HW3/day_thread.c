@@ -36,8 +36,8 @@ int WaitEndDayLock() {
 
 /* check wheater specific guest checked in today */
 bool isCheckedInToday(guest_params_t *guest_params) {
-	return (guest_params->checked_in == true &&
-		(guest_params->guest->initail_budget - guest_params->guest->budget) == guest_params->guests_room->price);
+	return (guest_params->checked_in == true && guest_params->checked_out == false &&
+			guest_params->days_guest_in_room == 1);
 }
 
 /* Write the check in log for all guests */

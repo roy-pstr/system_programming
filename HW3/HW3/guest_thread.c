@@ -68,6 +68,7 @@ DWORD LockUpdateRoomUnlock(Room_t *room, bool *checked_in)
 /* update guest budget */
 void spendTheDay(guest_params_t *Args) {
 	Args->guest->budget -= Args->guests_room->price;
+	Args->days_guest_in_room++;
 }
 
 /* if there is space in room guest will check in*/
@@ -179,6 +180,7 @@ int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, 
 		p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms);
 		p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity;
 		p_thread_params->checked_in = false;
+		p_thread_params->days_guest_in_room = 0;
 		p_thread_params->checked_out = false;
 		p_thread_params->fp = fp;
 		if (NULL == (p_thread_params->start_day_sema = CreateSemaphoreSimple(0, 1))) {

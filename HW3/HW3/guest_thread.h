@@ -14,6 +14,7 @@ typedef struct {
 	Room_t *guests_room;
 	HANDLE start_day_sema;
 	bool checked_in;
+	int days_guest_in_room;
 	bool checked_out;
 	FILE *fp;
 }guest_params_t;
