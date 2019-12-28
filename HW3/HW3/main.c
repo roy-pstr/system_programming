@@ -87,7 +87,10 @@ int main(int argc, char *argv[]) {
 	GO_TO_EXIT_ON_FAILURE(ret_val, "RunGuestsThreads failed!");
 
 EXIT:
+	/* close the open handels og guests params and rooms */
 	CloseAllOpenHandels(p_thread_params, day_params.num_of_guests, rooms_arr, num_of_rooms);
+	
+	/* close the room log file */
 	if (NULL != day_params.fp) {
 		fclose(day_params.fp);
 	}
