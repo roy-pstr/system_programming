@@ -23,13 +23,14 @@ extern HANDLE end_day_lock;
 	Then it will procced and wait for DayThread to finish running (which should be immidently)
 	Then handle exit codes and close all handels.
 */
-int RunGuestsThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, guest_params_t *p_thread_params, day_params_t *day_params)
+int RunGuestsAndDayThreads(int number_of_threads, HANDLE *p_thread_handles, DWORD *p_thread_ids, guest_params_t *p_thread_params, day_params_t *day_params)
 {
 	int i;
 	int ret_val = SUCCESS;
 	HANDLE day_handle = NULL;
 	DWORD day_thread_id;
 
+	/* create the global semaphore which controls the day progress */
 	if (NULL == (end_day_lock = CreateSemaphoreSimple(0, 1))) {
 		printf("Error when creating end_day_lock Semaphore: %d\n", GetLastError());
 		ret_val = SEMAPHORE_CREATE_FAILED;
