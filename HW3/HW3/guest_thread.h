@@ -15,6 +15,7 @@ typedef struct {
 	Room_t *all_rooms;
 	HANDLE start_day_sema;
 	bool checked_in;
+	int days_guest_in_room;
 	bool checked_out;
 	int num_of_rooms;
 	int num_of_guests;
