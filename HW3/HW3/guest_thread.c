@@ -180,14 +180,17 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 		}
 
 		/* global counter of guests that started a new day.*/
-		LockUpdateGlobalCounterUnlock();
-		//guests_per_day_count--;
+		ret_val = LockUpdateGlobalCounterUnlock();
+		GO_TO_EXIT_ON_FAILURE(ret_val, "LockUpdateGlobalCounterUnlock failed!");
 
 		if (guests_per_day_count == 0) {
-			ReleaseEndDayLock();
+			//printf("guest %s -> count: %d\n", Args->guest->name, guests_per_day_count);
+			ret_val = ReleaseEndDayLock();
+			GO_TO_EXIT_ON_FAILURE(ret_val, "ReleaseEndDayLock failed!");
 		}
 	}
 EXIT:
+	//printf("guest %s -> exit with: %d\n", Args->guest->name, ret_val);
 	return ret_val;
 }
 

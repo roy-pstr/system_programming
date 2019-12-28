@@ -63,6 +63,9 @@ EXIT:
 	if (NULL != day_params.fp) {
 		fclose(day_params.fp);
 	}
+	if (ret_val != SUCCESS) {
+		printf("HW3.exe failed!");
+	}
 	return ret_val;
 
 }

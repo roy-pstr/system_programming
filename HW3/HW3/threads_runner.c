@@ -22,7 +22,7 @@ int InitGlobalSemaphores() {
 	}
 	/* create the global semaphore which controls the access to guests_per_day_count counter*/
 	if (NULL == (guests_per_day_count_lock = CreateSemaphoreSimple(1, 1))) {
-		printf("Error when creating end_day_lock Semaphore: %d\n", GetLastError());
+		printf("Error when creating guests_per_day_count_lock Semaphore: %d\n", GetLastError());
 		ret_val = SEMAPHORE_CREATE_FAILED;
 		goto EXIT;
 	}
@@ -174,9 +174,11 @@ EXIT:
 			}
 		}
 	}
+
 	/* close all open handels: rooms, guests open handles and global handels 'end_day_lock', 'guests_per_day_count_lock', 'day_end' */
 	ret_val = CloseAllOpenHandels(p_thread_params, day_params->num_of_guests, p_thread_params->all_rooms, p_thread_params->num_of_rooms);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "CloseAllOpenHandels failed!");
+
 	return ret_val;
 }
 

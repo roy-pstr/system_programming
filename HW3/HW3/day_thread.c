@@ -15,7 +15,7 @@ extern HANDLE end_day_lock;
 /* calling wait on the day lock mutex - this mutex is being released by the last
 	guest that finish a day run. */
 int WaitEndDayLock() {
-	/* wait for room mutex to be available */
+	/* wait for end day to be available */
 	DWORD wait_code = WaitForSingleObject(end_day_lock, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
 	if (wait_code != WAIT_OBJECT_0)
 	{
@@ -165,7 +165,7 @@ DWORD WINAPI DayThread(LPVOID lpParam)
 	int day_counter = 1;
 	while (all_guests_checked_out == false) {
 
-		Sleep(SLEEP_TIME);
+		//Sleep(SLEEP_TIME);
 
 		/* start day */
 		ret_val = StartDay(Args, day_counter);
@@ -173,6 +173,7 @@ DWORD WINAPI DayThread(LPVOID lpParam)
 
 		/* wait until day ended by guest*/
 		ret_val = WaitEndDayLock();
+		//printf("end of day: %d\n", day_counter);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitEndDayLock failed!");
 
 		/* end day */
