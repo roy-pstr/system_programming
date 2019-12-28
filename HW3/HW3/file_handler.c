@@ -106,6 +106,7 @@ int OpenLogFile(FILE ** fp_roomlog, char *dir)
 	if (NULL != roomlog_file_path) {
 		free(roomlog_file_path);
 	}
+	return SUCCESS;
 }
 int WriteLog(char *room, char *name, char *in_or_out, int day, FILE *fp)
 {
