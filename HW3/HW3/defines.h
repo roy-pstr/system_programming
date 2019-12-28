@@ -16,7 +16,7 @@
 #define SEMAPHORE_TIMEOUT_IN_MILLISECONDS 10000
 #define SLEEP_TIME 50
 #define ROOMS_TXT_FILE "\\rooms.txt"
-#define NAMES_TXT_FILE "\\names_2.txt"
+#define NAMES_TXT_FILE "\\names.txt"
 #define LOG_FILE "\\roomLog.txt"
 
 
