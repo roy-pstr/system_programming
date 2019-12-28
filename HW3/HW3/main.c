@@ -58,21 +58,21 @@ int main(int argc, char *argv[]) {
 
 	int ret_val = SUCCESS;
 	
-	/* load rooms and guests from .txt files: */
 	day_params_t day_params;
 	Room_t rooms_arr[MAX_ROOMS];
 	Guest_t guests_arr[MAX_GUESTS];
 	int num_of_rooms = 0;
 
+	/* open log file for writing */
+	ret_val = OpenLogFile(&day_params.fp, argv[1]);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "OpenLogFile failed!");
+	
+	/* load rooms and guests from .txt files: */
 	ret_val = LoadRoomList(argv[1], &num_of_rooms, rooms_arr);
 	GO_TO_EXIT_ON_FAILURE(ret_val,"LoadRoomList failed!");
 
 	ret_val = LoadGuestList(argv[1], &day_params.num_of_guests, guests_arr);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "LoadGuestList failed!");
-
-	/* open log file for writing */
-	ret_val = OpenLogFile(&day_params.fp, argv[1]);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "OpenLogFile failed!");
 
 	/* initailize parameters for theards */
 	guest_params_t p_thread_params[MAX_GUESTS];
@@ -87,7 +87,10 @@ int main(int argc, char *argv[]) {
 	GO_TO_EXIT_ON_FAILURE(ret_val, "RunGuestsThreads failed!");
 
 EXIT:
+	/* close the open handels og guests params and rooms */
 	CloseAllOpenHandels(p_thread_params, day_params.num_of_guests, rooms_arr, num_of_rooms);
+	
+	/* close the room log file */
 	if (NULL != day_params.fp) {
 		fclose(day_params.fp);
 	}

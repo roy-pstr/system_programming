@@ -6,7 +6,6 @@
 typedef struct {
 	char name[MAX_NAME_LEN];
 	int budget;	
-	int initail_budget;
 } Guest_t;
 
 typedef struct {
