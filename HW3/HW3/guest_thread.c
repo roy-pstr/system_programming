@@ -9,6 +9,7 @@
 
 /* global semaphore */
 extern int guests_per_day_count;
+extern HANDLE guests_per_day_count_lock;
 extern HANDLE end_day_lock;
 
 int ReleaseEndDayLock() {
@@ -65,6 +66,41 @@ DWORD LockUpdateRoomUnlock(Room_t *room, bool *checked_in)
 	return (SUCCESS);
 }
 
+/* lock -> update global counter -> release lock */
+DWORD LockUpdateGlobalCounterUnlock()
+{
+	/* wait for mutex to be available */
+	DWORD wait_code = WaitForSingleObject(guests_per_day_count_lock, SEMAPHORE_TIMEOUT_IN_MILLISECONDS);
+	if (wait_code != WAIT_OBJECT_0)
+	{
+		if (wait_code == WAIT_ABANDONED)
+		{
+			printf("Some thread has previously exited without releasing a mutex."
+				" This is not good programming. Please fix the code.\n");
+			return (MUTEX_ABANDONED);
+		}
+		else {
+			printf("Mutex wait failed\n");
+			return(MUTEX_WAIT_FAILED);
+		}
+
+	}
+	//printf("(from thread %d): inside mutex\n", GetCurrentThreadId());
+
+	/* ........Critical Section Start................ */
+	guests_per_day_count--;
+	/* ........Critical Section End.................. */
+
+	LONG previous_count;
+	DWORD rel_code;
+	if (FALSE == (rel_code = ReleaseSemaphore(guests_per_day_count_lock, 1, &previous_count))) {
+		printf("ReleaseSemaphore has failed!\n");
+		return SEMAPHORE_RELEASE_FAILED;
+	}
+	//printf("(from thread %d): released mutex\n", GetCurrentThreadId());
+	return (SUCCESS);
+}
+
 /* update guest budget */
 void spendTheDay(guest_params_t *Args) {
 	Args->guest->budget -= Args->guests_room->price;
@@ -116,8 +152,10 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 		return GUEST_PARAMS_CASTING_FAILED;
 	}
 	Args = (guest_params_t*)lpParam;
-	Args->guests_room = GuestToRoom(Args); //ILAY
-	Args->guests_room->vacancy_counter = Args->guests_room->capacity; //ILAY
+
+	/* find the room for the guest */
+	Args->guests_room = GuestToRoom(Args); 
+
 	int ret_val = SUCCESS;
 	while (Args->guest->budget != 0)
 	{
@@ -146,7 +184,8 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 		}
 
 		/* global counter of guests that started a new day.*/
-		guests_per_day_count--;
+		LockUpdateGlobalCounterUnlock();
+		//guests_per_day_count--;
 
 		if (guests_per_day_count == 0) {
 			ReleaseEndDayLock();
@@ -156,57 +195,14 @@ EXIT:
 	return ret_val;
 }
 
-/* need to update this function */
-Room_t * RoomToGuest(Guest_t *guests_arr, Room_t *room_arr, int num_of_guests, int num_of_rooms) {
-	int i,j;
-	for (i = 0 ; i < num_of_guests ; i++)
-	{
-		for (j = 0; j < num_of_rooms; j++)
-		{
-			if (((!(guests_arr->budget % room_arr->price)) && (guests_arr->budget >= room_arr->price))) {
-				return room_arr;
-			}
-			room_arr++;
-		}
-		guests_arr++;
-	}
-}
-
-int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, int num_of_guests, int num_of_rooms, Room_t *room_arr, FILE *fp) {
-	int ret_val = SUCCESS;
-	for (int i = 0; i < num_of_guests; i++)
-	{
-		p_thread_params->num_of_guests = num_of_guests;
-		p_thread_params->guest = guests_arr;
-		p_thread_params->guest->initail_budget = p_thread_params->guest->budget;
-		p_thread_params->num_of_rooms = num_of_rooms;
-		p_thread_params->all_rooms = room_arr;
-		//p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms); 
-		//p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity; 
-		p_thread_params->checked_in = false;
-		p_thread_params->days_guest_in_room = 0;
-		p_thread_params->checked_out = false;
-		p_thread_params->fp = fp;
-		if (NULL == (p_thread_params->start_day_sema = CreateSemaphoreSimple(0, 1))) {
-			printf("Error when creating Semaphore: %d\n", GetLastError());
-			ret_val = SEMAPHORE_CREATE_FAILED;
-			goto EXIT;
-		}
-		p_thread_params++;
-		guests_arr++;
-	}
-	EXIT:
-	return ret_val;
-}
-
 Room_t *GuestToRoom(guest_params_t *guest_t) {
 	int i;
 	for (i = 0; i < guest_t->num_of_rooms; i++)
 	{
 		if (((!(guest_t->guest->budget % guest_t->all_rooms[i].price)) && (guest_t->guest->budget >= guest_t->all_rooms[i].price))) {
-			//*(p_thread_params->guests_room) = room_arr[i]; if we want it void
+			guest_t->all_rooms[i].vacancy_counter = guest_t->all_rooms[i].capacity;
 			return &guest_t->all_rooms[i];
 		}
-
 	}
+	return NULL;
 }

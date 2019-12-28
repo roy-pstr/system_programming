@@ -30,11 +30,11 @@ int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 		room_capacitance = (int)strtol(line_res, &line_res, 10);
 		room_arr->price = room_price;
 		room_arr->capacity = room_capacitance;
-		printf("PRICE = %d\n", room_arr->price);
-		printf("CAP = %d\n", room_arr->capacity);
+		//printf("PRICE = %d\n", room_arr->price);
+		//printf("CAP = %d\n", room_arr->capacity);
 		strtok(room_file_line, " ");
 		strcpy(room_arr->name, room_file_line);
-		printf("ROOM NAME = %s\n", room_arr->name);
+		//printf("ROOM NAME = %s\n", room_arr->name);
 		if (NULL == (room_arr->room_mutex = CreateMutexSimple())) {
 			printf("Error when creating Mutex: %d\n", GetLastError());
 			ret_val = MUTEX_CREATE_FAILED;
@@ -71,8 +71,8 @@ int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 		strtok(names_file_line, " ");
 		guests_arr->budget = guest_budget;
 		strcpy(guests_arr->name, names_file_line);
-		printf("BUDGET = %d\n", guests_arr->budget);
-		printf("GUEST NAME = %s\n", guests_arr->name);
+		//printf("BUDGET = %d\n", guests_arr->budget);
+		//printf("GUEST NAME = %s\n", guests_arr->name);
 		guests_arr++;
 		strcpy_s(names_file_line, MAX_LINE_LEN, "");
 	}

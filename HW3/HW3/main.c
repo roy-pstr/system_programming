@@ -17,35 +17,8 @@
 int guests_per_day_count = 0;
 bool all_guests_checked_out = false;
 HANDLE end_day_lock;
-
-/* close rooms and guests open handles*/
-int CloseAllOpenHandels(guest_params_t *p_thread_params, int num_of_guests, Room_t *rooms, int num_of_rooms) {
-	int ret_val = SUCCESS;
-	for (int i = 0; i < num_of_guests; i++)
-	{
-
-		if (NULL != p_thread_params->start_day_sema) {
-			if (FALSE == CloseHandle(p_thread_params->start_day_sema))
-			{
-				printf("Error when closing semaphore: %d\n", GetLastError());
-				return SEMAPHORE_CLOSE_FAILED;
-			}
-		}
-		p_thread_params++;
-	}
-	for (int j = 0; j < num_of_rooms; j++)
-	{
-		if (NULL != rooms->room_mutex) {
-			if (FALSE == CloseHandle(rooms->room_mutex))
-			{
-				printf("Error when closing mutex: %d\n", GetLastError());
-				return MUTEX_CLOSE_FAILED;
-			}
-		}
-		rooms++;
-	}
-	return ret_val;
-}
+HANDLE guests_per_day_count_lock;
+HANDLE day_handle;
 
 int main(int argc, char *argv[]) {
 
@@ -76,9 +49,8 @@ int main(int argc, char *argv[]) {
 
 	/* initailize parameters for theards */
 	guest_params_t p_thread_params[MAX_GUESTS];
-	ret_val = InitGuestThreadParams(p_thread_params, guests_arr, day_params.num_of_guests, num_of_rooms, rooms_arr, day_params.fp);
+	ret_val = InitGuestAndDayThreadParams(&day_params, p_thread_params, guests_arr,  num_of_rooms, rooms_arr);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "InitGuestThreadParams failed!");
-	day_params.guests_params = p_thread_params;
 
 	/* guests threads vars */
 	HANDLE p_thread_handles[MAX_GUESTS];
@@ -87,9 +59,6 @@ int main(int argc, char *argv[]) {
 	GO_TO_EXIT_ON_FAILURE(ret_val, "RunGuestsThreads failed!");
 
 EXIT:
-	/* close the open handels og guests params and rooms */
-	CloseAllOpenHandels(p_thread_params, day_params.num_of_guests, rooms_arr, num_of_rooms);
-	
 	/* close the room log file */
 	if (NULL != day_params.fp) {
 		fclose(day_params.fp);
