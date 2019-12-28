@@ -12,9 +12,10 @@ int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 	int ret_val = SUCCESS;
 	char *rooms_file_path, room_file_line[MAX_LINE_LEN], *line_res;// *final_filepath, *student_dir;
 	int room_price, room_capacitance, i, num_of_rooms = 0;
-	FILE *fp_rooms;
+	FILE *fp_rooms = NULL;
 	/* allocate memory for strings and create the filepath*/
-	AllocateString(&rooms_file_path, (strlen(dir) + strlen(ROOMS_TXT_FILE) + 2)); //malloc, must free!
+	ret_val = AllocateString(&rooms_file_path, (strlen(dir) + strlen(ROOMS_TXT_FILE) + 2)); //malloc, must free!
+	GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString failed!");
 	MergeStrings(rooms_file_path, dir, ROOMS_TXT_FILE);
 	if (NULL == (fp_rooms = fopen(rooms_file_path, "r")))
 	{
@@ -42,24 +43,34 @@ int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 		room_arr++;
 	}
 EXIT:
-	free(rooms_file_path);
-	fclose(fp_rooms);
+	if (NULL != rooms_file_path)
+	{
+		free(rooms_file_path);
+	}
+	if (NULL != fp_rooms)
+	{
+		fclose(fp_rooms);
+	}
 	*rooms_number = num_of_rooms;
-	return 0;
+	return ret_val;
 }
 /*Read and get data from names.txt*/
 int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 {
 	char *names_file_path, names_file_line[MAX_LINE_LEN];
 	int guest_budget, i, num_of_guests = 0;
-	FILE *fp_names;
+	int ret_val = SUCCESS;
+	FILE *fp_names = NULL;
 	/* allocate memory for strings and create the filepath*/
-	AllocateString(&names_file_path, (strlen(dir) + strlen(NAMES_TXT_FILE) + 2)); //malloc, must free!
+	ret_val = AllocateString(&names_file_path, (strlen(dir) + strlen(NAMES_TXT_FILE) + 2)); //malloc, must free!
+	GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString failed!");
 	MergeStrings(names_file_path, dir, NAMES_TXT_FILE);
 	if (NULL == (fp_names = fopen(names_file_path, "r")))
 	{
 		printf("File ERROR\n");
-		return(FILE_ERROR); 
+		ret_val = FILE_ERROR;
+		goto EXIT;
+	
 	}
 	while (fgets(names_file_line, MAX_LINE_LEN, fp_names)) // get ids from studentsIds.txt and call son process 
 	{
@@ -72,10 +83,17 @@ int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 		guests_arr++;
 		strcpy_s(names_file_line, MAX_LINE_LEN, "");
 	}
-	free(names_file_path);
-	fclose(fp_names);
+EXIT:
+	if (NULL != names_file_path)
+	{
+		free(names_file_path);
+	}
+	if (NULL != fp_names)
+	{
+		fclose(fp_names);
+	}
 	*guests_number = num_of_guests;
-	return 0;
+	return ret_val;
 }
 
 /*Function for malloc*/
@@ -85,7 +103,7 @@ int AllocateString(char **str_ptr, int len) {
 		printf("Memory Allocation failed! Try again...\n");
 		return(ERROR_CODE);
 	}
-	return 0;
+	return SUCCESS;
 }
 
 /*Mergin 2 strings function for filapaths*/
@@ -93,24 +111,28 @@ int MergeStrings(char *target, char *first, char *second)
 {
 	strcpy(target, first);
 	strcat(target, second);
-	return 0;
+	return SUCCESS;
 }
 
 /*Function for opening RoomLog file for write*/
 int OpenLogFile(FILE ** fp_roomlog, char *dir)
 {
 	char *roomlog_file_path;
-	AllocateString(&roomlog_file_path, (strlen(dir) + strlen(LOG_FILE) + 2)); //malloc, must free!
+	int ret_val = SUCCESS;
+	ret_val = AllocateString(&roomlog_file_path, (strlen(dir) + strlen(LOG_FILE) + 2)); //malloc, must free!
+	GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString failed!");
 	MergeStrings(roomlog_file_path, dir, LOG_FILE);
 	if (NULL == (*fp_roomlog = fopen(roomlog_file_path, "w")))
 	{
 		printf("File ERROR\n");
-		return FILE_ERROR;
+		ret_val = FILE_ERROR;
+		//return FILE_ERROR;
 	}
+EXIT:
 	if (NULL != roomlog_file_path) {
 		free(roomlog_file_path);
 	}
-	return SUCCESS;
+	return ret_val;
 }
 
 /*Writing into RoomLog file Function*/
