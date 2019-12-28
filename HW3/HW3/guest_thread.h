@@ -6,20 +6,27 @@
 typedef struct {
 	char name[MAX_NAME_LEN];
 	int budget;	
+	int initail_budget;
 } Guest_t;
+
 
 typedef struct {
 	Guest_t *guest;
 	Room_t *guests_room;
+	Room_t *all_rooms;
 	HANDLE start_day_sema;
 	bool checked_in;
 	int days_guest_in_room;
 	bool checked_out;
+	int num_of_rooms;
+	int num_of_guests;
+
 	FILE *fp;
-}guest_params_t;
+} guest_params_t;
 
 DWORD WINAPI GuestThread(LPVOID lpParam);
 Room_t * RoomToGuest(Guest_t *guests_arr, Room_t *room_arr, int num_of_guests, int num_of_rooms);
+Room_t *GuestToRoom(guest_params_t *guest_t);
 int InitGuestThreadParams(guest_params_t * p_thread_params, Guest_t * guests_arr, int num_of_guests, int num_of_rooms, Room_t * room_arr, FILE * fp);
 
 

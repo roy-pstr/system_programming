@@ -116,7 +116,8 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 		return GUEST_PARAMS_CASTING_FAILED;
 	}
 	Args = (guest_params_t*)lpParam;
-
+	Args->guests_room = GuestToRoom(Args); //ILAY
+	Args->guests_room->vacancy_counter = Args->guests_room->capacity; //ILAY
 	int ret_val = SUCCESS;
 	while (Args->guest->budget != 0)
 	{
@@ -175,9 +176,13 @@ int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, 
 	int ret_val = SUCCESS;
 	for (int i = 0; i < num_of_guests; i++)
 	{
+		p_thread_params->num_of_guests = num_of_guests;
 		p_thread_params->guest = guests_arr;
-		p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms);
-		p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity;
+		p_thread_params->guest->initail_budget = p_thread_params->guest->budget;
+		p_thread_params->num_of_rooms = num_of_rooms;
+		p_thread_params->all_rooms = room_arr;
+		//p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms); 
+		//p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity; 
 		p_thread_params->checked_in = false;
 		p_thread_params->days_guest_in_room = 0;
 		p_thread_params->checked_out = false;
@@ -192,4 +197,16 @@ int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, 
 	}
 	EXIT:
 	return ret_val;
+}
+
+Room_t *GuestToRoom(guest_params_t *guest_t) {
+	int i;
+	for (i = 0; i < guest_t->num_of_rooms; i++)
+	{
+		if (((!(guest_t->guest->budget % guest_t->all_rooms[i].price)) && (guest_t->guest->budget >= guest_t->all_rooms[i].price))) {
+			//*(p_thread_params->guests_room) = room_arr[i]; if we want it void
+			return &guest_t->all_rooms[i];
+		}
+
+	}
 }
