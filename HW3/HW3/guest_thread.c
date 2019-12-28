@@ -115,14 +115,15 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 		return GUEST_PARAMS_CASTING_FAILED;
 	}
 	Args = (guest_params_t*)lpParam;
-
+	Args->guests_room = GuestToRoom(Args); //ILAY
+	Args->guests_room->vacancy_counter = Args->guests_room->capacity; //ILAY
 	int ret_val = SUCCESS;
+	//printf("ILAY %s %d\n\n", Args->guest->name, Args->guest->budget);
 	while (Args->guest->budget != 0)
 	{
 		/*	guest is still in the hotel,
 			looking for a room
 			or for spending the day */
-
 		Sleep(SLEEP_TIME);
 
 		/* Args->guest->start_day_sema is a semaphore works as mutex 
@@ -141,7 +142,8 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 			if (Args->checked_in) {
 				spendTheDay(Args);
 			}
-		}
+		
+
 
 		/* global counter of guests that started a new day.*/
 		guests_per_day_count--;
@@ -169,15 +171,31 @@ Room_t * RoomToGuest(Guest_t *guests_arr, Room_t *room_arr, int num_of_guests, i
 		guests_arr++;
 	}
 }
+Room_t *GuestToRoom(guest_params_t *guest_t) {
+	int i;
+	for (i = 0; i < guest_t->num_of_rooms; i++)
+	{
+		if (((!(guest_t->guest->budget % guest_t->all_rooms[i].price)) && (guest_t->guest->budget >= guest_t->all_rooms[i].price))) {
+			//*(p_thread_params->guests_room) = room_arr[i]; if we want it void
+			return &guest_t->all_rooms[i];
+		}
+
+	}
+}
+
+
 
 int InitGuestThreadParams(guest_params_t *p_thread_params, Guest_t *guests_arr, int num_of_guests, int num_of_rooms, Room_t *room_arr, FILE *fp) {
 	int ret_val = SUCCESS;
 	for (int i = 0; i < num_of_guests; i++)
 	{
+		p_thread_params->num_of_guests = num_of_guests;
 		p_thread_params->guest = guests_arr;
 		p_thread_params->guest->initail_budget = p_thread_params->guest->budget;
-		p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms);
-		p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity;
+		p_thread_params->num_of_rooms = num_of_rooms;
+		p_thread_params->all_rooms = room_arr;
+		//p_thread_params->guests_room = RoomToGuest(guests_arr, room_arr, num_of_guests, num_of_rooms); 
+		//p_thread_params->guests_room->vacancy_counter = p_thread_params->guests_room->capacity; 
 		p_thread_params->checked_in = false;
 		p_thread_params->checked_out = false;
 		p_thread_params->fp = fp;
