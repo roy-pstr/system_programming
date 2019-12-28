@@ -30,11 +30,9 @@ int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 		room_capacitance = (int)strtol(line_res, &line_res, 10);
 		room_arr->price = room_price;
 		room_arr->capacity = room_capacitance;
-		//printf("PRICE = %d\n", room_arr->price);
-		//printf("CAP = %d\n", room_arr->capacity);
 		strtok(room_file_line, " ");
 		strcpy(room_arr->name, room_file_line);
-		//printf("ROOM NAME = %s\n", room_arr->name);
+
 		if (NULL == (room_arr->room_mutex = CreateMutexSimple())) {
 			printf("Error when creating Mutex: %d\n", GetLastError());
 			ret_val = MUTEX_CREATE_FAILED;
@@ -61,7 +59,7 @@ int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 	if (NULL == (fp_names = fopen(names_file_path, "r")))
 	{
 		printf("File ERROR\n");
-		return(FILE_ERROR); // DEBUG EXIT
+		return(FILE_ERROR); 
 	}
 	while (fgets(names_file_line, MAX_LINE_LEN, fp_names)) // get ids from studentsIds.txt and call son process 
 	{
@@ -71,8 +69,6 @@ int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 		strtok(names_file_line, " ");
 		guests_arr->budget = guest_budget;
 		strcpy(guests_arr->name, names_file_line);
-		//printf("BUDGET = %d\n", guests_arr->budget);
-		//printf("GUEST NAME = %s\n", guests_arr->name);
 		guests_arr++;
 		strcpy_s(names_file_line, MAX_LINE_LEN, "");
 	}
@@ -81,6 +77,8 @@ int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 	*guests_number = num_of_guests;
 	return 0;
 }
+
+/*Function for malloc*/
 int AllocateString(char **str_ptr, int len) {
 	if (NULL == (*str_ptr = (char *)malloc(len)))
 	{
@@ -89,12 +87,16 @@ int AllocateString(char **str_ptr, int len) {
 	}
 	return 0;
 }
+
+/*Mergin 2 strings function for filapaths*/
 int MergeStrings(char *target, char *first, char *second)
 {
 	strcpy(target, first);
 	strcat(target, second);
 	return 0;
 }
+
+/*Function for opening RoomLog file for write*/
 int OpenLogFile(FILE ** fp_roomlog, char *dir)
 {
 	char *roomlog_file_path;
@@ -110,6 +112,8 @@ int OpenLogFile(FILE ** fp_roomlog, char *dir)
 	}
 	return SUCCESS;
 }
+
+/*Writing into RoomLog file Function*/
 int WriteLog(char *room, char *name, char *in_or_out, int day, FILE *fp)
 {
 	char line_to_file[MAX_LINE_LEN];

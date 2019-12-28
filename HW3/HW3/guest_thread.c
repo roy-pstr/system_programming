@@ -45,14 +45,13 @@ DWORD LockUpdateRoomUnlock(Room_t *room, bool *checked_in)
 		}
 
 	}
-	//printf("(from thread %d): inside mutex\n", GetCurrentThreadId());
+
 
 	/* ........Critical Section Start................ */
 	if (room->vacancy_counter > 0)
 	{
 		room->vacancy_counter--;
 		*checked_in = true;
-		//printf("room %s (%p): %d : %d\n", room->name, room, room->vacancy_counter, room->capacity);
 	}
 	/* ........Critical Section End.................. */
 
@@ -62,7 +61,6 @@ DWORD LockUpdateRoomUnlock(Room_t *room, bool *checked_in)
 		printf("released mutex failed with %d\n", GetLastError());
 		return (MUTEX_RELEASE_FAILED);
 	}
-	//printf("(from thread %d): released mutex\n", GetCurrentThreadId());
 	return (SUCCESS);
 }
 
@@ -85,7 +83,6 @@ DWORD LockUpdateGlobalCounterUnlock()
 		}
 
 	}
-	//printf("(from thread %d): inside mutex\n", GetCurrentThreadId());
 
 	/* ........Critical Section Start................ */
 	guests_per_day_count--;
@@ -97,7 +94,6 @@ DWORD LockUpdateGlobalCounterUnlock()
 		printf("ReleaseSemaphore has failed!\n");
 		return SEMAPHORE_RELEASE_FAILED;
 	}
-	//printf("(from thread %d): released mutex\n", GetCurrentThreadId());
 	return (SUCCESS);
 }
 
