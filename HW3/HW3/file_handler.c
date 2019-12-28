@@ -40,6 +40,7 @@ int LoadRoomList(char *dir, int *rooms_number, Room_t *room_arr)
 			ret_val = MUTEX_CREATE_FAILED;
 			goto EXIT;
 		}
+		strcpy_s(room_file_line, MAX_LINE_LEN, "");
 		room_arr++;
 	}
 EXIT:
@@ -73,6 +74,7 @@ int LoadGuestList(char *dir, int *guests_number, Guest_t *guests_arr)
 		printf("BUDGET = %d\n", guests_arr->budget);
 		printf("GUEST NAME = %s\n", guests_arr->name);
 		guests_arr++;
+		strcpy_s(names_file_line, MAX_LINE_LEN, "");
 	}
 	free(names_file_path);
 	fclose(fp_names);

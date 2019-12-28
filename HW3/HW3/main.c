@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
 	/* guests threads vars */
 	HANDLE p_thread_handles[MAX_GUESTS];
 	DWORD p_thread_ids[MAX_GUESTS];
-	ret_val = RunGuestsThreads(day_params.num_of_guests, p_thread_handles, p_thread_ids, p_thread_params, &day_params);
+	ret_val = RunGuestsAndDayThreads(day_params.num_of_guests, p_thread_handles, p_thread_ids, p_thread_params, &day_params);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "RunGuestsThreads failed!");
 
 EXIT:
@@ -92,5 +92,6 @@ EXIT:
 		fclose(day_params.fp);
 	}
 	return ret_val;
+
 }
 
