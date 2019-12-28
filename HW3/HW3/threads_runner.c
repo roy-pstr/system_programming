@@ -9,6 +9,18 @@
 /* global vars */
 extern bool all_guests_checked_out;
 extern HANDLE end_day_lock;
+
+int LockAllGuestsThreads(guest_params_t *p_thread_params, int number_of_threads){
+	int ret_val = SUCCESS;
+	for (int i = 0; i < number_of_threads; i++) {
+		/* Args->guest->start_day_sema is a semaphore works as mutex
+			it's role is to make sure each guest procceds only one day.*/
+		ret_val = waitForDayStart(p_thread_params[i].start_day_sema);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "waitForDayStart failed!");
+	}
+EXIT:
+	return ret_val;
+}
 /*
 	Input:
 		int number_of_threads				- total number of threads
@@ -36,8 +48,11 @@ int RunGuestsAndDayThreads(int number_of_threads, HANDLE *p_thread_handles, DWOR
 		ret_val = SEMAPHORE_CREATE_FAILED;
 		goto EXIT;
 	}
-	
-	
+
+	/* Enter all guests into 'waiForDayStart' mode */
+	//ret_val = LockAllGuestsThreads(p_thread_params, number_of_threads);
+	//GO_TO_EXIT_ON_FAILURE(ret_val, "LockAllGuestsThreads failed!");
+
 	/*create day thread:*/
 	if (NULL == (day_handle = CreateThreadSimple(DayThread, day_params, &day_thread_id)))
 	{

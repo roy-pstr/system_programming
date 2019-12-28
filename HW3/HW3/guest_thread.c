@@ -146,8 +146,9 @@ DWORD WINAPI GuestThread(LPVOID lpParam)
 
 		/* global counter of guests that started a new day.*/
 		guests_per_day_count--;
-
+		printf("guest %s -> updated global counter to: %d\n", Args->guest->name, guests_per_day_count);
 		if (guests_per_day_count == 0) {
+			printf("guest %s -> released day lock\n", Args->guest->name);
 			ReleaseEndDayLock();
 		}
 	}

@@ -117,7 +117,7 @@ bool areAllGuestsCheckedOut(day_params_t *Args) {
 	-check how many guests in the hotel today
 	-start the day for all guests */
 int StartDay(day_params_t *Args, int day_count) {
-	//printf("day %d started.\n", day_count);
+	
 	int ret_val = SUCCESS;
 	ret_val = HowManyGuestsInHotel(Args);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "HowManyGuestsInHotel failed!");
@@ -132,7 +132,7 @@ EXIT:
 	-procced the day counter by one
 	-do checkout for the guests all the guests that finished their budget */
 int EndDay(day_params_t *Args, int *day_count) {
-	//printf("day %d ended.\n", *day_count);
+	printf("day %d ended.\n", *day_count);
 	int ret_val = SUCCESS;
 	ret_val = WriteCheckInLog(Args, *day_count);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "WriteCheckInLog failed!");
@@ -168,14 +168,17 @@ DWORD WINAPI DayThread(LPVOID lpParam)
 		Sleep(SLEEP_TIME);
 
 		/* start day */
+		printf("day %d started.\n", day_counter);
 		ret_val = StartDay(Args, day_counter);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "StartDay failed!");
 
 		/* wait until day ended by guest*/
+		printf("DayThread entres wait moded.\n");
 		ret_val = WaitEndDayLock();
 		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitEndDayLock failed!");
 
 		/* end day */
+		printf("day %d ended.\n", day_counter);
 		ret_val = EndDay(Args, &day_counter);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "EndDay failed!");
 

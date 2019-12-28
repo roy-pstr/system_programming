@@ -18,6 +18,8 @@ typedef struct {
 	FILE *fp;
 }guest_params_t;
 
+int waitForDayStart(HANDLE SemaHandle);
+
 DWORD WINAPI GuestThread(LPVOID lpParam);
 Room_t * RoomToGuest(Guest_t *guests_arr, Room_t *room_arr, int num_of_guests, int num_of_rooms);
 int InitGuestThreadParams(guest_params_t * p_thread_params, Guest_t * guests_arr, int num_of_guests, int num_of_rooms, Room_t * room_arr, FILE * fp);
