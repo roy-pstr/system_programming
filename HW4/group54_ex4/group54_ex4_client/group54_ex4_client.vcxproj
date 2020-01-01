@@ -20,9 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\defines.h" />
+    <ClInclude Include="csv_handler.h" />
     <ClInclude Include="user_interace.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="csv_handler.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="user_interface.c" />
   </ItemGroup>

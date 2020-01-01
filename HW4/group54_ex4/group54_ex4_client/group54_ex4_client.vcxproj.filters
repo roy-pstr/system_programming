@@ -24,12 +24,18 @@
     <ClInclude Include="user_interace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="csv_handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="user_interface.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="csv_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

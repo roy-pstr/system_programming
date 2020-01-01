@@ -3,6 +3,8 @@
 //Description –
 #include "defines.h"
 int main(int argc, char *argv[]) {
+	char csv_file = "C:\Users\Ilay Amar\Documents\GitHub\system_programming\HW4\group54_ex4"; // ILAY
+
 	int ret_val = SUCCESS;
 
 	//check argv:
