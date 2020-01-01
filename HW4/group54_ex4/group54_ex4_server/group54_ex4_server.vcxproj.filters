@@ -21,10 +21,22 @@
     <ClInclude Include="..\shared\defines.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="socket_server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\socket_tools.h">
+      <Filter>shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
+    <ClCompile Include="main_server.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="socket_server.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\socket_tools.c">
+      <Filter>shared</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
