@@ -30,6 +30,9 @@
     <ClInclude Include="..\shared\socket_tools.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="csv_handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="user_interface.c">
@@ -43,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="..\shared\socket_tools.c">
       <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="csv_handler.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

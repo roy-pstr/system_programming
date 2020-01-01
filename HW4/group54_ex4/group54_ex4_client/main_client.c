@@ -8,6 +8,7 @@
 #pragma comment(lib, "ws2_32.lib")
 #include "defines.h"
 #include "socket_tools.h"
+#include "csv_handler.h"
 
 SOCKET m_socket;
 
@@ -105,7 +106,8 @@ server_cleanup_1:
 
 int main(int argc, char *argv[]) {
 	int ret_val = SUCCESS;
-
+	char csv_file[88] = "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"; // ILAY
+	PrintLeaderboard(csv_file);
 	//check argv:
 	if (argc != CLIENT_ARGUMENTS_NUM)
 	{
@@ -119,7 +121,7 @@ int main(int argc, char *argv[]) {
 	char username[USERNAME_MAX_LEN]; /* username - is not CASE sensetive*/
 	//ParseArgumnets(argc, argv, &server_ip, &server_port, &username);
 
-	SetClient();
+	//SetClient();
 
 	return ret_val;
 }

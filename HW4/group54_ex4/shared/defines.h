@@ -25,14 +25,5 @@ typedef enum {
 	SOCKET_ERROR_RECV_DATA
 }ErrorCode_t;
 
-void PrintError(char *msg) {
-	printf("%s\n", msg);
-}
-
-void TestReturnValue(bool ret_val, char *msg) {
-	if (SUCCESS != ret_val) {
-		PrintError(msg);
-	}
-}
 
 #endif
