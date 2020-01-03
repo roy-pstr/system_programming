@@ -27,6 +27,9 @@
     <ClInclude Include="..\shared\socket_tools.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="client_ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main_client.c">

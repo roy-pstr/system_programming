@@ -1,4 +1,6 @@
 #include "socket_client.h"
+#include "client_ui.h" 
+
 extern SOCKET m_socket;
 ErrorCode_t RecvData(SOCKET *t_socket) {
 	TransferResult_t RecvRes;
@@ -43,7 +45,7 @@ ErrorCode_t SendData(SOCKET *t_socket) {
 
 	return SUCCESS;
 }
-void SetClient() {
+void SetClient(char *server_ip, int server_port, char username[]) {
 	// Initialize Winsock.
 	WSADATA wsaData;
 	int StartupRes = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -65,7 +67,7 @@ void SetClient() {
 	//Create a sockaddr_in object clientService and set  values.
 	SOCKADDR_IN clientService;
 	unsigned long Address;
-	Address = inet_addr(SERVER_ADDRESS_STR);
+	Address = inet_addr(server_ip);
 	if (Address == INADDR_NONE)
 	{
 		printf("The string \"%s\" cannot be converted into an ip address. ending program.\n",
@@ -74,16 +76,17 @@ void SetClient() {
 	}
 	clientService.sin_family = AF_INET;
 	clientService.sin_addr.s_addr = Address;
-	clientService.sin_port = htons(SERVER_PORT); //Setting the port to connect to.
+	clientService.sin_port = htons(server_port); //Setting the port to connect to.
 
 	// Call the connect function, passing the created socket and the sockaddr_in structure as parameters. 
 	// Check for general errors.
 	if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) == SOCKET_ERROR) {
-		printf("Error at connect( ): %ld\n", WSAGetLastError());
+		DEBUG_PRINT(printf("Error at connect( ): %ld\n", WSAGetLastError()));
+		printf(FAILURE_ON_CONNECT_TO_SERVER, server_ip, server_port);
 		goto server_cleanup_2;
 		return;
 	}
-
+	printf(ON_CONNECT_TO_SERVER, server_ip, server_port);
 	ErrorCode_t ret_val = SUCCESS;
 	while (true) {
 		ret_val = RecvData(&m_socket);

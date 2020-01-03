@@ -38,7 +38,7 @@ typedef enum {
 
  // DEBUG
 
-#define DEBUG_PRINT(print) {if (DEBUG==true){print;}}
+#define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
 
 
 #endif

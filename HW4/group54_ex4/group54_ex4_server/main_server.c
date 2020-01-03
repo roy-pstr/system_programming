@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 		return ILLEGAL_NUMBER_OF_ARGV;
 	}
 
-	DEBUG_PRINT("============SERVER============\n");
+	DEBUG_PRINT(printf("============SERVER============\n"));
 
 	/* get port */
 	int port = (int)strtol(argv[1],NULL,10); /* string to int.... */
