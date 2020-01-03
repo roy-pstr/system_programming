@@ -3,7 +3,7 @@
 
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
-
+void InitSockets(SOCKET * sockets, int size);
 typedef enum { TRNS_FAILED, TRNS_DISCONNECTED, TRNS_SUCCEEDED } TransferResult_t;
 
 /**
@@ -20,7 +20,8 @@ typedef enum { TRNS_FAILED, TRNS_DISCONNECTED, TRNS_SUCCEEDED } TransferResult_t
  * TRNS_SUCCEEDED - if sending succeeded
  * TRNS_FAILED - otherwise
  */
-TransferResult_t SendBuffer( const char* Buffer, int BytesToSend, SOCKET sd );
+	
+ TransferResult_t SendBuffer( const char* Buffer, int BytesToSend, SOCKET sd );
 
 /**
  * SendString() uses a socket to send a string.

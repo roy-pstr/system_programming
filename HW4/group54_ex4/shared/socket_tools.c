@@ -3,6 +3,14 @@
 #include <stdio.h>
 #include <string.h>
 
+void InitSockets(SOCKET *sockets, int size) {
+	int Ind;
+	for (Ind = 0; Ind < size; Ind++)
+	{
+		*sockets = INVALID_SOCKET;
+	}
+}
+
 TransferResult_t SendBuffer( const char* Buffer, int BytesToSend, SOCKET sd )
 {
 	const char* CurPlacePtr = Buffer;

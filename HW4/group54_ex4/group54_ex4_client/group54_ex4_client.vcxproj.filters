@@ -21,9 +21,6 @@
     <ClInclude Include="..\shared\defines.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="user_interace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="socket_client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -32,9 +29,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="user_interface.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main_client.c">
       <Filter>Source Files</Filter>
     </ClCompile>

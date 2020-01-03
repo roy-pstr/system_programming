@@ -27,6 +27,15 @@
     <ClInclude Include="..\shared\socket_tools.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="client_thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game_ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\thread_tools.h">
+      <Filter>shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main_server.c">
@@ -36,6 +45,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\socket_tools.c">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="client_thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game_ui.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\thread_tools.c">
       <Filter>shared</Filter>
     </ClCompile>
   </ItemGroup>
