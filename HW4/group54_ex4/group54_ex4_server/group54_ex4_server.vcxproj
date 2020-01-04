@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\defines.h" />
+    <ClInclude Include="..\shared\msg_protocol.h" />
     <ClInclude Include="..\shared\socket_tools.h" />
     <ClInclude Include="..\shared\thread_tools.h" />
     <ClInclude Include="client_thread.h" />
@@ -146,6 +147,7 @@
     <ClInclude Include="socket_server.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\msg_protocol.c" />
     <ClCompile Include="..\shared\socket_tools.c" />
     <ClCompile Include="..\shared\thread_tools.c" />
     <ClCompile Include="client_thread.c" />

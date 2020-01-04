@@ -36,6 +36,9 @@
     <ClInclude Include="..\shared\thread_tools.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\msg_protocol.h">
+      <Filter>shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main_server.c">
@@ -54,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\thread_tools.c">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\msg_protocol.c">
       <Filter>shared</Filter>
     </ClCompile>
   </ItemGroup>

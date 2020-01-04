@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\defines.h" />
+    <ClInclude Include="..\shared\msg_protocol.h" />
     <ClInclude Include="..\shared\socket_tools.h" />
-    <ClInclude Include="client_ui.h" />
     <ClInclude Include="socket_client.h" />
+    <ClInclude Include="user_interface.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\msg_protocol.c" />
     <ClCompile Include="..\shared\socket_tools.c" />
     <ClCompile Include="main_client.c" />
     <ClCompile Include="socket_client.c" />

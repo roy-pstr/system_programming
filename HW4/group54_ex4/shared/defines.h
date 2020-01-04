@@ -2,13 +2,19 @@
 #define _DEFINES_H
 #include <stdio.h>
 #include <stdbool.h>
-
+#include <stdlib.h>
 #define DEBUG true
 
 #define USERNAME_MAX_LEN 20
+
 #define SERVER_ARGUMENTS_NUM 2
 #define CLIENT_ARGUMENTS_NUM 4
 #define MAX_STR_LEN 256
+/* protocols */
+#define PROTOCOL_TYPE_STR_MAX_LEN 27
+#define PARAM_STR_MAX_LEN 22
+#define PROTOCOL_PARAM_LIST_SIZE 4
+#define PROTOCOL_MESSAGE_MAX_LEM (PROTOCOL_TYPE_STR_MAX_LEN+PROTOCOL_PARAM_LIST_SIZE*PARAM_STR_MAX_LEN+10)
 /* socket related */
 #define MAX_CONN_LISTEN 10
 #define NUMBER_OF_CLIENTS 2
@@ -17,6 +23,7 @@
 #define WAIT_FOR_SERVER_RESPONSE 15000 //15 seconds
 #define WAIT_FOR_CLIENT_RESPONSE 15000 //15 seconds
 #define WAIT_FOR_CLOSING_CLIENT_THREAD 5000
+
 /* inline MACRO function defenition: */
 #define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
 #define GO_TO_EXIT_ON_FAILURE(ret_val, msg) {if (SUCCESS != ret_val){printf("%s\n",msg);goto EXIT;}}
@@ -32,11 +39,12 @@ typedef enum {
 	THREAD_GET_EXIT_CODE_FAILED,
 	CLIENT_THREAD_FAILED,
 	CLIENT_THREAD_CLOSE_ERROR,
-	CLOSE_SOCKET_CLIENT
+	CLOSE_SOCKET_CLIENT, 
+	MALLOC_STRING_FAIL,
+	PROTOCOL_MSG_TYPE_ERROR,
+	PARAM_LIST_INDEX_OVERFLOW
+
 }ErrorCode_t;
-
-
- // DEBUG
 
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
 

@@ -27,8 +27,11 @@
     <ClInclude Include="..\shared\socket_tools.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="client_ui.h">
+    <ClInclude Include="user_interface.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\msg_protocol.h">
+      <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -39,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\socket_tools.c">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\msg_protocol.c">
       <Filter>shared</Filter>
     </ClCompile>
   </ItemGroup>

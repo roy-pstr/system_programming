@@ -1,6 +1,6 @@
 #include "client_thread.h"
 #include "socket_tools.h"
-
+#include "msg_protocol.h"
 //Service thread is the thread that opens for each successful client connection and "talks" to the client.
 DWORD ClientThread(SOCKET *t_socket)
 {
@@ -25,7 +25,7 @@ DWORD ClientThread(SOCKET *t_socket)
 	{
 		char *AcceptedStr = NULL;
 
-		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+		RecvRes = ReceiveString(&AcceptedStr, *t_socket); /* no '\0' at end of string for AcceptedStr!! */
 
 		if (RecvRes == TRNS_FAILED)
 		{
@@ -41,7 +41,11 @@ DWORD ClientThread(SOCKET *t_socket)
 		}
 		else
 		{
-			printf("Got string : %s\n", AcceptedStr);
+			printf("Got string : %s\n", AcceptedStr); 
+			msg_t protocol_msg;
+			InitMsg_t(&protocol_msg);
+			ParseMessage(AcceptedStr, (int)strlen(AcceptedStr)+1, &protocol_msg);
+			DEBUG_PRINT(PrintProtocol(&protocol_msg));
 		}
 
 		//After reading a single line, checking to see what to do with it

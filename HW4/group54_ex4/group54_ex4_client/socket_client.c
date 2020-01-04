@@ -1,5 +1,5 @@
 #include "socket_client.h"
-#include "client_ui.h" 
+#include "user_interface.h" 
 
 extern SOCKET m_socket;
 ErrorCode_t RecvData(SOCKET *t_socket) {
@@ -87,6 +87,7 @@ void SetClient(char *server_ip, int server_port, char username[]) {
 		return;
 	}
 	printf(ON_CONNECT_TO_SERVER, server_ip, server_port);
+
 	ErrorCode_t ret_val = SUCCESS;
 	while (true) {
 		ret_val = RecvData(&m_socket);
