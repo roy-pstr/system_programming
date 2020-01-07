@@ -11,14 +11,23 @@ typedef struct node_st
 	float ratio;
 	struct node_st *next;
 } Node;
-int RefreshLeaderboard(char *filename);
-int UpdateLeaderBoardFile(char *filename, char *name, int win);
+
+/*OLD are not relevant at the moment*/
+int OLD_RefreshLeaderboard(char *filename);
+int OLD_UpdateLeaderBoardFile(char *filename, char *name, int win);
+
+/*###################*/
+/*Relevant functions*/
 Node *DetectAndUpdateElement(Node **head, char* name, int w);
 void sortedInsert(Node** head, Node* new_node);
 Node *CreateNode(char *name, int win, int lose);
-
-
+int RefreshLeaderboard(char *filename, Node **Head);
+void DestroyLinkedList(Node *head);
 double Round(double x, int p);
+void printList(Node *head);
+int LinkedListToCsv(Node *head, char *filename);
+void LinkedListToStr(Node *head, char **leaderboard_str, int buff_size);
+int LengthOfLinkedList(Node *head);
 /*Move to node module*/
 
 #endif
