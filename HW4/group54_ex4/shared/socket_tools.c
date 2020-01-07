@@ -57,6 +57,7 @@ ErrorCode_t SendData(SOCKET *t_socket, protocol_t * prtcl_msg) {
 	}
 	DEBUG_PRINT(printf("Message sent: %s\n", send_str));
 EXIT:
+	DEBUG_PRINT(printf("Trying to free\n"));
 	if (NULL != send_str)
 		free(send_str);
 	return ret_val;

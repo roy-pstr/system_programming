@@ -7,14 +7,13 @@
 
 Node *Leaderboard_head = NULL;
 void InitLeaderboard(Node **head, char * file_path) {
-	RefreshLeaderboard(file_path, head);
-	//if (SUCCESS == IsFileExists(file_path)) {
-	//	RefreshLeaderboard(file_path, head);
+	if (SUCCESS == IsFileExists(file_path)) {
+		RefreshLeaderboard(file_path, head);
 
-	//}
-	//else {
-	//	printf("no leaderboard.csv exist yet, play soem games!\n");
-	//}
+	}
+	else {
+		printf("no leaderboard.csv exist yet, play soem games!\n");
+	}
 }
 
 ErrorCode_t StartGameServer(int port) {
