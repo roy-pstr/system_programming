@@ -9,7 +9,7 @@
 #define TIMEOUT_FAILURE_FROM_SERVER "Connection to server on %s:%d has been lost.\n"
 #define SERVER_DENEID_CLIENT  "Server on %s:%d denied the connection request.\n"
 #define SERVER_MAIN_MENU_MSG "Choose what to do next:\n1. Play against another client\n2. Play against the server\n3. View the leaderboard\n4. Quit\n"
-#define CHOOSE_WHAT_NEXT "Choose what to do next:\n1. Refresh leaderboard\n2. Return to the main menu\n"
+#define CHOOSE_WHAT_NEXT_LEADERBOARD "Choose what to do next:\n1. Refresh leaderboard\n2. Return to the main menu\n"
 #define CHOOSE_MOVE "Choose a move from the list: Rock, Paper, Scissors, Lizard or Spock:\n"
 #define GAME_RESULT_MSG "You played: %s\n%s played : %s\n%s won!\n"
 #define TEKO_MSG "You played: %s\n%s played : %s\n"
@@ -24,6 +24,7 @@ typedef enum {
 }MenuCode_t;
 
 MenuCode_t ReconnectMenu();
+PROTOCOL_ENUM LeaderboardMenu();
 PROTOCOL_ENUM MainMenu();
 #endif
 

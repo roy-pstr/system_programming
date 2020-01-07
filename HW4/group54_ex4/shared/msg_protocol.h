@@ -54,7 +54,7 @@ static const char *PROTOCOLS_STRINGS[] = {
 typedef struct {
 	PROTOCOL_ENUM type; /* message type as defiend in server_protocol or client_protocol */
 	char param_list[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN]; /* <param1>;<param2>;<param3>\n*/
-	char * leaderboard_str;
+	char leaderboard_param[LEADERBOARD_STR_MAX_LEN];
 	int size_in_bytes;
 } protocol_t;
 

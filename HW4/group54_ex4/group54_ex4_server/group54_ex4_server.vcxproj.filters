@@ -39,6 +39,9 @@
     <ClInclude Include="..\shared\msg_protocol.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="csv_handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main_server.c">
@@ -61,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="..\shared\msg_protocol.c">
       <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="csv_handler.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

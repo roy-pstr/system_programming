@@ -143,6 +143,7 @@
     <ClInclude Include="..\shared\socket_tools.h" />
     <ClInclude Include="..\shared\thread_tools.h" />
     <ClInclude Include="client_thread.h" />
+    <ClInclude Include="csv_handler.h" />
     <ClInclude Include="game_ui.h" />
     <ClInclude Include="socket_server.h" />
   </ItemGroup>
@@ -151,6 +152,7 @@
     <ClCompile Include="..\shared\socket_tools.c" />
     <ClCompile Include="..\shared\thread_tools.c" />
     <ClCompile Include="client_thread.c" />
+    <ClCompile Include="csv_handler.c" />
     <ClCompile Include="game_ui.c" />
     <ClCompile Include="main_server.c" />
     <ClCompile Include="socket_server.c" />

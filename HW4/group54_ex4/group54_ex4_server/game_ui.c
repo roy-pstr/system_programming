@@ -3,6 +3,19 @@
 #include "socket_server.h"
 #include "socket_tools.h"
 #include "thread_tools.h"
+#include "csv_handler.h"
+
+Node *Leaderboard_head = NULL;
+void InitLeaderboard(Node **head, char * file_path) {
+	RefreshLeaderboard(file_path, head);
+	//if (SUCCESS == IsFileExists(file_path)) {
+	//	RefreshLeaderboard(file_path, head);
+
+	//}
+	//else {
+	//	printf("no leaderboard.csv exist yet, play soem games!\n");
+	//}
+}
 
 ErrorCode_t StartGameServer(int port) {
 	ErrorCode_t ret_val = SUCCESS;
@@ -11,6 +24,9 @@ ErrorCode_t StartGameServer(int port) {
 	ret_val = SetUpTheServer(&MainSocket, port);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "SetUpTheServer failed. \n");
 
+	/* initilaze the linked list of the leaderboards (if exists) */
+	InitLeaderboard(&Leaderboard_head, CSV_NAME);
+	
 	SOCKET ClientSockets[NUMBER_OF_CLIENTS];
 	//InitSockets(ClientSockets, NUMBER_OF_CLIENTS);
 	HANDLE ClientThreadHandles[NUMBER_OF_CLIENTS];

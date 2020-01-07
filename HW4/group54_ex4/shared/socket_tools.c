@@ -62,10 +62,20 @@ EXIT:
 	return ret_val;
 }
 
-ErrorCode_t SendProtcolMsg(SOCKET *t_socket, PROTOCOL_ENUM type) {
+ErrorCode_t SendProtcolMsgNoParams(SOCKET *t_socket, PROTOCOL_ENUM type) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t prtcl_msg;
 	SetProtocol(&prtcl_msg, type, NULL, 0);
+	ret_val = SendData(t_socket, &prtcl_msg);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
+EXIT:
+	return ret_val;
+}
+
+ErrorCode_t SendProtcolMsgWithParams(SOCKET *t_socket, PROTOCOL_ENUM type, char **param_list, int param_list_size) {
+	ErrorCode_t ret_val = SUCCESS;
+	protocol_t prtcl_msg;
+	SetProtocol(&prtcl_msg, type, param_list, param_list_size);
 	ret_val = SendData(t_socket, &prtcl_msg);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
 EXIT:

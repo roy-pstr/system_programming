@@ -16,6 +16,22 @@ MenuCode_t ReconnectMenu() {
 	return ERROR_MSG_TYPE;
 }
 
+PROTOCOL_ENUM LeaderboardMenu() {
+	bool valid_input = false;
+	char user_answer[INPUT_ANSWER_STR_LEN];
+	while (!valid_input) {
+		printf(CHOOSE_WHAT_NEXT_LEADERBOARD);
+		gets_s(user_answer, sizeof(user_answer)); //Reading a string from the keyboard
+		if (STRINGS_ARE_EQUAL(user_answer, "1")) { 
+			return CLIENT_REFRESH;
+		}
+		else if (STRINGS_ARE_EQUAL(user_answer, "2")) { 
+			return CLIENT_MAIN_MENU;
+		}
+	}
+	return ERROR_MSG_TYPE;
+}
+
 PROTOCOL_ENUM MainMenu() {
 	bool valid_input = false;
 	char user_answer[INPUT_ANSWER_STR_LEN];

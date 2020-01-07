@@ -12,7 +12,6 @@
 #include "defines.h"
 #include "socket_client.h"
 #include "socket_tools.h"
-#include "csv_handler.h"
 #include "user_interface.h" 
 
 SOCKET m_socket = INVALID_SOCKET;

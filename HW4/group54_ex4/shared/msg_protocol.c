@@ -25,12 +25,13 @@ void InitProtocol(protocol_t * msg)
 
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char **param_list, int param_list_size)
 {
-	msg->type = (NULL_TYPE == type) ? ERROR_MSG_TYPE : type;
+	InitProtocol(msg);
+	msg->type = type;
 	int i = 0;
 	if (param_list != NULL) { 
 		for (; i < param_list_size; i++) /* copy given parameters */
 		{
-			strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, param_list[i]);
+			AddParam(param_list[i], msg);
 		}
 	}
 	for (;i < PROTOCOL_PARAM_LIST_SIZE; i++) /* initialize the rest to "" */
@@ -86,6 +87,11 @@ ErrorCode_t ProtocolToString(protocol_t * msg, char **msg_str)
 				return INVALID_MESSAGE_PROTOCOL;
 		}
 		strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, ":"); /* start of param_list */
+		if (GetType(msg)==SERVER_LEADERBOARD) {
+			strcat_s(*msg_str, LEADERBOARD_STR_MAX_LEN, msg->leaderboard_param);
+			strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, "\n");
+			return ret_val;
+		}
 		strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, msg->param_list[0]);
 		for (int i = 1; i < PROTOCOL_PARAM_LIST_SIZE; i++)
 		{
@@ -148,11 +154,18 @@ bool ShouldHaveParams(protocol_t * msg)
 ErrorCode_t AddParam(char * param, protocol_t * msg)
 {
 	ErrorCode_t ret_val = SUCCESS;
-	for (int i = 0; i < PROTOCOL_PARAM_LIST_SIZE; i++)
-	{
-		if (STRINGS_ARE_EQUAL(msg->param_list[i], "")) { /* last param_list param */
-			strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, param);
-			break;
+	if (GetType(msg) == SERVER_LEADERBOARD) {
+		strcpy_s(msg->leaderboard_param, LEADERBOARD_STR_MAX_LEN, param);
+		
+		strcpy_s(msg->param_list[0], PARAM_STR_MAX_LEN, "dummy_param");
+	}
+	else {
+		for (int i = 0; i < PROTOCOL_PARAM_LIST_SIZE; i++)
+		{
+			if (STRINGS_ARE_EQUAL(msg->param_list[i], "")) { /* last param_list param */
+				strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, param);
+				break;
+			}
 		}
 	}
 	return ret_val;
