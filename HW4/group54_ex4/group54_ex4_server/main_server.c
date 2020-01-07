@@ -6,10 +6,11 @@
 #include <stdlib.h>
 #include "defines.h"
 #include "game_ui.h"
+#include "client_thread.h"
 
 int main(int argc, char *argv[]) {
 	ErrorCode_t ret_val = SUCCESS;
-
+	printf("1: %s 2: %s\nWinner: %d\n","SPOCK", "LIZARD", CheckWhoWon(SPOCK, LIZARD));
 	//check argv:
 	if (argc != SERVER_ARGUMENTS_NUM)
 	{
