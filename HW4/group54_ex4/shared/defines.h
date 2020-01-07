@@ -6,9 +6,12 @@
 #include <string.h>
 #define DEBUG true
 
+#define INT_MAX_LEN 20 // x64
+#define RATIO_MAX_LEN 24 // .###
+#define LINE_MAX_LEN 65 //
+#define SPACES_MAX_LEN 18 //
 #define SERVER_ARGUMENTS_NUM 2
 #define CLIENT_ARGUMENTS_NUM 4
-/* general strings length */
 #define USERNAME_MAX_LEN 20
 #define MAX_STR_LEN 256
 #define INPUT_ANSWER_STR_LEN 2
