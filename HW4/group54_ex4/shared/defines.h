@@ -14,10 +14,10 @@
 #define SERVER_PORT 8888
 #define WAIT_FOR_SERVER_RESPONSE 15000 //15 seconds
 #define WAIT_FOR_CLIENT_RESPONSE 15000 //15 seconds
-
+#define FILE_ERROR -1
 /* inline MACRO function defenition: */
 #define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
-
+#define GO_TO_EXIT_ON_FAILURE(ret_val, msg) {if (SUCCESS != ret_val){printf("%s\n",msg);goto EXIT;}}
 typedef enum {
 	SUCCESS,
 	ILLEGAL_NUMBER_OF_ARGV,
