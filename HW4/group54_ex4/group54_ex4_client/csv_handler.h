@@ -28,6 +28,7 @@ void printList(Node *head);
 int LinkedListToCsv(Node *head, char *filename);
 void LinkedListToStr(Node *head, char **leaderboard_str, int buff_size);
 int LengthOfLinkedList(Node *head);
+int IsFileExists(char* filename);
 /*Move to node module*/
 
 #endif

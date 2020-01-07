@@ -28,6 +28,11 @@ int main(int argc, char *argv[]) {
 	/*ErrorCode_t ret_val = SUCCESS;*/
 	int ret_val = SUCCESS;
 	char csv_file[MAX_STR_LEN] = "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"; // ILAY
+	if (FILE_ERROR == IsFileExists(csv_file))
+	{
+		printf("Leaderboard doesn't exist, play some games in order to fill it!!\n");
+		return FILE_ERROR; //DEBUG return to main menu 
+	}
 	Node *head = NULL;
 	RefreshLeaderboard(csv_file, &head);
 	//Next following lines are creating string to print leadearboard
@@ -37,6 +42,7 @@ int main(int argc, char *argv[]) {
 	int ret = AllocateString(&strlead, buff);
 	LinkedListToStr(head, &strlead ,buff);
 	printf("%s\n", strlead);
+
 
 	////check argv:
 	//if (argc != CLIENT_ARGUMENTS_NUM)

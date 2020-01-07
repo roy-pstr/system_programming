@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include "defines.h"
 #include "csv_handler.h"
 
@@ -347,11 +348,19 @@ double Round(double x, int p)
 	}
 }
 
-/*CHECK IF FILE EXIST
-if (access(fname, F_OK) != -1) {
-	// file exists
+/*Check if file exist*/
+int IsFileExists(char* filename)
+{
+	struct stat buffer;
+	int exist = stat(filename, &buffer);
+	if (exist == 0) 
+	{
+		/*file exists*/
+		return SUCCESS;
+	}
+	else
+	{
+		/*file not found*/
+		return FILE_ERROR;
+	}
 }
-else {
-	// file doesn't exist
-}
-*/
