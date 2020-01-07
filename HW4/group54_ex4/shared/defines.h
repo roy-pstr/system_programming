@@ -28,6 +28,9 @@
 #define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
 #define GO_TO_EXIT_ON_FAILURE(ret_val, msg) {if (SUCCESS != ret_val){printf("%s\n",msg);goto EXIT;}}
 
+
+#define FILE_ERROR -1
+
 typedef enum {
 	SUCCESS,
 	ILLEGAL_NUMBER_OF_ARGV,
@@ -47,6 +50,5 @@ typedef enum {
 }ErrorCode_t;
 
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
-
 
 #endif
