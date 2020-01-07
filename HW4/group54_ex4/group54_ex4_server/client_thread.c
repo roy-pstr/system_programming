@@ -81,6 +81,10 @@ ErrorCode_t ClientLeaderboard(SOCKET *t_socket) {
 	while (!exit) {
 		linkedlist_depth = LengthOfLinkedList(Leaderboard_head);
 		string_size = linkedlist_depth * LINE_MAX_LEN + SPACES_MAX_LEN;
+		if (NULL != leaderboard_str) {
+			free(leaderboard_str);
+			leaderboard_str = NULL;
+		}
 		ret_val = AllocateString(&leaderboard_str, linkedlist_depth);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
@@ -116,6 +120,7 @@ ErrorCode_t ClientLeaderboard(SOCKET *t_socket) {
 EXIT:
 	if (NULL != leaderboard_str) {
 		free(leaderboard_str);
+		leaderboard_str = NULL;
 	}
 	return ret_val;
 }
