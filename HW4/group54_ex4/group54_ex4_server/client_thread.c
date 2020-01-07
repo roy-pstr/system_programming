@@ -100,6 +100,7 @@ ErrorCode_t ClientLeaderboard(SOCKET *t_socket) {
 		switch (GetType(&recv_protocol)) {
 			{
 		case CLIENT_REFRESH:
+			RefreshLeaderboard(CSV_NAME, &Leaderboard_head);
 			continue;
 		case CLIENT_MAIN_MENU:
 			exit = true; /* exit loop! */
