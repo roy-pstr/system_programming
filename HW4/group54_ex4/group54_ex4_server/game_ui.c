@@ -18,7 +18,8 @@ ErrorCode_t StartGameServer(int port) {
 
 	ret_val = WaitForClientToConnect(&MainSocket, &ClientSockets[0], &ClientThreadHandles[0]);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForClientToConnect failed. \n");
-	//WaitForClient(&MainSocket, &ClientSockets[1], &ClientThreadHandles[1]);
+	//ret_val = WaitForClientToConnect(&MainSocket, &ClientSockets[1], &ClientThreadHandles[1]);
+	//GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForClientToConnect failed. \n");
 
 	DWORD Res = WaitForSingleObject(ClientThreadHandles[0], INFINITE);
 
