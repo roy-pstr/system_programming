@@ -1,5 +1,4 @@
 #include "socket_tools.h"
-
 #include <stdio.h>
 #include <string.h>
 
@@ -9,6 +8,68 @@ void InitSockets(SOCKET *sockets, int size) {
 	{
 		*sockets = INVALID_SOCKET;
 	}
+}
+
+ErrorCode_t RecvData(SOCKET *t_socket, protocol_t * prtcl_msg) {
+	TransferResult_t RecvRes;
+	ErrorCode_t ret_val = SUCCESS;
+	char *AcceptedStr = NULL;
+	DEBUG_PRINT(printf("Waiting to recive something...\n"));
+	RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+	if (RecvRes == TRNS_FAILED)
+	{
+		printf("Service socket error while reading.\n");
+		ret_val = SOCKET_ERROR_RECV_DATA;
+		goto EXIT;
+	}
+	else if (RecvRes == TRNS_DISCONNECTED)
+	{
+		printf("Connection closed while reading.\n");
+		ret_val = SOCKET_ERROR_RECV_DATA;
+		goto EXIT;
+	}
+
+	DEBUG_PRINT(printf("Recived message : %s\n", AcceptedStr));
+	ret_val = ParseMessage(AcceptedStr, (int)strlen(AcceptedStr) + 1, prtcl_msg);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "ParseMessage() failed!\n");
+
+EXIT:
+	if (NULL != AcceptedStr)
+		free(AcceptedStr);
+	return ret_val;
+}
+
+ErrorCode_t SendData(SOCKET *t_socket, protocol_t * prtcl_msg) {
+	TransferResult_t SendRes;
+	ErrorCode_t ret_val = SUCCESS;
+	//DEBUG_PRINT(printf("Enter a message to send to the server:\n"));
+	char *send_str;
+	ret_val = AllocateString(&send_str, PROTOCOL_MESSAGE_MAX_LEN);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString failed!");
+	ret_val = ProtocolToString(prtcl_msg, &send_str);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "ProtocolToString() failed.\n");
+	SendRes = SendString(send_str, *t_socket);
+	if (SendRes == TRNS_FAILED)
+	{
+		printf("Socket error while trying to write data to socket\n");
+		ret_val = SOCKET_ERROR_SEND_DATA;
+		goto EXIT;
+	}
+	DEBUG_PRINT(printf("Message sent: %s\n", send_str));
+EXIT:
+	if (NULL != send_str)
+		free(send_str);
+	return ret_val;
+}
+
+ErrorCode_t SendProtcolMsg(SOCKET *t_socket, PROTOCOL_ENUM type) {
+	ErrorCode_t ret_val = SUCCESS;
+	protocol_t prtcl_msg;
+	SetProtocol(&prtcl_msg, type, NULL, 0);
+	ret_val = SendData(t_socket, &prtcl_msg);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
+EXIT:
+	return ret_val;
 }
 
 TransferResult_t SendBuffer( const char* Buffer, int BytesToSend, SOCKET sd )

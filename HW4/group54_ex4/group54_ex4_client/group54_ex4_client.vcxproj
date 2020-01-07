@@ -32,6 +32,7 @@
     <ClCompile Include="csv_handler.c" />
     <ClCompile Include="main_client.c" />
     <ClCompile Include="socket_client.c" />
+    <ClCompile Include="user_interface.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

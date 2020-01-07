@@ -45,7 +45,7 @@ ErrorCode_t SetUpTheServer(SOCKET *p_socket, int port) {
 	if (StartupRes != NO_ERROR)
 	{
 		printf("error %ld at WSAStartup( ), ending program.\n", WSAGetLastError());
-		return WSAStartup_FAILURE;
+		return WSASTARTUP_FAILURE;
 	}
 
 	// Create a socket.
@@ -112,6 +112,7 @@ ErrorCode_t WaitForClientToConnect(SOCKET *p_main_socket, SOCKET *client_connect
 EXIT:
 	return ret_val;
 }
+
 void CleanupWorkerThreads() /* update this function with all the failure checks needed !!! */
 {
 	int Ind;

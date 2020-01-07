@@ -53,5 +53,8 @@
     <ClCompile Include="csv_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="user_interface.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

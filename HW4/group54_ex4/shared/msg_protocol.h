@@ -26,7 +26,8 @@ typedef enum  {
 	CLIENT_REFRESH,
 	CLIENT_DISCONNECT,
 	PROTOCOL_ENUM_LAST,
-	ERROR_MSG_TYPE
+	ERROR_MSG_TYPE,
+	NULL_TYPE,
 }PROTOCOL_ENUM;
 static const char *PROTOCOLS_STRINGS[] = {
 	"SERVER_MAIN_MENU",
@@ -55,28 +56,30 @@ typedef struct {
 	char param_list[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN]; /* <param1>;<param2>;<param3>\n*/
 	char * leaderboard_str;
 	int size_in_bytes;
-} msg_t;
+} protocol_t;
 
-void InitMsg_t(msg_t *msg);
+ErrorCode_t AllocateString(char ** str_ptr, int len);
 
-ErrorCode_t ParseMessage(char * msg_str, int msg_length, msg_t * msg);
+void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
+
+ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg);
 
 /* msg_str is already allocated to 'size_in_bytes'. 
 	the output will be a sting in the following format:
 	<protocol_type>:<param_list>
 */
-ErrorCode_t GetMessage(msg_t * msg, char **msg_str);
+ErrorCode_t ProtocolToString(protocol_t * msg, char **msg_str);
 
-PROTOCOL_ENUM GetType(msg_t *msg);
+PROTOCOL_ENUM GetType(protocol_t *msg);
 
 /* gets a string of a protocol and returns the correspondig enum describing the protocol type */
 PROTOCOL_ENUM FindType(char *type_str);
 
-bool ShouldHaveParams(msg_t *msg);
+bool ShouldHaveParams(protocol_t *msg);
 
-ErrorCode_t AddParam(char * param, msg_t *msg);
+ErrorCode_t AddParam(char * param, protocol_t *msg);
 
-ErrorCode_t ParseParams(char * params_list, msg_t *msg);
+ErrorCode_t ParseParams(char * params_list, protocol_t *msg);
 /* debug */
-void PrintProtocol(msg_t *msg);
+void PrintProtocol(protocol_t *msg);
 #endif // MSG_PROTOCOL_H

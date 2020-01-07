@@ -7,4 +7,8 @@
 #include "defines.h"
 #include "socket_tools.h"
 void SetClient();
+ErrorCode_t TryToConnectClient(char * server_ip, int server_port, char username[]);
+ErrorCode_t StartGameClient(char * server_ip, int server_port, char username[]);
 #endif
+
+
