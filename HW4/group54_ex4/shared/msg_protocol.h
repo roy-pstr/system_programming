@@ -60,6 +60,8 @@ typedef struct {
 
 ErrorCode_t AllocateString(char ** str_ptr, int len);
 
+void InitProtocol(protocol_t * msg);
+
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
 
 ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg);

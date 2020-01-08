@@ -94,12 +94,12 @@ ErrorCode_t ConnectClient(char *server_ip, int server_port) {
 	}
 	return ret_val;
 }
-
 ErrorCode_t CheckIfServerApproval(char *server_ip, int server_port, char username[]) {
 	ErrorCode_t ret_val = SUCCESS;
 	/* send CLIENT_REQUEST */
+	DEBUG_PRINT(printf("CheckIfServerApproval starts\n"));
 	ret_val = SendProtcolMsgWithParams(&m_socket, CLIENT_REQUEST, &username, 1);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
+	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!");
 
 	/* wait for SERVER_APPROVED*/
 	protocol_t recv_protocol;
@@ -119,7 +119,6 @@ ErrorCode_t CheckIfServerApproval(char *server_ip, int server_port, char usernam
 EXIT:
 	return ret_val;
 }
-
 ErrorCode_t TryToConnectClient(char *server_ip, int server_port, char username[]) {
 	ErrorCode_t ret_val = SUCCESS;
 	MenuCode_t menu_code;
@@ -163,6 +162,7 @@ ErrorCode_t TryToConnectClient(char *server_ip, int server_port, char username[]
 EXIT:
 	return ret_val;
 }
+
 ErrorCode_t StartGameClientVsClient() {
 	ErrorCode_t ret_val = SUCCESS;
 	return ret_val;
@@ -214,11 +214,9 @@ ErrorCode_t GoToClientLeaderboard() {
 EXIT:
 	return ret_val;
 }
-
 ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 	ErrorCode_t ret_val = SUCCESS;
 	PROTOCOL_ENUM main_menu_protocol;
-	protocol_t send_protocol;
 	protocol_t recv_protocol;
 	/* wait for SERVER_MAIN_MENU */
 	bool wait_for_exit_main_menu = true;
@@ -228,9 +226,8 @@ ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 		if (SERVER_MAIN_MENU == GetType(&recv_protocol)) {
 			/* show menu */
 			main_menu_protocol = MainMenu();
-			SetProtocol(&send_protocol, main_menu_protocol, NULL, 0);
-			ret_val = SendData(&m_socket, &send_protocol);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
+			ret_val = SendProtcolMsgNoParams(&m_socket, main_menu_protocol);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!");
 			switch (main_menu_protocol) {
 			case CLIENT_VERSUS:
 				ret_val = StartGameClientVsClient();

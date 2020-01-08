@@ -1,0 +1,12 @@
+#ifndef _GAME_ENGINE_H
+#define _GAME_ENGINE_H
+typedef enum {
+	ROCK,
+	PAPER,
+	SCISSORS,
+	LIZARD,
+	SPOCK,
+	UNDEFINED_MOVE
+}MOVES_ENUM;
+
+#endif

@@ -100,6 +100,7 @@ int RefreshLeaderboard(char *filename, Node **head)
 	if (NULL != *head)
 	{
 		DestroyLinkedList(*(head));
+		*head = NULL;
 	}
 	FILE* fp_leaderboard = NULL;
 	char line[LINE_MAX_LEN], client_name[USERNAME_MAX_LEN] = "", W[INT_MAX_LEN] = "", L[INT_MAX_LEN] = "", W_L[RATIO_MAX_LEN] = ""; 

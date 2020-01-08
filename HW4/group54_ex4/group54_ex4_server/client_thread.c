@@ -2,6 +2,7 @@
 #include "socket_tools.h"
 #include "msg_protocol.h"
 #include "csv_handler.h"
+#include "game_engine.h"
 
 ErrorCode_t TestConnectionWithServer(SOCKET *t_socket) {
 	ErrorCode_t ret_val = SUCCESS;
@@ -13,8 +14,6 @@ ErrorCode_t TestConnectionWithServer(SOCKET *t_socket) {
 		switch (GetType(&protocol_msg)) {
 		case CLIENT_REQUEST:
 			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_APPROVED);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_MAIN_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
 			client_connected = true; /* exit while loop */
 			break;
@@ -83,9 +82,8 @@ ErrorCode_t ClientLeaderboard(SOCKET *t_socket) {
 		string_size = linkedlist_depth * LINE_MAX_LEN + SPACES_MAX_LEN;
 		if (NULL != leaderboard_str) {
 			free(leaderboard_str);
-			leaderboard_str = NULL;
 		}
-		ret_val = AllocateString(&leaderboard_str, linkedlist_depth);
+		ret_val = AllocateString(&leaderboard_str, string_size);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
 
@@ -125,13 +123,13 @@ EXIT:
 	return ret_val;
 }
 
-
-
 ErrorCode_t ClientMainMenu(SOCKET *t_socket) {
 		ErrorCode_t ret_val = SUCCESS;
 		protocol_t protocol_msg;
 		bool quit = false;
 		while (!quit) {
+			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_MAIN_MENU);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
 			ret_val = RecvData(t_socket, &protocol_msg);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 			switch (GetType(&protocol_msg)) {

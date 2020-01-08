@@ -1,4 +1,5 @@
 #include "socket_tools.h"
+#include "msg_protocol.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -15,6 +16,7 @@ ErrorCode_t RecvData(SOCKET *t_socket, protocol_t * prtcl_msg) {
 	ErrorCode_t ret_val = SUCCESS;
 	char *AcceptedStr = NULL;
 	DEBUG_PRINT(printf("Waiting to recive something...\n"));
+	InitProtocol(prtcl_msg);
 	RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 	if (RecvRes == TRNS_FAILED)
 	{
@@ -44,7 +46,7 @@ ErrorCode_t SendData(SOCKET *t_socket, protocol_t * prtcl_msg) {
 	ErrorCode_t ret_val = SUCCESS;
 	//DEBUG_PRINT(printf("Enter a message to send to the server:\n"));
 	char *send_str;
-	ret_val = AllocateString(&send_str, PROTOCOL_MESSAGE_MAX_LEN);
+	ret_val = AllocateString(&send_str, prtcl_msg->size_in_bytes);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString failed!");
 	ret_val = ProtocolToString(prtcl_msg, &send_str);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ProtocolToString() failed.\n");

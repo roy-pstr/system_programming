@@ -20,6 +20,7 @@ void InitProtocol(protocol_t * msg)
 	{
 		strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, "");
 	}
+	strcpy_s(msg->leaderboard_param, PARAM_STR_MAX_LEN, "");
 	msg->size_in_bytes = 0;
 }
 
@@ -27,19 +28,23 @@ void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char **param_list, int pa
 {
 	InitProtocol(msg);
 	msg->type = type;
+	int str_length = (int)strlen(PROTOCOLS_STRINGS[msg->type]);
 	int i = 0;
 	if (param_list != NULL) { 
+		str_length += 1; /* for the ':' */
 		for (; i < param_list_size; i++) /* copy given parameters */
 		{
 			AddParam(param_list[i], msg);
+			str_length += (int)strlen(param_list[i]) + 1;
 		}
 	}
 	for (;i < PROTOCOL_PARAM_LIST_SIZE; i++) /* initialize the rest to "" */
 	{
 		strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, "");
 	}
-
-	msg->size_in_bytes = 0;
+	msg->size_in_bytes = str_length + 1;
+	//DEBUG_PRINT(printf("SetProtocol len: %d\n", str_length));
+	//DEBUG_PRINT(PrintProtocol(msg));
 }
 
 ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg)
@@ -48,7 +53,7 @@ ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg)
 	InitProtocol(msg);
 	ErrorCode_t ret_val = SUCCESS;
 	const char del[2] = ":";
-	char *msg_cpy, *token = NULL;
+	char *msg_cpy = NULL, *token = NULL;
 	ret_val=AllocateString(&msg_cpy, msg_length);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString failed!\n");
 	strcpy_s(msg_cpy, msg_length, msg_str);
@@ -73,6 +78,7 @@ ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg)
 EXIT:
 	if (msg_cpy != NULL) {
 		free(msg_cpy);
+		msg_cpy = NULL;
 	}
 	return ret_val;
 }
@@ -80,28 +86,28 @@ EXIT:
 ErrorCode_t ProtocolToString(protocol_t * msg, char **msg_str)
 {
 	ErrorCode_t ret_val = SUCCESS;
-	strcpy_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, PROTOCOLS_STRINGS[GetType(msg)]);
+	strcpy_s(*msg_str, msg->size_in_bytes, PROTOCOLS_STRINGS[GetType(msg)]);
 	if (ShouldHaveParams(msg)) {
 		if (STRINGS_ARE_EQUAL(msg->param_list[0], "")) { /* no params!! */
 				printf("No parameters passed for a protocol type: %s\n", PROTOCOLS_STRINGS[GetType(msg)]);
 				return INVALID_MESSAGE_PROTOCOL;
 		}
-		strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, ":"); /* start of param_list */
+		strcat_s(*msg_str, msg->size_in_bytes, ":"); /* start of param_list */
 		if (GetType(msg)==SERVER_LEADERBOARD) {
-			strcat_s(*msg_str, LEADERBOARD_STR_MAX_LEN, msg->leaderboard_param);
-			strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, "\n");
+			strcat_s(*msg_str, msg->size_in_bytes, msg->leaderboard_param);
+			strcat_s(*msg_str, msg->size_in_bytes, "\n");
 			return ret_val;
 		}
-		strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, msg->param_list[0]);
+		strcat_s(*msg_str, msg->size_in_bytes, msg->param_list[0]);
 		for (int i = 1; i < PROTOCOL_PARAM_LIST_SIZE; i++)
 		{
 			if (STRINGS_ARE_EQUAL(msg->param_list[i], "")) { /* end of param_list */
 				break; }
-			strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, ";");
-			strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, msg->param_list[i]);
+			strcat_s(*msg_str, msg->size_in_bytes, ";");
+			strcat_s(*msg_str, msg->size_in_bytes, msg->param_list[i]);
 			
 		}
-		strcat_s(*msg_str, PROTOCOL_MESSAGE_MAX_LEN, "\n");
+		strcat_s(*msg_str, msg->size_in_bytes, "\n");
 	}
 	return ret_val;
 }
@@ -156,7 +162,6 @@ ErrorCode_t AddParam(char * param, protocol_t * msg)
 	ErrorCode_t ret_val = SUCCESS;
 	if (GetType(msg) == SERVER_LEADERBOARD) {
 		strcpy_s(msg->leaderboard_param, LEADERBOARD_STR_MAX_LEN, param);
-		
 		strcpy_s(msg->param_list[0], PARAM_STR_MAX_LEN, "dummy_param");
 	}
 	else {
@@ -187,8 +192,8 @@ ErrorCode_t ParseParams(char * params_list, protocol_t * msg)
 void PrintProtocol(protocol_t * msg)
 {
 	char *msg_str;
-	AllocateString(&msg_str, PROTOCOL_MESSAGE_MAX_LEN);
+	AllocateString(&msg_str, msg->size_in_bytes);
 	ProtocolToString(msg, &msg_str);
-	printf("Protocol <msg>:<param_list> : %s", msg_str);
+	printf("Protocol <msg>:<param_list> : %s , %d", msg_str, msg->size_in_bytes);
 	free(msg_str);
 }
