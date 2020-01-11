@@ -49,13 +49,16 @@ EXIT:
 	return ret_val;
 }
 
-ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
-	DEBUG_PRINT("ClientVsCpu.\n");
+
+
+ErrorCode_t PlayClientVsCpu(SOCKET *t_socket) {
+	DEBUG_PRINT("PlayClientVsCpu.\n");
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	bool exit = false;
 	MOVES_ENUM server_move, user_move;
-	char game_results[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN];
+	char **game_results;
+	AllocateFullParamList(&game_results);
 	while (!exit) {
 
 		server_move = ServerRaffleMove();
@@ -72,7 +75,7 @@ ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
 			/* get game results */
 			user_move=StringToEnum(recv_protocol.param_list[0]);
 			GetGameResults(game_results, user_move, user_name, server_move, "server");
-
+			DEBUG_PRINT(printf("GetGameResults: %s,%s,%s,%s\n", game_results[0], game_results[1], game_results[2], game_results[3]));
 			/* send SERVER_GAME_RESULTS to client : with results!*/
 			ret_val = SendProtcolMsgWithParams(t_socket, SERVER_GAME_RESULTS, game_results,4);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
@@ -80,8 +83,39 @@ ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
 			/* send SERVER_GAME_OVER_MENU to client */
 			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_GAME_OVER_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+			exit = true; /* exit loop */
+
 		}
 		else {
+			ret_val = PROTOCOL_MSG_TYPE_ERROR;
+			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+		}
+	}
+EXIT:
+	FreeFullParamList(&game_results);
+	return ret_val;
+}
+ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
+	DEBUG_PRINT("ClientVsCpu.\n");
+	ErrorCode_t ret_val = SUCCESS;
+	protocol_t recv_protocol;
+	bool exit = false;
+	while (!exit) {
+		ret_val = PlayClientVsCpu(t_socket);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
+
+		/* wait to client to decide: play again or back to main menu */
+		ret_val = RecvData(t_socket, &recv_protocol);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+
+		switch (GetType(&recv_protocol))
+		{
+		case CLIENT_REPLAY:
+			continue; /* go to start of the loop and play again */
+		case CLIENT_MAIN_MENU:
+			exit = true; /* exit loop */
+			break;
+		default:
 			ret_val = PROTOCOL_MSG_TYPE_ERROR;
 			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
 		}
@@ -170,8 +204,6 @@ ErrorCode_t ClientMainMenu(SOCKET *t_socket) {
 				/* client vs cpu */
 				ret_val = ClientVsCpu(t_socket);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
-				//ret_val = SendProtcolMsg(t_socket, SERVER_APPROVED);
-				//GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
 				break;
 			case CLIENT_LEADERBOARD:
 				/* client leaderboard */

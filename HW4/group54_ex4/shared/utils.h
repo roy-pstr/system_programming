@@ -81,6 +81,10 @@ static const char *MOVES_STRINGS[] = {
 /*return move as enum*/
 MOVES_ENUM StringToEnum(char *move);
 
+void AllocateFullParamList(char *** param_list);
+
+void FreeFullParamList(char *** param_list);
+
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
 
 #endif

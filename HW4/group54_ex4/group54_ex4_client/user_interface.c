@@ -93,5 +93,5 @@ void PrintGameResult(protocol_t *p_prot) {
 	char * oppent_move = p_prot->param_list[1];
 	char * my_move = p_prot->param_list[2];
 	char * winner_name = p_prot->param_list[3];
-	printf(GAME_RESULTS, username, oppent_move, my_move, winner_name);
+	printf(GAME_RESULTS, my_move, username, oppent_move, winner_name);
 }
