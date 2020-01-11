@@ -179,13 +179,30 @@ ErrorCode_t AddParam(char * param, protocol_t * msg)
 ErrorCode_t ParseParams(char * params_list, protocol_t * msg)
 {
 	ErrorCode_t ret_val = SUCCESS;
-	char * token = NULL;
-	//printf("ParseParams: %s\n", params_list);
-	token = strtok(params_list, ";");
-	AddParam(token, msg);
-	while (NULL != (token = strtok(NULL, ";"))) {
-		AddParam(token, msg);
+	char *ptr = params_list, *start;
+	char curr_param[PARAM_STR_MAX_LEN];
+	int curr_len = 1;
+	start = params_list;
+	while (*ptr != '\n') {
+		if (*ptr == ';') {
+			strncpy_s(curr_param, PARAM_STR_MAX_LEN, start, curr_len-1); /* copy param without ; */
+			AddParam(curr_param, msg);
+			//DEBUG_PRINT(printf("ParseParams: [%s]\n", curr_param));
+			curr_len = 0;
+			start = ptr + 1;
+		}
+		curr_len++;
+		ptr++;
 	}
+	strncpy_s(curr_param, PARAM_STR_MAX_LEN, start, (curr_len-1)); /* copy last param without \n */
+	AddParam(curr_param, msg);
+	//DEBUG_PRINT(printf("ParseParams: [%s]\n", curr_param));
+	//char * token = NULL;
+	//token = strtok(params_list, ";");
+	//AddParam(token, msg);
+	//while (NULL != (token = strtok(NULL, ";"))) {
+	//	AddParam(token, msg);
+	//}
 	return ret_val;
 }
 
