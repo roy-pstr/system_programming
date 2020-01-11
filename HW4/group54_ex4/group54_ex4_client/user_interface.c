@@ -57,7 +57,7 @@ PROTOCOL_ENUM LeaderboardMenu() {
 		printf(CHOOSE_WHAT_NEXT_LEADERBOARD);
 		gets_s(user_answer, sizeof(user_answer)); //Reading a string from the keyboard
 		if (STRINGS_ARE_EQUAL(user_answer, "1")) { 
-			return CLIENT_REPLAY;
+			return CLIENT_REFRESH;
 		}
 		else if (STRINGS_ARE_EQUAL(user_answer, "2")) { 
 			return CLIENT_MAIN_MENU;

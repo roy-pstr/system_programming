@@ -1,7 +1,16 @@
 #include "utils.h"
+#include <ctype.h>
 
+void UpperString(char* str) {
+	char *s = str;
+	while (*s) {
+		*s = toupper((unsigned char)*s);
+		s++;
+	}
+}
 MOVES_ENUM StringToEnum(char *move)
 {
+	UpperString(move);
 	if (strcmp(move, "ROCK") == 0)
 	{
 		return ROCK;

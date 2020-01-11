@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#define DEBUG false
+#define DEBUG true
 
 #define INT_MAX_LEN 20 // x64
 #define RATIO_MAX_LEN 24 // .###
