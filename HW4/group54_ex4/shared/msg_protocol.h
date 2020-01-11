@@ -53,15 +53,30 @@ static const char *PROTOCOLS_STRINGS[] = {
 };
 
 typedef struct {
+	char param1[PARAM_STR_MAX_LEN];
+	char param2[PARAM_STR_MAX_LEN];
+	char param3[PARAM_STR_MAX_LEN];
+	char param4[PARAM_STR_MAX_LEN];
+	char leaderboard[LEADERBOARD_STR_MAX_LEN];
+}param_list_t;
+
+typedef struct {
 	PROTOCOL_ENUM type; /* message type as defiend in server_protocol or client_protocol */
 	char param_list[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN]; /* <param1>;<param2>;<param3>\n*/
 	char leaderboard_param[LEADERBOARD_STR_MAX_LEN];
+	param_list_t params_list;
 	int size_in_bytes;
 } protocol_t;
 
 ErrorCode_t AllocateString(char ** str_ptr, int len);
 
+void InitParams(param_list_t * list);
+
+void SetParamList(param_list_t * list, char * param1, char * param2, char * param3, char * param4);
+
 void InitProtocol(protocol_t * msg);
+
+void SetProtocolNew(protocol_t * msg, PROTOCOL_ENUM type, param_list_t * param_list);
 
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
 
@@ -79,6 +94,8 @@ PROTOCOL_ENUM GetType(protocol_t *msg);
 PROTOCOL_ENUM FindType(char *type_str);
 
 bool ShouldHaveParams(protocol_t *msg);
+
+ErrorCode_t AddToParamList(char * param, param_list_t *msg);
 
 ErrorCode_t AddParam(char * param, protocol_t *msg);
 

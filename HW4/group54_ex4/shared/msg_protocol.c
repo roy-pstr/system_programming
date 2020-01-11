@@ -2,14 +2,45 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-/*Function for malloc*/
-ErrorCode_t AllocateString(char **str_ptr, int len) {
-	if (NULL == (*str_ptr = (char *)malloc(len)))
-	{
-		printf("Memory Allocation failed! Try again...\n");
-		return(MALLOC_STRING_FAIL);
+
+void InitParams(param_list_t *list) {
+	strcpy_s(list->param1, PARAM_STR_MAX_LEN, "");
+	strcpy_s(list->param2, PARAM_STR_MAX_LEN, "");
+	strcpy_s(list->param3, PARAM_STR_MAX_LEN, "");
+	strcpy_s(list->param4, PARAM_STR_MAX_LEN, "");
+}
+void SetParamList(param_list_t *list, char *param1, char *param2, char *param3, char *param4) {
+	strcpy_s(list->param1, PARAM_STR_MAX_LEN, param1);
+	strcpy_s(list->param2, PARAM_STR_MAX_LEN, param2);
+	strcpy_s(list->param3, PARAM_STR_MAX_LEN, param3);
+	strcpy_s(list->param4, PARAM_STR_MAX_LEN, param4);
+}
+void CopyParams(param_list_t *from, param_list_t *to) {
+	strcpy_s(to->param1, PARAM_STR_MAX_LEN, from->param1);
+	strcpy_s(to->param2, PARAM_STR_MAX_LEN, from->param2);
+	strcpy_s(to->param3, PARAM_STR_MAX_LEN, from->param3);
+	strcpy_s(to->param4, PARAM_STR_MAX_LEN, from->param4);
+}
+int GetParamsLen(param_list_t *list) {
+	int len = 1; /* init for ':' */
+	if (STRINGS_ARE_EQUAL(list->param1, "")) {
+		len += (int)strlen(list->param1) + 1;
+		DEBUG_PRINT(printf("param1: %s, %d", list->param1, strlen(list->param1)));
 	}
-	return SUCCESS;
+	if (STRINGS_ARE_EQUAL(list->param2, "")) {
+		len += (int)strlen(list->param2) + 1;
+	}
+	if (STRINGS_ARE_EQUAL(list->param3, "")) {
+		len += (int)strlen(list->param3) + 1;
+	}
+	if (STRINGS_ARE_EQUAL(list->param4, "")) {
+		len += (int)strlen(list->param4) + 1;
+	}
+	return (len==1) ? 0:(len+1); /* +1 for \n */
+}
+int GetProtocolLen(protocol_t * msg) {
+	int len = (strlen(PROTOCOLS_STRINGS[msg->type]) + GetParamsLen(&msg->params_list)) + 1; /* +1 for \0 */
+	return len;
 }
 
 void InitProtocol(protocol_t * msg)
@@ -22,6 +53,21 @@ void InitProtocol(protocol_t * msg)
 	}
 	strcpy_s(msg->leaderboard_param, PARAM_STR_MAX_LEN, "");
 	msg->size_in_bytes = 0;
+	InitParams(&msg->params_list);
+}
+
+void SetProtocolNew(protocol_t * msg, PROTOCOL_ENUM type, param_list_t *param_list)
+{
+	InitProtocol(msg);
+	msg->type = type;
+	int str_length = (int)strlen(PROTOCOLS_STRINGS[msg->type]);
+	CopyParams(param_list, &msg->params_list);
+	msg->size_in_bytes = GetProtocolLen(msg);
+	//msg->size_in_bytes = PROTOCOL_MESSAGE_MAX_LEN;
+	DEBUG_PRINT(printf("SetProtocolNew: %s,%s,%s,%s\n", msg->params_list.param1, msg->params_list.param2, msg->params_list.param3, msg->params_list.param4));
+	DEBUG_PRINT(printf("SetProtocolNew len: %d\n", msg->size_in_bytes));
+	//DEBUG_PRINT(printf("SetProtocol len: %d\n", str_length));
+	//DEBUG_PRINT(PrintProtocol(msg));
 }
 
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char **param_list, int param_list_size)
@@ -34,6 +80,7 @@ void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char **param_list, int pa
 		str_length += 1; /* for the ':' */
 		for (; i < param_list_size; i++) /* copy given parameters */
 		{
+			DEBUG_PRINT(printf("SetProtocol: %s\n", param_list[i]));
 			AddParam(param_list[i], msg);
 			str_length += (int)strlen(param_list[i]) + 1;
 		}
@@ -88,26 +135,32 @@ ErrorCode_t ProtocolToString(protocol_t * msg, char **msg_str)
 	ErrorCode_t ret_val = SUCCESS;
 	strcpy_s(*msg_str, msg->size_in_bytes, PROTOCOLS_STRINGS[GetType(msg)]);
 	if (ShouldHaveParams(msg)) {
-		if (STRINGS_ARE_EQUAL(msg->param_list[0], "")) { /* no params!! */
-				printf("No parameters passed for a protocol type: %s\n", PROTOCOLS_STRINGS[GetType(msg)]);
-				return INVALID_MESSAGE_PROTOCOL;
-		}
+		//if (STRINGS_ARE_EQUAL(msg->param_list[0], "")) { /* no params!! */
+		//		printf("No parameters passed for a protocol type: %s\n", PROTOCOLS_STRINGS[GetType(msg)]);
+		//		return INVALID_MESSAGE_PROTOCOL;
+		//}
 		strcat_s(*msg_str, msg->size_in_bytes, ":"); /* start of param_list */
 		if (GetType(msg)==SERVER_LEADERBOARD) {
 			strcat_s(*msg_str, msg->size_in_bytes, msg->leaderboard_param);
 			strcat_s(*msg_str, msg->size_in_bytes, "\n");
 			return ret_val;
 		}
-		strcat_s(*msg_str, msg->size_in_bytes, msg->param_list[0]);
-		for (int i = 1; i < PROTOCOL_PARAM_LIST_SIZE; i++)
-		{
-			if (STRINGS_ARE_EQUAL(msg->param_list[i], "")) { /* end of param_list */
-				break; }
-			strcat_s(*msg_str, msg->size_in_bytes, ";");
-			strcat_s(*msg_str, msg->size_in_bytes, msg->param_list[i]);
-			
+		if (!STRINGS_ARE_EQUAL(msg->params_list.param1, "")) {
+			strcat_s(*msg_str, msg->size_in_bytes, msg->params_list.param1);
 		}
-		strcat_s(*msg_str, msg->size_in_bytes, "\n");
+		if (!STRINGS_ARE_EQUAL(msg->params_list.param2, "")) {
+			strcat_s(*msg_str, msg->size_in_bytes, ";");
+			strcat_s(*msg_str, msg->size_in_bytes, msg->params_list.param2);
+		}
+		if (!STRINGS_ARE_EQUAL(msg->params_list.param3, "")) {
+			strcat_s(*msg_str, msg->size_in_bytes, ";");
+			strcat_s(*msg_str, msg->size_in_bytes, msg->params_list.param3);
+		}
+		if (!STRINGS_ARE_EQUAL(msg->params_list.param4, "")) {
+			strcat_s(*msg_str, msg->size_in_bytes, ";");
+			strcat_s(*msg_str, msg->size_in_bytes, msg->params_list.param4);
+		}
+		//strcat_s(*msg_str, msg->size_in_bytes, "\n");
 	}
 	return ret_val;
 }
@@ -157,6 +210,28 @@ bool ShouldHaveParams(protocol_t * msg)
 	}
 }
 
+ErrorCode_t AddToParamList(char * param, param_list_t * params)
+{
+	ErrorCode_t ret_val = SUCCESS;
+	if (STRINGS_ARE_EQUAL(params->param1, "")) {
+		strcpy_s(params->param1, PARAM_STR_MAX_LEN, param);
+		return ret_val;
+	}
+	else if (STRINGS_ARE_EQUAL(params->param2, "")) {
+		strcpy_s(params->param2, PARAM_STR_MAX_LEN, param);
+		return ret_val;
+	}
+	else if (STRINGS_ARE_EQUAL(params->param3, "")) {
+		strcpy_s(params->param3, PARAM_STR_MAX_LEN, param);
+		return ret_val;
+	}
+	else if (STRINGS_ARE_EQUAL(params->param4, "")) {
+		strcpy_s(params->param4, PARAM_STR_MAX_LEN, param);
+		return ret_val;
+	}
+	return ret_val;
+}
+
 ErrorCode_t AddParam(char * param, protocol_t * msg)
 {
 	ErrorCode_t ret_val = SUCCESS;
@@ -165,13 +240,14 @@ ErrorCode_t AddParam(char * param, protocol_t * msg)
 		strcpy_s(msg->param_list[0], PARAM_STR_MAX_LEN, "dummy_param");
 	}
 	else {
-		for (int i = 0; i < PROTOCOL_PARAM_LIST_SIZE; i++)
-		{
-			if (STRINGS_ARE_EQUAL(msg->param_list[i], "")) { /* last param_list param */
-				strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, param);
-				break;
-			}
-		}
+		AddToParamList(param, &msg->params_list);
+		//for (int i = 0; i < PROTOCOL_PARAM_LIST_SIZE; i++)
+		//{
+		//	if (STRINGS_ARE_EQUAL(msg->param_list[i], "")) { /* last param_list param */
+		//		strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, param);
+		//		break;
+		//	}
+		//}
 	}
 	return ret_val;
 }
@@ -194,6 +270,6 @@ void PrintProtocol(protocol_t * msg)
 	char *msg_str;
 	AllocateString(&msg_str, msg->size_in_bytes);
 	ProtocolToString(msg, &msg_str);
-	printf("Protocol <msg>:<param_list> : %s , %d", msg_str, msg->size_in_bytes);
+	printf("Protocol <msg>:<param_list> : %s , %d\n", msg_str, msg->size_in_bytes);
 	free(msg_str);
 }

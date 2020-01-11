@@ -13,7 +13,7 @@ ErrorCode_t TestConnectionWithServer(SOCKET *t_socket) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 		switch (GetType(&protocol_msg)) {
 		case CLIENT_REQUEST:
-			strcpy_s(user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
+			strcpy_s(user_name, USERNAME_MAX_LEN, protocol_msg.params_list.param1);
 			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_APPROVED);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
 			client_connected = true; /* exit while loop */
@@ -70,11 +70,13 @@ ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 			/* get game results */
+			DEBUG_PRINT(printf("StringToEnum(%s)\n", recv_protocol.param_list[0]));
 			user_move=StringToEnum(recv_protocol.param_list[0]);
 			GetGameResults(game_results, user_move, user_name, server_move, "server");
-
+			DEBUG_PRINT(printf("ClientVsCpu: %s,%s,%s,%s\n", game_results[0], game_results[1], game_results[2], game_results[3]));
 			/* send SERVER_GAME_RESULTS to client : with results!*/
-			ret_val = SendProtcolMsgWithParams(t_socket, SERVER_GAME_RESULTS, game_results,4);
+			ret_val = SendProtcolMsgWith4Params(t_socket, SERVER_GAME_RESULTS, game_results[0], game_results[1], game_results[2], game_results[3]);
+			//ret_val = SendProtcolMsgWithParams(t_socket, SERVER_GAME_RESULTS, game_results, 4);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 			/* send SERVER_GAME_OVER_MENU to client */
@@ -105,11 +107,11 @@ ErrorCode_t ClientLeaderboard(SOCKET *t_socket) {
 			free(leaderboard_str);
 		}
 		ret_val = AllocateString(&leaderboard_str, string_size);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
+		GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString() failed!\n");
 		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
 
 		/* send leaderboard to client */
-		ret_val = SendProtcolMsgWithParams(t_socket, SERVER_LEADERBOARD, &leaderboard_str, 1);
+		ret_val = SendProtcolMsgWith1Param(t_socket, SERVER_LEADERBOARD, leaderboard_str);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* send show leaderboard menu to client */

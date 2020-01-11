@@ -10,7 +10,10 @@ void InitSockets(SOCKET * sockets, int size);
 ErrorCode_t RecvData(SOCKET * t_socket, protocol_t * prtcl_msg);
 ErrorCode_t SendData(SOCKET * t_socket, protocol_t * prtcl_msg);
 ErrorCode_t SendProtcolMsgNoParams(SOCKET * t_socket, PROTOCOL_ENUM type);
-ErrorCode_t SendProtcolMsgWithParams(SOCKET * t_socket, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
+ErrorCode_t SendProtcolMsgWithParamsNew(SOCKET * t_socket, PROTOCOL_ENUM type, param_list_t * param_list);
+ErrorCode_t SendProtcolMsgWith1Param(SOCKET * t_socket, PROTOCOL_ENUM type, char * param1);
+ErrorCode_t SendProtcolMsgWith4Params(SOCKET * t_socket, PROTOCOL_ENUM type, char * param1, char * param2, char * param3, char * param4);
+ErrorCode_t SendProtcolMsgWithParams(SOCKET * t_socket, PROTOCOL_ENUM type, char **, int param_list_size);
 
 typedef enum { TRNS_FAILED, TRNS_DISCONNECTED, TRNS_SUCCEEDED } TransferResult_t;
 

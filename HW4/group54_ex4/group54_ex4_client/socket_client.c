@@ -98,8 +98,8 @@ ErrorCode_t CheckIfServerApproval(char *server_ip, int server_port, char usernam
 	ErrorCode_t ret_val = SUCCESS;
 	/* send CLIENT_REQUEST */
 	DEBUG_PRINT(printf("CheckIfServerApproval starts\n"));
-	ret_val = SendProtcolMsgWithParams(&m_socket, CLIENT_REQUEST, &username, 1);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!");
+	ret_val = SendProtcolMsgWith1Param(&m_socket, CLIENT_REQUEST, username);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWith1Param() failed!");
 
 	/* wait for SERVER_APPROVED*/
 	protocol_t recv_protocol;
@@ -184,8 +184,8 @@ ErrorCode_t StartGameClientVsCpu() {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 		if (SERVER_PLAYER_MOVE_REQUEST == GetType(&recv_protocol)) {
 			player_move = ChooseMove();
-			ret_val = SendProtcolMsgWithParams(&m_socket, CLIENT_PLAYER_MOVE, &MOVES_STRINGS[player_move] , 1);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+			ret_val = SendProtcolMsgWith1Param(&m_socket, CLIENT_PLAYER_MOVE, MOVES_STRINGS[player_move] );
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWith1Param() failed!\n");
 			//ret_val = WaitForServerGameResult();
 			//GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForServerGameResult() failed!\n");
 		}

@@ -73,10 +73,53 @@ ErrorCode_t SendProtcolMsgNoParams(SOCKET *t_socket, PROTOCOL_ENUM type) {
 EXIT:
 	return ret_val;
 }
-
+ErrorCode_t SendProtcolMsgWithParamsNew(SOCKET *t_socket, PROTOCOL_ENUM type, param_list_t *param_list) {
+	ErrorCode_t ret_val = SUCCESS;
+	protocol_t prtcl_msg;
+	SetProtocolNew(&prtcl_msg, type, param_list);
+	ret_val = SendData(t_socket, &prtcl_msg);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
+EXIT:
+	return ret_val;
+}
+ErrorCode_t SendProtcolMsgWith1Param(SOCKET *t_socket, PROTOCOL_ENUM type, char *param1) {
+	ErrorCode_t ret_val = SUCCESS;
+	protocol_t prtcl_msg;
+	param_list_t param_list;
+	InitParams(&param_list);
+	AddToParamList(param1, &param_list);
+	SetProtocolNew(&prtcl_msg, type, &param_list);
+	/*param_list_t param_list;
+	SetParamList(&param_list, param1, param2, param3, param4);
+	SetProtocolNew(&prtcl_msg, type, &param_list);*/
+	DEBUG_PRINT(PrintProtocol(&prtcl_msg));
+	ret_val = SendData(t_socket, &prtcl_msg);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
+EXIT:
+	return ret_val;
+}
+ErrorCode_t SendProtcolMsgWith4Params(SOCKET *t_socket, PROTOCOL_ENUM type, char *param1, char *param2, char *param3, char *param4) {
+	ErrorCode_t ret_val = SUCCESS;
+	protocol_t prtcl_msg;
+	param_list_t param_list;
+	InitParams(&param_list);
+	AddToParamList(param1, &param_list);
+	AddToParamList(param2, &param_list);
+	AddToParamList(param3, &param_list);
+	AddToParamList(param4, &param_list);
+	SetProtocolNew(&prtcl_msg, type, &param_list);
+	/*param_list_t param_list;
+	SetParamList(&param_list, param1, param2, param3, param4);
+	SetProtocolNew(&prtcl_msg, type, &param_list);*/
+	ret_val = SendData(t_socket, &prtcl_msg);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
+EXIT:
+	return ret_val;
+}
 ErrorCode_t SendProtcolMsgWithParams(SOCKET *t_socket, PROTOCOL_ENUM type, char **param_list, int param_list_size) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t prtcl_msg;
+	DEBUG_PRINT(printf("SendProtcolMsgWithParams: %s\n", param_list[0]));
 	SetProtocol(&prtcl_msg, type, param_list, param_list_size);
 	ret_val = SendData(t_socket, &prtcl_msg);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
