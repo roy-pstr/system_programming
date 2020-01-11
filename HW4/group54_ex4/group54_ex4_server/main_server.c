@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "defines.h"
+#include "utils.h"
 #include "game_ui.h"
 
 int main(int argc, char *argv[]) {

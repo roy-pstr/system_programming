@@ -1,29 +1,4 @@
 #include "user_interface.h"
-/*return move as enum*/
-MOVES_ENUM StringToEnum(char *move)
-{
-	if (strcmp(move, "ROCK") == 0)
-	{
-		return ROCK;
-	}
-	if (strcmp(move, "PAPER") == 0)
-	{
-		return PAPER;
-	}
-	if (strcmp(move, "SCISSORS") == 0)
-	{
-		return SCISSORS;
-	}
-	if (strcmp(move, "LIZARD") == 0)
-	{
-		return LIZARD;
-	}
-	if (strcmp(move, "SPOCK") == 0)
-	{
-		return SPOCK;
-	}
-	return UNDEFINED_MOVE;
-}
 
 MOVES_ENUM ChooseMove() {
 	bool valid_input = false;
@@ -111,4 +86,12 @@ PROTOCOL_ENUM MainMenu() {
 		}
 	}
 	return ERROR_MSG_TYPE;
+}
+
+void PrintGameResult(protocol_t *p_prot) {
+	char * username = p_prot->param_list[0];
+	char * oppent_move = p_prot->param_list[1];
+	char * my_move = p_prot->param_list[2];
+	char * winner_name = p_prot->param_list[3];
+	printf(GAME_RESULTS, username, oppent_move, my_move, winner_name);
 }

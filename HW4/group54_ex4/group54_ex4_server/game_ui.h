@@ -1,6 +1,6 @@
 #ifndef _GAME_UI_H
 #define _GAME_UI_H
-#include "defines.h"
+#include "utils.h"
 ErrorCode_t StartGameServer(int port);
 
 #endif

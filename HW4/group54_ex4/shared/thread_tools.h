@@ -2,7 +2,7 @@
 #define THREAD_TOOLS_H
 
 #include <windows.h>
-#include "defines.h"
+#include "utils.h"
 void InitHandels(HANDLE * thread_handels, int size);
 
 HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine, LPVOID p_thread_parameters);

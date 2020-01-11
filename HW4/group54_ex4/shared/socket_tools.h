@@ -3,7 +3,7 @@
 
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
-#include "defines.h"
+#include "utils.h"
 #include "msg_protocol.h"
 
 void InitSockets(SOCKET * sockets, int size);

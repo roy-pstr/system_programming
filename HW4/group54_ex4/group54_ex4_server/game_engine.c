@@ -1,5 +1,5 @@
 #include "game_engine.h"
-#include "defines.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -13,32 +13,6 @@ MOVES_ENUM ServerRaffleMove()
 	printf("%d\n", result);
 	return result;
 
-}
-
-/*return move as enum*/
-MOVES_ENUM StringToEnum(char *move)
-{
-	if (strcmp(move, "ROCK") == 0)
-	{
-		return ROCK;
-	}
-	if (strcmp(move, "PAPER") == 0)
-	{
-		return PAPER;
-	}
-	if (strcmp(move, "SCISSORS") == 0)
-	{
-		return SCISSORS;
-	}
-	if (strcmp(move, "LIZARD") == 0)
-	{
-		return LIZARD;
-	}
-	if (strcmp(move, "SPOCK") == 0)
-	{
-		return SPOCK;
-	}
-	return UNDEFINED_MOVE;
 }
 
 /*Switch case function to decide who won - return 1 for user one to win, 2 for user two to win, 0 for draw*/
@@ -95,6 +69,6 @@ int CheckWhoWon(MOVES_ENUM first_move, MOVES_ENUM second_move)
 /*Not done yet*/
 
 /* TODO: write this function! ()in use in 'client_thread.c' */
-void GetGameResults(char game_results[][PARAM_STR_MAX_LEN], MOVES_ENUM player1_move, MOVES_ENUM player2_move, char* other_player_name) {
+void GetGameResults(char game_results[][PARAM_STR_MAX_LEN], MOVES_ENUM player1_move, char* player1_name, MOVES_ENUM player2_move, char* player2_name) {
 
 }

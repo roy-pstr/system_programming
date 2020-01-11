@@ -9,7 +9,7 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-#include "defines.h"
+#include "utils.h"
 #include "socket_client.h"
 #include "socket_tools.h"
 #include "user_interface.h" 

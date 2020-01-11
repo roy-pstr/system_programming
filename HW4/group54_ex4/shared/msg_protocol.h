@@ -1,7 +1,7 @@
 #ifndef MSG_PROTOCOL_H
 #define MSG_PROTOCOL_H
 #include <stdbool.h>
-#include "defines.h"
+#include "utils.h"
 
 
 typedef enum  {

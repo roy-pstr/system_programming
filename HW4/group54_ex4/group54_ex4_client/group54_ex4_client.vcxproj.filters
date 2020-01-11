@@ -18,9 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\shared\defines.h">
-      <Filter>shared</Filter>
-    </ClInclude>
     <ClInclude Include="socket_client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -31,6 +28,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\msg_protocol.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\utils.h">
       <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
@@ -49,6 +49,9 @@
     </ClCompile>
     <ClCompile Include="user_interface.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\utils.c">
+      <Filter>shared</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

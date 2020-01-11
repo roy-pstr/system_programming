@@ -1,7 +1,7 @@
 #ifndef _USER_INTERACE_H
 #define _USER_INTERACE_H
 
-#include "defines.h"
+#include "utils.h"
 #include "msg_protocol.h"
 
 #define ON_CONNECT_TO_SERVER "Conencted to server on %s:%d\n"
@@ -17,7 +17,7 @@
 #define END_GAME_MENU "Choose what to do next:\n1. Play again\n2. Return to the main menu\n"
 #define CLIENT_LEFT_GAME "%s has left the game!\n"
 #define CHOOSE_WHAT_NEXT_ON_CLIENT_CONNECTION_FAILURE "Choose what to do next:\n1. Try to reconnect\n2. Exit\n"
-
+#define GAME_RESULTS "You played: %s\n%s played: %s\n%s won!\n"
 typedef enum {
 	CLIENT_TRY_RECONNECT,
 	CLIENT_EXIT_RECONNECT,
@@ -29,6 +29,7 @@ PROTOCOL_ENUM EndGameMenu();
 MenuCode_t ReconnectMenu();
 PROTOCOL_ENUM LeaderboardMenu();
 PROTOCOL_ENUM MainMenu();
+void PrintGameResult(protocol_t * p_prot);
 #endif
 
 

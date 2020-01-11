@@ -3,7 +3,7 @@
 #include "msg_protocol.h"
 #include "csv_handler.h"
 #include "game_engine.h"
-
+char user_name[USERNAME_MAX_LEN];
 ErrorCode_t TestConnectionWithServer(SOCKET *t_socket) {
 	ErrorCode_t ret_val = SUCCESS;
 	bool client_connected = false;
@@ -13,6 +13,7 @@ ErrorCode_t TestConnectionWithServer(SOCKET *t_socket) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 		switch (GetType(&protocol_msg)) {
 		case CLIENT_REQUEST:
+			strcpy_s(user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
 			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_APPROVED);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
 			client_connected = true; /* exit while loop */
@@ -53,7 +54,7 @@ ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	bool exit = false;
-	MOVES_ENUM server_move;
+	MOVES_ENUM server_move, user_move;
 	char game_results[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN];
 	while (!exit) {
 
@@ -69,7 +70,8 @@ ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 			/* get game results */
-			GetGameResults(game_results, server_move, recv_protocol.param_list[0], "server");
+			user_move=StringToEnum(recv_protocol.param_list[0]);
+			GetGameResults(game_results, user_move, user_name, server_move, "server");
 
 			/* send SERVER_GAME_RESULTS to client : with results!*/
 			ret_val = SendProtcolMsgWithParams(t_socket, SERVER_GAME_RESULTS, game_results,4);
@@ -199,7 +201,7 @@ DWORD ClientThread(SOCKET *t_socket)
 	ErrorCode_t ret_val = SUCCESS;
 	ret_val = TestConnectionWithServer(t_socket);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "TestConnectionWithServer() failed!\n");
-
+	DEBUG_PRINT(printf("user name: %s\n", user_name));
 	ret_val = ClientMainMenu(t_socket);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");
 

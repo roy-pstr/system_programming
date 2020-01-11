@@ -4,7 +4,7 @@
 #include <string.h>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
-#include "defines.h"
+#include "utils.h"
 #include "socket_tools.h"
 void SetClient();
 ErrorCode_t TryToConnectClient(char * server_ip, int server_port, char username[]);
