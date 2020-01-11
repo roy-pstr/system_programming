@@ -70,8 +70,14 @@ ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg)
 		if (token == NULL) {
 			printf("error when trying to parse param_list.\n");
 		}
-		ret_val = ParseParams(token, msg);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "ParseParams() failed.\n");
+		if (GetType(msg) == SERVER_LEADERBOARD) {
+			AddParam(token, msg);
+		}
+		else {
+			ret_val = ParseParams(token, msg);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "ParseParams() failed.\n");
+		}
+		
 	}
 	
 	msg->size_in_bytes = msg_length;
