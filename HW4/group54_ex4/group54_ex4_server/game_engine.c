@@ -70,5 +70,22 @@ int CheckWhoWon(MOVES_ENUM first_move, MOVES_ENUM second_move)
 
 /* TODO: write this function! ()in use in 'client_thread.c' */
 void GetGameResults(char game_results[][PARAM_STR_MAX_LEN], MOVES_ENUM player1_move, char* player1_name, MOVES_ENUM player2_move, char* player2_name) {
-
+	int winner_idx = CheckWhoWon(player1_move, player2_move);
+	strcpy(game_results[0], player2_name);
+	strcpy(game_results[1], MOVES_STRINGS[player2_move]);
+	strcpy(game_results[2], MOVES_STRINGS[player1_move]);
+	if (winner_idx == 1) {
+		strcpy(game_results[3], player1_name);
+	}
+	else
+	{
+		if (winner_idx == 2)
+		{
+			strcpy(game_results[3], player2_name);
+		}
+		else
+		{
+			strcpy(game_results[3], "NONE");
+		}
+	}
 }
