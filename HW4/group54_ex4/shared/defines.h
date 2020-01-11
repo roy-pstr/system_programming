@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#define DEBUG true
+#define DEBUG false
 
 #define INT_MAX_LEN 20 // x64
 #define RATIO_MAX_LEN 24 // .###
@@ -15,6 +15,7 @@
 #define USERNAME_MAX_LEN 20
 #define MAX_STR_LEN 256
 #define INPUT_ANSWER_STR_LEN 2
+#define MOVE_STRING_MAX_LEN 9
 /* protocols */
 #define PROTOCOL_TYPE_STR_MAX_LEN 27
 #define PARAM_STR_MAX_LEN 22
@@ -60,7 +61,22 @@ typedef enum {
 	CLIENT_EXIT_TRY_CONNECT,
 }ErrorCode_t;
 
+typedef enum {
+	ROCK,
+	PAPER,
+	SCISSORS,
+	LIZARD,
+	SPOCK,
+	UNDEFINED_MOVE
+}MOVES_ENUM;
 
+static const char *MOVES_STRINGS[] = {
+	"ROCK",
+	"PAPER",
+	"SCISSORS",
+	"LIZARD",
+	"SPOCK"
+};
 
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
 

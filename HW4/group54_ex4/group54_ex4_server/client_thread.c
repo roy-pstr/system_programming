@@ -51,18 +51,37 @@ EXIT:
 ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
 	DEBUG_PRINT("ClientVsCpu.\n");
 	ErrorCode_t ret_val = SUCCESS;
-	protocol_t protocol_msg;
-	bool quit = false;
-	while (!quit) {
-		ret_val = RecvData(t_socket, &protocol_msg);
+	protocol_t recv_protocol;
+	bool exit = false;
+	MOVES_ENUM server_move;
+	char game_results[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN];
+	while (!exit) {
+
+		server_move = ServerRaffleMove();
+
+		/* send SERVER_PLAYER_MOVE_REQUEST to client */
+		ret_val = SendProtcolMsgNoParams(t_socket, SERVER_PLAYER_MOVE_REQUEST);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+
+		/* wait for response frrom client : with user move */
+		ret_val = RecvData(t_socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
-		switch (GetType(&protocol_msg)) {
-			//case CLIENT_VERSUS:
-			//	break;
-		default:
+
+		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
+			/* get game results */
+			GetGameResults(game_results, server_move, recv_protocol.param_list[0], "server");
+
+			/* send SERVER_GAME_RESULTS to client : with results!*/
+			ret_val = SendProtcolMsgWithParams(t_socket, SERVER_GAME_RESULTS, game_results,4);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
+
+			/* send SERVER_GAME_OVER_MENU to client */
+			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_GAME_OVER_MENU);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+		}
+		else {
 			ret_val = PROTOCOL_MSG_TYPE_ERROR;
-			GO_TO_EXIT_ON_FAILURE(ret_val, "Client sent invalid protocol type!");
-			break;
+			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
 		}
 	}
 EXIT:

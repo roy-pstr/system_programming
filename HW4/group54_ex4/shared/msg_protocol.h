@@ -49,7 +49,8 @@ static const char *PROTOCOLS_STRINGS[] = {
 	"CLIENT_PLAYER_MOVE",
 	"CLIENT_REPLAY",
 	"CLIENT_REFRESH",
-	"CLIENT_DISCONNECT" };
+	"CLIENT_DISCONNECT" 
+};
 
 typedef struct {
 	PROTOCOL_ENUM type; /* message type as defiend in server_protocol or client_protocol */

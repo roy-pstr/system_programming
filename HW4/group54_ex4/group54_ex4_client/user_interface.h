@@ -11,6 +11,7 @@
 #define SERVER_MAIN_MENU_MSG "Choose what to do next:\n1. Play against another client\n2. Play against the server\n3. View the leaderboard\n4. Quit\n"
 #define CHOOSE_WHAT_NEXT_LEADERBOARD "Choose what to do next:\n1. Refresh leaderboard\n2. Return to the main menu\n"
 #define CHOOSE_MOVE "Choose a move from the list: Rock, Paper, Scissors, Lizard or Spock:\n"
+#define CHOOSE_MOVE_UNVALID "Unvalid move! try again...\n"
 #define GAME_RESULT_MSG "You played: %s\n%s played : %s\n%s won!\n"
 #define TEKO_MSG "You played: %s\n%s played : %s\n"
 #define END_GAME_MENU "Choose what to do next:\n1. Play again\n2. Return to the main menu\n"
@@ -23,6 +24,8 @@ typedef enum {
 	INVALID_MENU_CODE,
 }MenuCode_t;
 
+MOVES_ENUM ChooseMove();
+PROTOCOL_ENUM EndGameMenu();
 MenuCode_t ReconnectMenu();
 PROTOCOL_ENUM LeaderboardMenu();
 PROTOCOL_ENUM MainMenu();

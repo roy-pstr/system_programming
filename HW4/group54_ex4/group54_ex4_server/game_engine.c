@@ -14,6 +14,7 @@ MOVES_ENUM ServerRaffleMove()
 	return result;
 
 }
+
 /*return move as enum*/
 MOVES_ENUM StringToEnum(char *move)
 {
@@ -39,6 +40,7 @@ MOVES_ENUM StringToEnum(char *move)
 	}
 	return UNDEFINED_MOVE;
 }
+
 /*Switch case function to decide who won - return 1 for user one to win, 2 for user two to win, 0 for draw*/
 int CheckWhoWon(MOVES_ENUM first_move, MOVES_ENUM second_move)
 {
@@ -91,3 +93,8 @@ int CheckWhoWon(MOVES_ENUM first_move, MOVES_ENUM second_move)
 
 }
 /*Not done yet*/
+
+/* TODO: write this function! ()in use in 'client_thread.c' */
+void GetGameResults(char game_results[][PARAM_STR_MAX_LEN], MOVES_ENUM player1_move, MOVES_ENUM player2_move, char* other_player_name) {
+
+}
