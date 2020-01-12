@@ -3,6 +3,10 @@
 #include "msg_protocol.h"
 #include "csv_handler.h"
 #include "game_engine.h"
+#include "csv_handler.h"
+
+extern Node *Leaderboard_head;
+
 char user_name[USERNAME_MAX_LEN];
 ErrorCode_t TestConnectionWithServer(SOCKET *t_socket) {
 	ErrorCode_t ret_val = SUCCESS;
@@ -73,8 +77,28 @@ ErrorCode_t PlayClientVsCpu(SOCKET *t_socket) {
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 			/* get game results */
+			Node *update_lb = NULL , *update_server = NULL;
 			user_move=StringToEnum(recv_protocol.param_list[0]);
 			GetGameResults(game_results, user_move, user_name, server_move, "server");
+			if (strcmp(game_results[3], "NONE") != 0)
+			{
+				if (strcmp(game_results[3], game_results[0]) == 0)
+				{
+					//update_server = DetectAndUpdateElement(&Leaderboard_head, game_results[0], 1); ILAY - NOT MANDATORY
+					update_lb = DetectAndUpdateElement(&Leaderboard_head,user_name, 0);
+				}
+				else {
+					update_lb = DetectAndUpdateElement(&Leaderboard_head, user_name, 1);
+					//update_server = DetectAndUpdateElement(&Leaderboard_head, game_results[0], 0);
+				}
+			}
+			if (NULL != update_lb)
+			{
+				sortedInsert(&Leaderboard_head, update_lb);
+				//sortedInsert(&Leaderboard_head, update_server);
+				LinkedListToCsv(Leaderboard_head, CSV_NAME);
+				
+			}
 			DEBUG_PRINT(printf("GetGameResults: %s,%s,%s,%s\n", game_results[0], game_results[1], game_results[2], game_results[3]));
 			/* send SERVER_GAME_RESULTS to client : with results!*/
 			ret_val = SendProtcolMsgWithParams(t_socket, SERVER_GAME_RESULTS, game_results,4);

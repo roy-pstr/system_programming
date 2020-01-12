@@ -138,23 +138,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\csv_handler.h" />
     <ClInclude Include="..\shared\msg_protocol.h" />
     <ClInclude Include="..\shared\socket_tools.h" />
     <ClInclude Include="..\shared\thread_tools.h" />
     <ClInclude Include="..\shared\utils.h" />
     <ClInclude Include="client_thread.h" />
-    <ClInclude Include="csv_handler.h" />
     <ClInclude Include="game_engine.h" />
     <ClInclude Include="game_ui.h" />
     <ClInclude Include="socket_server.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\csv_handler.c" />
     <ClCompile Include="..\shared\msg_protocol.c" />
     <ClCompile Include="..\shared\socket_tools.c" />
     <ClCompile Include="..\shared\thread_tools.c" />
     <ClCompile Include="..\shared\utils.c" />
     <ClCompile Include="client_thread.c" />
-    <ClCompile Include="csv_handler.c" />
     <ClCompile Include="game_engine.c" />
     <ClCompile Include="game_ui.c" />
     <ClCompile Include="main_server.c" />

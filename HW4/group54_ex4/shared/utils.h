@@ -68,7 +68,7 @@ typedef enum {
 	LIZARD,
 	SPOCK,
 	UNDEFINED_MOVE
-}MOVES_ENUM;
+} MOVES_ENUM;
 
 static const char *MOVES_STRINGS[] = {
 	"ROCK",

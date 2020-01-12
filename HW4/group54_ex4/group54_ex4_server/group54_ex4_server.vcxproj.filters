@@ -36,13 +36,13 @@
     <ClInclude Include="..\shared\msg_protocol.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="csv_handler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="game_engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\utils.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\csv_handler.h">
       <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,13 +68,13 @@
     <ClCompile Include="..\shared\msg_protocol.c">
       <Filter>shared</Filter>
     </ClCompile>
-    <ClCompile Include="csv_handler.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="game_engine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\utils.c">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\csv_handler.c">
       <Filter>shared</Filter>
     </ClCompile>
   </ItemGroup>
