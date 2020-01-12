@@ -2,15 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-/*Function for malloc*/
-ErrorCode_t AllocateString(char **str_ptr, int len) {
-	if (NULL == (*str_ptr = (char *)malloc(len)))
-	{
-		printf("Memory Allocation failed! Try again...\n");
-		return(MALLOC_STRING_FAIL);
-	}
-	return SUCCESS;
-}
 
 void InitProtocol(protocol_t * msg)
 {
