@@ -2,8 +2,13 @@
 #include "user_interface.h" 
 #include "msg_protocol.h"
 #include "socket_tools.h"
+#include "utils.h"
+#include "csv_handler.h"
+
+
 
 extern SOCKET m_socket;
+
 
 ErrorCode_t ConnectClient(char *server_ip, int server_port) {
 	ErrorCode_t ret_val = SUCCESS;
@@ -128,6 +133,8 @@ ErrorCode_t StartGameClientVsCpu() {
 		else if (SERVER_GAME_RESULTS == GetType(&recv_protocol))
 		{
 			PrintGameResult(&recv_protocol);
+		
+			//DetectAndUpdateElement(&Leaderboard_head, name, 1); ILAY
 
 			/* wait to recive from server */
 			ret_val = RecvData(&m_socket, &recv_protocol);
@@ -167,6 +174,7 @@ ErrorCode_t StartGameClientVsCpu() {
 EXIT:
 	return ret_val;
 }
+
 ErrorCode_t GoToClientLeaderboard() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;

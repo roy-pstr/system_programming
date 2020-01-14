@@ -275,7 +275,7 @@ Node *DetectAndUpdateElement(Node **head, char* name,int w)
 			}
 			else 
 			{
-				curr->ratio = (curr->won / curr->lost);
+				curr->ratio = Round((curr->won +0.0)/ curr->lost,3);
 			}
 			return curr;
 		}
@@ -291,13 +291,13 @@ int LinkedListToCsv(Node *head, char *filename)
 	int ret_val = SUCCESS;
 	Node *temp = head;
 	FILE *fp_leaderboard = NULL;
-	if (NULL == (fp_leaderboard = fopen(filename, "r")))
+	if (NULL == (fp_leaderboard = fopen(filename, "w")))
 	{
 		printf("File ERROR\n");
 		ret_val = FILE_ERROR;
 		goto EXIT;
 	}
-	fprintf(fp_leaderboard, "Name,W,L,W/L Ratio");
+	fprintf(fp_leaderboard, "Name,W,L,W/L Ratio\n");
 	while (temp != NULL)
 	{
 		fprintf(fp_leaderboard, "%s,%d,%d,%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);

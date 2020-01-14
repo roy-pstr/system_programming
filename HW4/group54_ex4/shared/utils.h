@@ -14,7 +14,7 @@
 #define CLIENT_ARGUMENTS_NUM 4
 #define USERNAME_MAX_LEN 20
 #define MAX_STR_LEN 256
-#define INPUT_ANSWER_STR_LEN 2
+#define INPUT_ANSWER_STR_LEN 10
 #define MOVE_STRING_MAX_LEN 9
 /* protocols */
 #define PROTOCOL_TYPE_STR_MAX_LEN 27
@@ -68,7 +68,7 @@ typedef enum {
 	LIZARD,
 	SPOCK,
 	UNDEFINED_MOVE
-}MOVES_ENUM;
+} MOVES_ENUM;
 
 static const char *MOVES_STRINGS[] = {
 	"ROCK",
