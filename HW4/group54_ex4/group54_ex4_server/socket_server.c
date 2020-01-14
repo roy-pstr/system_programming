@@ -1,5 +1,5 @@
 #include "socket_server.h"
-#include "client_thread.h"
+
 #include "thread_tools.h"
 
 HANDLE ThreadHandles[NUMBER_OF_CLIENTS];
@@ -89,7 +89,7 @@ ErrorCode_t SetUpTheServer(SOCKET *p_socket, int port) {
 	}
 	return ret_val;
 }
-ErrorCode_t WaitForClientToConnect(SOCKET *p_main_socket, SOCKET *client_connection, HANDLE *client_handle) {
+ErrorCode_t WaitForClientToConnect(SOCKET *p_main_socket, client_params_t *client_args, HANDLE *client_handle) {
 	ErrorCode_t ret_val = SUCCESS;
 	DEBUG_PRINT(printf("Waiting for a client to connect...\n"));
 	SOCKET AcceptSocket = accept(*p_main_socket, NULL, NULL);
@@ -101,8 +101,8 @@ ErrorCode_t WaitForClientToConnect(SOCKET *p_main_socket, SOCKET *client_connect
 	DEBUG_PRINT(printf("Client Connected.\n"));
 
 	/* warp the client socket connection via ClientThread */
-	*client_connection = AcceptSocket; // shallow copy: close client_socket when the time comes.
-	if (NULL == (*client_handle = CreateThreadSimple((LPTHREAD_START_ROUTINE)ClientThread, client_connection)))
+	client_args->socket = AcceptSocket; // shallow copy: close client_socket when the time comes.
+	if (NULL == (*client_handle = CreateThreadSimple((LPTHREAD_START_ROUTINE)ClientThread, client_args)))
 	{
 		printf("Error when creating client thread: %d\n", GetLastError());
 		ret_val = THREAD_CREATE_FAILED;

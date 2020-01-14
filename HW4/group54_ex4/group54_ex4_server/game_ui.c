@@ -4,6 +4,7 @@
 #include "socket_tools.h"
 #include "thread_tools.h"
 #include "csv_handler.h"
+#include "client_thread.h"
 
 Node *Leaderboard_head = NULL;
 void InitLeaderboard(Node **head, char * file_path) {
@@ -26,13 +27,14 @@ ErrorCode_t StartGameServer(int port) {
 	InitLeaderboard(&Leaderboard_head, CSV_NAME);
 	
 	SOCKET ClientSockets[NUMBER_OF_CLIENTS];
+	client_params_t ClientThreadArgs[NUMBER_OF_CLIENTS];
 	//InitSockets(ClientSockets, NUMBER_OF_CLIENTS);
 	HANDLE ClientThreadHandles[NUMBER_OF_CLIENTS];
 	InitHandels(ClientThreadHandles, NUMBER_OF_CLIENTS);
 
-	ret_val = WaitForClientToConnect(&MainSocket, &ClientSockets[0], &ClientThreadHandles[0]);
+	ret_val = WaitForClientToConnect(&MainSocket, &ClientThreadArgs[0], &ClientThreadHandles[0]);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForClientToConnect failed. \n");
-	ret_val = WaitForClientToConnect(&MainSocket, &ClientSockets[1], &ClientThreadHandles[1]);
+	ret_val = WaitForClientToConnect(&MainSocket, &ClientThreadArgs[1], &ClientThreadHandles[1]);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForClientToConnect failed. \n");
 
 	DWORD Res = WaitForSingleObject(ClientThreadHandles[0], INFINITE);

@@ -13,12 +13,12 @@ ErrorCode_t TestConnectionWithServer(client_params_t *Args) {
 	bool client_connected = false;
 	protocol_t protocol_msg;
 	while (!client_connected) {
-		ret_val = RecvData(Args->socket, &protocol_msg);
+		ret_val = RecvData(&Args->socket, &protocol_msg);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 		switch (GetType(&protocol_msg)) {
 		case CLIENT_REQUEST:
 			strcpy_s(Args->user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
-			ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_APPROVED);
+			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_APPROVED);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
 			client_connected = true; /* exit while loop */
 			break;
@@ -49,7 +49,7 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args) {
 	//	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
 	//	/* wait for response frrom client : with user move */
-	//	ret_val = RecvData(Args->socket, &recv_protocol);
+	//	ret_val = RecvData(&Args->socket, &recv_protocol);
 	//	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 	//	if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
@@ -96,7 +96,7 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	//	GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
 
 	//	/* wait to client to decide: play again or back to main menu */
-	//	ret_val = RecvData(Args->socket, &recv_protocol);
+	//	ret_val = RecvData(&Args->socket, &recv_protocol);
 	//	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 	//	switch (GetType(&recv_protocol))
@@ -154,11 +154,11 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 		server_move = ServerRaffleMove();
 
 		/* send SERVER_PLAYER_MOVE_REQUEST to client */
-		ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_PLAYER_MOVE_REQUEST);
+		ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_PLAYER_MOVE_REQUEST);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
 		/* wait for response frrom client : with user move */
-		ret_val = RecvData(Args->socket, &recv_protocol);
+		ret_val = RecvData(&Args->socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
@@ -171,11 +171,11 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 			UpdateLeaderboard(game_results, Args->user_name);
 
 			/* send SERVER_GAME_RESULTS to client : with results!*/
-			ret_val = SendProtcolMsgWithParams(Args->socket, SERVER_GAME_RESULTS, game_results,4);
+			ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_GAME_RESULTS, game_results,4);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 			/* send SERVER_GAME_OVER_MENU to client */
-			ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_GAME_OVER_MENU);
+			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_GAME_OVER_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 			exit = true; /* exit loop */
 
@@ -195,11 +195,11 @@ ErrorCode_t ClientVsCpu(client_params_t *Args) {
 	protocol_t recv_protocol;
 	bool exit = false;
 	while (!exit) {
-		ret_val = PlayClientVsCpu(Args->socket);
+		ret_val = PlayClientVsCpu(Args);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
 
 		/* wait to client to decide: play again or back to main menu */
-		ret_val = RecvData(Args->socket, &recv_protocol);
+		ret_val = RecvData(&Args->socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		switch (GetType(&recv_protocol))
@@ -237,15 +237,15 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
 
 		/* send leaderboard to client */
-		ret_val = SendProtcolMsgWithParams(Args->socket, SERVER_LEADERBOARD, &leaderboard_str, 1);
+		ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_LEADERBOARD, &leaderboard_str, 1);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* send show leaderboard menu to client */
-		ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_LEADERBORAD_MENU);
+		ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_LEADERBORAD_MENU);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* wait for response frrom client */
-		ret_val = RecvData(Args->socket, &recv_protocol);
+		ret_val = RecvData(&Args->socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		switch (GetType(&recv_protocol)) {
@@ -277,9 +277,9 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 		protocol_t protocol_msg;
 		bool quit = false;
 		while (!quit) {
-			ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_MAIN_MENU);
+			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_MAIN_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-			ret_val = RecvData(Args->socket, &protocol_msg);
+			ret_val = RecvData(&Args->socket, &protocol_msg);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 			switch (GetType(&protocol_msg)) {
 			case CLIENT_VERSUS:
@@ -287,7 +287,7 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 				* wait to second client to connect
 				* on client2 connect	success - > SERVER_INVITE
 										failure - >  SERVER_NO_OPPONENTS */
-				ret_val = ClientVsClient(Args->socket);
+				ret_val = ClientVsClient(Args);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsClient() failed!\n");
 				/*ret_val = SendProtcolMsg(Args->socket, SERVER_INVITE);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
@@ -296,12 +296,12 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 				break;
 			case CLIENT_CPU:
 				/* client vs cpu */
-				ret_val = ClientVsCpu(Args->socket);
+				ret_val = ClientVsCpu(Args);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
 				break;
 			case CLIENT_LEADERBOARD:
 				/* client leaderboard */
-				ret_val = ClientLeaderboard(Args->socket);
+				ret_val = ClientLeaderboard(Args);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientLeaderboard() failed!\n");
 				/*ret_val = SendProtcolMsg(Args->socket, SERVER_LEADERBOARD);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");*/
@@ -334,15 +334,15 @@ DWORD ClientThread(LPVOID lpParam)
 	}
 	Args = (client_params_t*)lpParam;
 
-	ret_val = TestConnectionWithServer(Args->socket);
+	ret_val = TestConnectionWithServer(Args);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "TestConnectionWithServer() failed!\n");
 	DEBUG_PRINT(printf("user name: %s\n", Args->user_name));
-	ret_val = ClientMainMenu(Args->socket);
+	ret_val = ClientMainMenu(Args);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");
 
 EXIT:
 	printf("Conversation ended.\n");
-	closesocket(*Args->socket);
-	*Args->socket = INVALID_SOCKET;
+	closesocket(Args->socket);
+	Args->socket = INVALID_SOCKET;
 	return ret_val;
 }
