@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "utils.h"
-
+#include "socket_server.h"
 
 int main(int argc, char *argv[]) {
 	ErrorCode_t ret_val = SUCCESS;
