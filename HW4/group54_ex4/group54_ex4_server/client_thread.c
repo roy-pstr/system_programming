@@ -7,18 +7,18 @@
 
 extern Node *Leaderboard_head;
 
-char user_name[USERNAME_MAX_LEN];
-ErrorCode_t TestConnectionWithServer(SOCKET *t_socket) {
+
+ErrorCode_t TestConnectionWithServer(client_params_t *Args) {
 	ErrorCode_t ret_val = SUCCESS;
 	bool client_connected = false;
 	protocol_t protocol_msg;
 	while (!client_connected) {
-		ret_val = RecvData(t_socket, &protocol_msg);
+		ret_val = RecvData(Args->socket, &protocol_msg);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 		switch (GetType(&protocol_msg)) {
 		case CLIENT_REQUEST:
-			strcpy_s(user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
-			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_APPROVED);
+			strcpy_s(Args->user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
+			ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_APPROVED);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
 			client_connected = true; /* exit while loop */
 			break;
@@ -31,24 +31,86 @@ ErrorCode_t TestConnectionWithServer(SOCKET *t_socket) {
 EXIT:
 	return ret_val;
 }
+ErrorCode_t PlayClientVsClient(client_params_t *Args) {
+	DEBUG_PRINT("PlayClientVsClient.\n");
+	ErrorCode_t ret_val = SUCCESS;
+	protocol_t recv_protocol;
+	bool exit = false;
+	MOVES_ENUM other_user_move, user_move;
+	char **game_results;
+	AllocateFullParamList(&game_results);
 
-ErrorCode_t ClientVsClient(SOCKET *t_socket) {
+	//while (!exit) {
+
+	//	//server_move = ServerRaffleMove();
+
+	//	/* send SERVER_PLAYER_MOVE_REQUEST to client */
+	//	ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_PLAYER_MOVE_REQUEST);
+	//	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+
+	//	/* wait for response frrom client : with user move */
+	//	ret_val = RecvData(Args->socket, &recv_protocol);
+	//	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+
+	//	if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
+	//		/* get game results */
+	//		user_move = StringToEnum(recv_protocol.param_list[0]);
+	//		GetGameResults(game_results, user_move, Args->user_name, other_user_move, "server");
+	//		//DEBUG_PRINT(printf("GetGameResults: %s,%s,%s,%s\n", game_results[0], game_results[1], game_results[2], game_results[3]));
+
+	//		/* update leaderboard wtih result */
+	//		UpdateLeaderboard(game_results, Args->user_name);
+
+	//		/* send SERVER_GAME_RESULTS to client : with results!*/
+	//		ret_val = SendProtcolMsgWithParams(Args->socket, SERVER_GAME_RESULTS, game_results, 4);
+	//		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
+
+	//		/* send SERVER_GAME_OVER_MENU to client */
+	//		ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_GAME_OVER_MENU);
+	//		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+	//		exit = true; /* exit loop */
+
+	//	}
+	//	else {
+	//		ret_val = PROTOCOL_MSG_TYPE_ERROR;
+	//		GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+	//	}
+	//}
+EXIT:
+	FreeFullParamList(&game_results);
+	return ret_val;
+}
+ErrorCode_t ClientVsClient(client_params_t *Args) {
 	DEBUG_PRINT("ClientVsClient.\n");
 	ErrorCode_t ret_val = SUCCESS;
-	protocol_t protocol_msg;
-	bool quit = false;
-	while (!quit) {
-		ret_val = RecvData(t_socket, &protocol_msg);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
-		switch (GetType(&protocol_msg)) {
-		//case CLIENT_VERSUS:
-		//	break;
-		default:
-			ret_val = PROTOCOL_MSG_TYPE_ERROR;
-			GO_TO_EXIT_ON_FAILURE(ret_val, "Client sent invalid protocol type!");
-			break;
-		}
-	}
+	protocol_t recv_protocol;
+	bool exit = false;
+	//while (!exit) {
+	//	
+	//	if gamesession not exit:
+	//		create gamesession
+	//		/* wait for other client to connect */
+	//	else
+	//		/* other client is already connected */
+	//	ret_val = PlayClientVsClient(Args->socket);
+	//	GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
+
+	//	/* wait to client to decide: play again or back to main menu */
+	//	ret_val = RecvData(Args->socket, &recv_protocol);
+	//	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+
+	//	switch (GetType(&recv_protocol))
+	//	{
+	//	case CLIENT_REPLAY:
+	//		continue; /* go to start of the loop and play again */
+	//	case CLIENT_MAIN_MENU:
+	//		exit = true; /* exit loop */
+	//		break;
+	//	default:
+	//		ret_val = PROTOCOL_MSG_TYPE_ERROR;
+	//		GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+	//	}
+	//}
 EXIT:
 	return ret_val;
 }
@@ -62,10 +124,10 @@ ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
 		if (strcmp(game_results[3], game_results[0]) == 0)
 		{
 			//update_server = DetectAndUpdateElement(&Leaderboard_head, game_results[0], 1); ILAY - NOT MANDATORY
-			update_lb = DetectAndUpdateElement(&Leaderboard_head, user_name, 0);
+			update_lb = DetectAndUpdateElement(&Leaderboard_head, username, 0);
 		}
 		else {
-			update_lb = DetectAndUpdateElement(&Leaderboard_head, user_name, 1);
+			update_lb = DetectAndUpdateElement(&Leaderboard_head, username, 1);
 			//update_server = DetectAndUpdateElement(&Leaderboard_head, game_results[0], 0);
 		}
 	}
@@ -79,7 +141,7 @@ ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
 	return ret_val;
 }
 
-ErrorCode_t PlayClientVsCpu(SOCKET *t_socket) {
+ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 	DEBUG_PRINT("PlayClientVsCpu.\n");
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -92,28 +154,28 @@ ErrorCode_t PlayClientVsCpu(SOCKET *t_socket) {
 		server_move = ServerRaffleMove();
 
 		/* send SERVER_PLAYER_MOVE_REQUEST to client */
-		ret_val = SendProtcolMsgNoParams(t_socket, SERVER_PLAYER_MOVE_REQUEST);
+		ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_PLAYER_MOVE_REQUEST);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
 		/* wait for response frrom client : with user move */
-		ret_val = RecvData(t_socket, &recv_protocol);
+		ret_val = RecvData(Args->socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 			/* get game results */
 			user_move = StringToEnum(recv_protocol.param_list[0]);
-			GetGameResults(game_results, user_move, user_name, server_move, "server");
+			GetGameResults(game_results, user_move, Args->user_name, server_move, "server");
 			//DEBUG_PRINT(printf("GetGameResults: %s,%s,%s,%s\n", game_results[0], game_results[1], game_results[2], game_results[3]));
 
 			/* update leaderboard wtih result */
-			UpdateLeaderboard(game_results, user_name);
+			UpdateLeaderboard(game_results, Args->user_name);
 
 			/* send SERVER_GAME_RESULTS to client : with results!*/
-			ret_val = SendProtcolMsgWithParams(t_socket, SERVER_GAME_RESULTS, game_results,4);
+			ret_val = SendProtcolMsgWithParams(Args->socket, SERVER_GAME_RESULTS, game_results,4);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 			/* send SERVER_GAME_OVER_MENU to client */
-			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_GAME_OVER_MENU);
+			ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_GAME_OVER_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 			exit = true; /* exit loop */
 
@@ -127,17 +189,17 @@ EXIT:
 	FreeFullParamList(&game_results);
 	return ret_val;
 }
-ErrorCode_t ClientVsCpu(SOCKET *t_socket) {
+ErrorCode_t ClientVsCpu(client_params_t *Args) {
 	DEBUG_PRINT("ClientVsCpu.\n");
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	bool exit = false;
 	while (!exit) {
-		ret_val = PlayClientVsCpu(t_socket);
+		ret_val = PlayClientVsCpu(Args->socket);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
 
 		/* wait to client to decide: play again or back to main menu */
-		ret_val = RecvData(t_socket, &recv_protocol);
+		ret_val = RecvData(Args->socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		switch (GetType(&recv_protocol))
@@ -157,7 +219,7 @@ EXIT:
 }
 
 extern Node *Leaderboard_head;
-ErrorCode_t ClientLeaderboard(SOCKET *t_socket) {
+ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	DEBUG_PRINT("ClientLeaderboard.\n");
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -175,15 +237,15 @@ ErrorCode_t ClientLeaderboard(SOCKET *t_socket) {
 		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
 
 		/* send leaderboard to client */
-		ret_val = SendProtcolMsgWithParams(t_socket, SERVER_LEADERBOARD, &leaderboard_str, 1);
+		ret_val = SendProtcolMsgWithParams(Args->socket, SERVER_LEADERBOARD, &leaderboard_str, 1);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* send show leaderboard menu to client */
-		ret_val = SendProtcolMsgNoParams(t_socket, SERVER_LEADERBORAD_MENU);
+		ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_LEADERBORAD_MENU);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* wait for response frrom client */
-		ret_val = RecvData(t_socket, &recv_protocol);
+		ret_val = RecvData(Args->socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		switch (GetType(&recv_protocol)) {
@@ -210,14 +272,14 @@ EXIT:
 	return ret_val;
 }
 
-ErrorCode_t ClientMainMenu(SOCKET *t_socket) {
+ErrorCode_t ClientMainMenu(client_params_t *Args) {
 		ErrorCode_t ret_val = SUCCESS;
 		protocol_t protocol_msg;
 		bool quit = false;
 		while (!quit) {
-			ret_val = SendProtcolMsgNoParams(t_socket, SERVER_MAIN_MENU);
+			ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_MAIN_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-			ret_val = RecvData(t_socket, &protocol_msg);
+			ret_val = RecvData(Args->socket, &protocol_msg);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 			switch (GetType(&protocol_msg)) {
 			case CLIENT_VERSUS:
@@ -225,23 +287,23 @@ ErrorCode_t ClientMainMenu(SOCKET *t_socket) {
 				* wait to second client to connect
 				* on client2 connect	success - > SERVER_INVITE
 										failure - >  SERVER_NO_OPPONENTS */
-				ret_val = ClientVsClient(t_socket);
+				ret_val = ClientVsClient(Args->socket);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsClient() failed!\n");
-				/*ret_val = SendProtcolMsg(t_socket, SERVER_INVITE);
+				/*ret_val = SendProtcolMsg(Args->socket, SERVER_INVITE);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-				ret_val = SendProtcolMsg(t_socket, SERVER_NO_OPPONENTS);
+				ret_val = SendProtcolMsg(Args->socket, SERVER_NO_OPPONENTS);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");*/
 				break;
 			case CLIENT_CPU:
 				/* client vs cpu */
-				ret_val = ClientVsCpu(t_socket);
+				ret_val = ClientVsCpu(Args->socket);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
 				break;
 			case CLIENT_LEADERBOARD:
 				/* client leaderboard */
-				ret_val = ClientLeaderboard(t_socket);
+				ret_val = ClientLeaderboard(Args->socket);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientLeaderboard() failed!\n");
-				/*ret_val = SendProtcolMsg(t_socket, SERVER_LEADERBOARD);
+				/*ret_val = SendProtcolMsg(Args->socket, SERVER_LEADERBOARD);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");*/
 				/* wait for client to decide what to do */
 				break;
@@ -260,18 +322,27 @@ EXIT:
 	return ret_val;
 }
 
-DWORD ClientThread(SOCKET *t_socket)
+DWORD ClientThread(LPVOID lpParam)
 {
 	ErrorCode_t ret_val = SUCCESS;
-	ret_val = TestConnectionWithServer(t_socket);
+
+	/* Handle arguments passed */
+	client_params_t *Args;
+	if (NULL == lpParam) {
+		printf("error with arguments passed to thread\n");
+		return CLIENT_PARAMS_CASTING_FAILED;
+	}
+	Args = (client_params_t*)lpParam;
+
+	ret_val = TestConnectionWithServer(Args->socket);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "TestConnectionWithServer() failed!\n");
-	DEBUG_PRINT(printf("user name: %s\n", user_name));
-	ret_val = ClientMainMenu(t_socket);
+	DEBUG_PRINT(printf("user name: %s\n", Args->user_name));
+	ret_val = ClientMainMenu(Args->socket);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");
 
 EXIT:
 	printf("Conversation ended.\n");
-	closesocket(*t_socket);
-	*t_socket = INVALID_SOCKET;
+	closesocket(*Args->socket);
+	*Args->socket = INVALID_SOCKET;
 	return ret_val;
 }

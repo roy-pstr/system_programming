@@ -301,7 +301,7 @@ int WriteMove(char *move)
 		ret_val = FILE_ERROR;
 		goto EXIT;
 	}
-	fprintf("%s", move);
+	fprintf( fp_gamesession, "%s", move);
 EXIT:
 	if (fp_gamesession != NULL)
 	{
@@ -335,8 +335,8 @@ EXIT:
 int DeleteGameSessionFile()
 {
 	if (remove(GS_NAME) == 0)
-		printf("File %s deleted\n");
+		printf("File %s deleted\n", GS_NAME);
 	else
-		printf("Unable to delete the file %s\n");
+		printf("Unable to delete the file %s\n", GS_NAME);
 	return 0;
 }
