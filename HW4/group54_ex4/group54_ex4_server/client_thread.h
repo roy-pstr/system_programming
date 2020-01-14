@@ -9,6 +9,7 @@
 typedef struct {
 	SOCKET socket;
 	char user_name[USERNAME_MAX_LEN];
+	char opponent_name[USERNAME_MAX_LEN];
 } client_params_t;
 DWORD ClientThread(LPVOID lpParam);
 #endif

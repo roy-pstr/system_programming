@@ -3,7 +3,7 @@
 #include "msg_protocol.h"
 #include "csv_handler.h"
 #include "game_engine.h"
-#include "socket_server.h"
+//#include "socket_server.h"
 #include "thread_communication.h"
 
 extern Node *Leaderboard_head;
@@ -59,8 +59,24 @@ EXIT:
 
 /* ClientVsClient functions */
 extern HANDLE second_client_connected_event;
-ErrorCode_t PlayClientVsClient(client_params_t *Args) {
-	DEBUG_PRINT("PlayClientVsClient.\n");
+extern client_params_t ClientThreadArgs[NUMBER_OF_CLIENTS];
+ErrorCode_t GetOpponentName(client_params_t *curr_client) {
+	ErrorCode_t ret_val = SUCCESS;
+	int opponent_ind = -1;
+	if (ClientThreadArgs[0].socket == curr_client->socket) {
+		opponent_ind = 1;
+	}
+	else if (ClientThreadArgs[1].socket == curr_client->socket) {
+		opponent_ind = 0;
+	}
+	else {
+		return GET_OPPENONT_NAME_FAILED;
+	}
+	strcpy_s(curr_client->opponent_name, USERNAME_MAX_LEN, ClientThreadArgs[opponent_ind].user_name);
+	return ret_val;
+}
+ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
+	DEBUG_PRINT(printf("PlayClientVsClient.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	bool exit = false;
@@ -68,42 +84,46 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args) {
 	char **game_results;
 	AllocateFullParamList(&game_results);
 
-	//while (!exit) {
+	while (!exit) {
 
-	//	//server_move = ServerRaffleMove();
+		/* send SERVER_PLAYER_MOVE_REQUEST to client */
+		ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_PLAYER_MOVE_REQUEST);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
-	//	/* send SERVER_PLAYER_MOVE_REQUEST to client */
-	//	ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_PLAYER_MOVE_REQUEST);
-	//	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+		/* wait for response frrom client : with user move */
+		ret_val = RecvData(&Args->socket, &recv_protocol);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
-	//	/* wait for response frrom client : with user move */
-	//	ret_val = RecvData(&Args->socket, &recv_protocol);
-	//	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 
-	//	if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
-	//		/* get game results */
-	//		user_move = StringToEnum(recv_protocol.param_list[0]);
-	//		GetGameResults(game_results, user_move, Args->user_name, other_user_move, "server");
-	//		//DEBUG_PRINT(printf("GetGameResults: %s,%s,%s,%s\n", game_results[0], game_results[1], game_results[2], game_results[3]));
+			/* get user move from protocol */
+			user_move = StringToEnum(recv_protocol.param_list[0]);
 
-	//		/* update leaderboard wtih result */
-	//		UpdateLeaderboard(game_results, Args->user_name);
+			/* send my move and get oppent move and name */
+			WriteAndReadMoves(user_move, &other_user_move, first_player);
 
-	//		/* send SERVER_GAME_RESULTS to client : with results!*/
-	//		ret_val = SendProtcolMsgWithParams(Args->socket, SERVER_GAME_RESULTS, game_results, 4);
-	//		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
+			GetGameResults(game_results, user_move, Args->user_name, other_user_move, Args->opponent_name);
+			//GetGameResults(game_results, user_move, Args->user_name, other_user_move, other_user_name);
+			//DEBUG_PRINT(printf("GetGameResults: %s,%s,%s,%s\n", game_results[0], game_results[1], game_results[2], game_results[3]));
 
-	//		/* send SERVER_GAME_OVER_MENU to client */
-	//		ret_val = SendProtcolMsgNoParams(Args->socket, SERVER_GAME_OVER_MENU);
-	//		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
-	//		exit = true; /* exit loop */
+			/* update leaderboard wtih result */
+			UpdateLeaderboard(game_results, Args->user_name);
 
-	//	}
-	//	else {
-	//		ret_val = PROTOCOL_MSG_TYPE_ERROR;
-	//		GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
-	//	}
-	//}
+			/* send SERVER_GAME_RESULTS to client : with results!*/
+			ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_GAME_RESULTS, game_results, 4);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
+
+			/* send SERVER_GAME_OVER_MENU to client */
+			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_GAME_OVER_MENU);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+			exit = true; /* exit loop */
+
+		}
+		else {
+			ret_val = PROTOCOL_MSG_TYPE_ERROR;
+			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+		}
+	}
 EXIT:
 	FreeFullParamList(&game_results);
 	return ret_val;
@@ -112,28 +132,36 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientVsClient.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
-	bool exit = false;
+	
 	bool created_session_file = false;
+	/* try to create the game session file */
+	ret_val = TryCreateSessionFile(&created_session_file);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSession() failed.\n");
+
+	/* check if it is the second player */
+	if (false == created_session_file) {
+		ret_val = SignleSecondPlayerConnected();
+		GO_TO_EXIT_ON_FAILURE(ret_val, "SignleSecondPlayerConnected() failed!\n");
+		DEBUG_PRINT(printf("User: %s is the second user connected\n", Args->user_name));
+	}
+	else {
+		DEBUG_PRINT(printf("Waiting for second user (from user: %s)\n", Args->user_name));
+	}
+
+	/* wait until the second player connect and signle the event */
+	ret_val = WaitForSecondPlayer();
+	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
+
+	/* send SERVER_INVITE to client */
+	ret_val = GetOpponentName(Args);
+	char * opponent_name = Args->opponent_name;
+	ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_INVITE, &opponent_name, 1);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+
+	bool exit = false;
 	while (!exit) {
-		/* try to create the game session file */
-		ret_val = TryCreateSessionFile(&created_session_file);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSession() failed.\n");
-
-		/* check if it is the second player */
-		if (false == created_session_file) {
-			ret_val = SignleSecondPlayerConnected();
-			GO_TO_EXIT_ON_FAILURE(ret_val, "SignleSecondPlayerConnected() failed!\n");
-			DEBUG_PRINT(printf("User: %s is the second user connected\n", Args->user_name));
-		}
-		else {
-			DEBUG_PRINT(printf("File created by user: %s\n",Args->user_name));
-		}
-
-		/* wait until the second player connect and signle the event */
-		ret_val = WaitForSecondPlayer();
-		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
-		
-		ret_val = PlayClientVsClient(Args);
+		/* start playing */
+		ret_val = PlayClientVsClient(Args, created_session_file);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
 
 		/* wait to client to decide: play again or back to main menu */
@@ -154,7 +182,7 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	}
 EXIT:
 	ret_val = ResetSecondPlayerEvent();
-	if (false == created_session_file) {
+	if (true == created_session_file) {
 		DeleteGameSessionFile();
 	}
 	GO_TO_EXIT_ON_FAILURE(ret_val, "MyResetEvent() failed!\n");
@@ -163,7 +191,7 @@ EXIT:
 
 /* ClientVsCpu functions */
 ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
-	DEBUG_PRINT("PlayClientVsCpu.\n");
+	DEBUG_PRINT(printf("PlayClientVsCpu.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	bool exit = false;
@@ -211,7 +239,7 @@ EXIT:
 	return ret_val;
 }
 ErrorCode_t ClientVsCpu(client_params_t *Args) {
-	DEBUG_PRINT("ClientVsCpu.\n");
+	DEBUG_PRINT(printf("ClientVsCpu.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	bool exit = false;
@@ -241,7 +269,7 @@ EXIT:
 
 /* Leaderboard functions */
 ErrorCode_t ClientLeaderboard(client_params_t *Args) {
-	DEBUG_PRINT("ClientLeaderboard.\n");
+	DEBUG_PRINT(printf("ClientLeaderboard.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	char *leaderboard_str = NULL;
@@ -254,7 +282,7 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 			free(leaderboard_str);
 		}
 		ret_val = AllocateString(&leaderboard_str, string_size);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
+		GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString() failed!\n");
 		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
 
 		/* send leaderboard to client */

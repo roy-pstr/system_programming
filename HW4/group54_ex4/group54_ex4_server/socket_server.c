@@ -123,6 +123,8 @@ void InitLeaderboard(Node **head, char * file_path) {
 		printf("no leaderboard.csv exist yet, play soem games!\n");
 	}
 }
+
+client_params_t ClientThreadArgs[NUMBER_OF_CLIENTS];
 ErrorCode_t StartGameServer(int port) {
 	ErrorCode_t ret_val = SUCCESS;
 
@@ -134,7 +136,7 @@ ErrorCode_t StartGameServer(int port) {
 	InitLeaderboard(&Leaderboard_head, CSV_NAME);
 
 	SOCKET ClientSockets[NUMBER_OF_CLIENTS];
-	client_params_t ClientThreadArgs[NUMBER_OF_CLIENTS];
+	
 	//InitSockets(ClientSockets, NUMBER_OF_CLIENTS);
 	HANDLE ClientThreadHandles[NUMBER_OF_CLIENTS];
 	InitHandels(ClientThreadHandles, NUMBER_OF_CLIENTS);
@@ -185,3 +187,4 @@ void CleanupWorkerThreads() /* update this function with all the failure checks 
 		}
 	}
 }
+
