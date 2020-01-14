@@ -3,11 +3,36 @@
 #include "msg_protocol.h"
 #include "csv_handler.h"
 #include "game_engine.h"
-#include "csv_handler.h"
+#include "socket_server.h"
+#include "thread_communication.h"
 
 extern Node *Leaderboard_head;
+ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
+	Node *update_lb = NULL; /*, *update_server = NULL;*/
+	ErrorCode_t ret_val = SUCCESS;
+	if (strcmp(game_results[3], "NONE") != 0)
+	{
+		if (strcmp(game_results[3], game_results[0]) == 0)
+		{
+			//update_server = DetectAndUpdateElement(&Leaderboard_head, game_results[0], 1); ILAY - NOT MANDATORY
+			update_lb = DetectAndUpdateElement(&Leaderboard_head, username, 0);
+		}
+		else {
+			update_lb = DetectAndUpdateElement(&Leaderboard_head, username, 1);
+			//update_server = DetectAndUpdateElement(&Leaderboard_head, game_results[0], 0);
+		}
+	}
+	if (NULL != update_lb)
+	{
+		sortedInsert(&Leaderboard_head, update_lb);
+		//sortedInsert(&Leaderboard_head, update_server);
+		LinkedListToCsv(Leaderboard_head, CSV_NAME);
 
+	}
+	return ret_val;
+}
 
+/* Conenct functions */
 ErrorCode_t TestConnectionWithServer(client_params_t *Args) {
 	ErrorCode_t ret_val = SUCCESS;
 	bool client_connected = false;
@@ -31,6 +56,9 @@ ErrorCode_t TestConnectionWithServer(client_params_t *Args) {
 EXIT:
 	return ret_val;
 }
+
+/* ClientVsClient functions */
+extern HANDLE second_client_connected_event;
 ErrorCode_t PlayClientVsClient(client_params_t *Args) {
 	DEBUG_PRINT("PlayClientVsClient.\n");
 	ErrorCode_t ret_val = SUCCESS;
@@ -81,66 +109,59 @@ EXIT:
 	return ret_val;
 }
 ErrorCode_t ClientVsClient(client_params_t *Args) {
-	DEBUG_PRINT("ClientVsClient.\n");
+	DEBUG_PRINT(printf("ClientVsClient.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	bool exit = false;
-	//while (!exit) {
-	//	
-	//	if gamesession not exit:
-	//		create gamesession
-	//		/* wait for other client to connect */
-	//	else
-	//		/* other client is already connected */
-	//	ret_val = PlayClientVsClient(Args->socket);
-	//	GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
+	bool created_session_file = false;
+	while (!exit) {
+		/* try to create the game session file */
+		ret_val = TryCreateSessionFile(&created_session_file);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSession() failed.\n");
 
-	//	/* wait to client to decide: play again or back to main menu */
-	//	ret_val = RecvData(&Args->socket, &recv_protocol);
-	//	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
-
-	//	switch (GetType(&recv_protocol))
-	//	{
-	//	case CLIENT_REPLAY:
-	//		continue; /* go to start of the loop and play again */
-	//	case CLIENT_MAIN_MENU:
-	//		exit = true; /* exit loop */
-	//		break;
-	//	default:
-	//		ret_val = PROTOCOL_MSG_TYPE_ERROR;
-	//		GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
-	//	}
-	//}
-EXIT:
-	return ret_val;
-}
-
-
-ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
-	Node *update_lb = NULL; /*, *update_server = NULL;*/
-	ErrorCode_t ret_val = SUCCESS;
-	if (strcmp(game_results[3], "NONE") != 0)
-	{
-		if (strcmp(game_results[3], game_results[0]) == 0)
-		{
-			//update_server = DetectAndUpdateElement(&Leaderboard_head, game_results[0], 1); ILAY - NOT MANDATORY
-			update_lb = DetectAndUpdateElement(&Leaderboard_head, username, 0);
+		/* check if it is the second player */
+		if (false == created_session_file) {
+			ret_val = SignleSecondPlayerConnected();
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SignleSecondPlayerConnected() failed!\n");
+			DEBUG_PRINT(printf("User: %s is the second user connected\n", Args->user_name));
 		}
 		else {
-			update_lb = DetectAndUpdateElement(&Leaderboard_head, username, 1);
-			//update_server = DetectAndUpdateElement(&Leaderboard_head, game_results[0], 0);
+			DEBUG_PRINT(printf("File created by user: %s\n",Args->user_name));
+		}
+
+		/* wait until the second player connect and signle the event */
+		ret_val = WaitForSecondPlayer();
+		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
+		
+		ret_val = PlayClientVsClient(Args);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
+
+		/* wait to client to decide: play again or back to main menu */
+		ret_val = RecvData(&Args->socket, &recv_protocol);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+
+		switch (GetType(&recv_protocol))
+		{
+		case CLIENT_REPLAY:
+			continue; /* go to start of the loop and play again */
+		case CLIENT_MAIN_MENU:
+			exit = true; /* exit loop */
+			break;
+		default:
+			ret_val = PROTOCOL_MSG_TYPE_ERROR;
+			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
 		}
 	}
-	if (NULL != update_lb)
-	{
-		sortedInsert(&Leaderboard_head, update_lb);
-		//sortedInsert(&Leaderboard_head, update_server);
-		LinkedListToCsv(Leaderboard_head, CSV_NAME);
-
+EXIT:
+	ret_val = ResetSecondPlayerEvent();
+	if (false == created_session_file) {
+		DeleteGameSessionFile();
 	}
+	GO_TO_EXIT_ON_FAILURE(ret_val, "MyResetEvent() failed!\n");
 	return ret_val;
 }
 
+/* ClientVsCpu functions */
 ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 	DEBUG_PRINT("PlayClientVsCpu.\n");
 	ErrorCode_t ret_val = SUCCESS;
@@ -218,7 +239,7 @@ EXIT:
 	return ret_val;
 }
 
-extern Node *Leaderboard_head;
+/* Leaderboard functions */
 ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	DEBUG_PRINT("ClientLeaderboard.\n");
 	ErrorCode_t ret_val = SUCCESS;
@@ -272,6 +293,7 @@ EXIT:
 	return ret_val;
 }
 
+/* MainMenu functions */
 ErrorCode_t ClientMainMenu(client_params_t *Args) {
 		ErrorCode_t ret_val = SUCCESS;
 		protocol_t protocol_msg;
@@ -322,6 +344,9 @@ EXIT:
 	return ret_val;
 }
 
+
+
+/* Thread definition */
 DWORD ClientThread(LPVOID lpParam)
 {
 	ErrorCode_t ret_val = SUCCESS;
@@ -346,3 +371,6 @@ EXIT:
 	Args->socket = INVALID_SOCKET;
 	return ret_val;
 }
+
+
+

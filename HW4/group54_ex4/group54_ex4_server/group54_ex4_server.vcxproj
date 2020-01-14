@@ -145,8 +145,8 @@
     <ClInclude Include="..\shared\utils.h" />
     <ClInclude Include="client_thread.h" />
     <ClInclude Include="game_engine.h" />
-    <ClInclude Include="game_ui.h" />
     <ClInclude Include="socket_server.h" />
+    <ClInclude Include="thread_communication.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\shared\csv_handler.c" />
@@ -156,9 +156,9 @@
     <ClCompile Include="..\shared\utils.c" />
     <ClCompile Include="client_thread.c" />
     <ClCompile Include="game_engine.c" />
-    <ClCompile Include="game_ui.c" />
     <ClCompile Include="main_server.c" />
     <ClCompile Include="socket_server.c" />
+    <ClCompile Include="thread_communication.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

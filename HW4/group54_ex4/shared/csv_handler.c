@@ -273,70 +273,21 @@ double Round(double x, int p)
 }
 //
 ///*Check if file exist*/
-int IsFileExists(char* filename)
+bool IsFileExists(char* filename)
 {
 	struct stat buffer;
 	int exist = stat(filename, &buffer);
 	if (exist == 0) 
 	{
 		/*file exists*/
-		return SUCCESS;
+		return true;
 	}
 	else
 	{
 		/*file not found*/
-		return FILE_ERROR;
+		return false;
 	}
 }
 
-/* GameSession.txt functions*/
-/*function to write the client move*/
-int WriteMove(char *move)
-{
-	int ret_val = SUCCESS;
-	FILE *fp_gamesession = NULL;
-	if (NULL == (fp_gamesession = fopen(GS_NAME, "w")))
-	{
-		printf("File ERROR\n");
-		ret_val = FILE_ERROR;
-		goto EXIT;
-	}
-	fprintf( fp_gamesession, "%s", move);
-EXIT:
-	if (fp_gamesession != NULL)
-	{
-		fclose(fp_gamesession);
-	}
-	return ret_val;
-}
 
-/*function to read the other client move*/
-MOVES_ENUM ReadMove()
-{
-	MOVES_ENUM ret_val = UNDEFINED_MOVE;
-	FILE *fp_gamesession = NULL;
-	char move[MOVE_STRING_MAX_LEN] = "";
-	if (NULL == (fp_gamesession = fopen(GS_NAME, "r")))
-	{
-		printf("File ERROR\n");
-		ret_val = UNDEFINED_MOVE;
-		goto EXIT;
-	}
-	fgets(move, MOVE_STRING_MAX_LEN, fp_gamesession);
-	ret_val = StringToEnum(move);
-EXIT:
-	if (fp_gamesession != NULL)
-	{
-		fclose(fp_gamesession);
-	}
-	return ret_val;
-}
 
-int DeleteGameSessionFile()
-{
-	if (remove(GS_NAME) == 0)
-		printf("File %s deleted\n", GS_NAME);
-	else
-		printf("Unable to delete the file %s\n", GS_NAME);
-	return 0;
-}

@@ -1,9 +1,11 @@
 #ifndef _CSV_HANDLER_H
 #define _CSV_HANDLER_H
+#include "stdbool.h"
+#include "utils.h"
 
 #define CSV_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
 //#define CSV_NAME "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
-#define GS_NAME "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\GameSession.txt"
+#define GS_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\GameSession.txt"
 //#define CSV_NAME "\\Leaderboard.csv"
 
 typedef struct node_st
@@ -31,9 +33,8 @@ void printList(Node *head);
 int LinkedListToCsv(Node *head, char *filename);
 void LinkedListToStr(Node *head, char **leaderboard_str, int buff_size);
 int LengthOfLinkedList(Node *head);
-int IsFileExists(char* filename);
-int WriteMove(char *move);
-MOVES_ENUM ReadMove();
-int DeleteGameSessionFile();
+bool IsFileExists(char* filename);
+
+
 
 #endif
