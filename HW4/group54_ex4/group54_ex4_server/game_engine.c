@@ -72,7 +72,6 @@ void GetGameResults(char **game_results, MOVES_ENUM player1_move, char* player1_
 	int winner_idx = CheckWhoWon(player1_move, player2_move);
 	strcpy(game_results[0], player2_name);
 	strcpy(game_results[1], MOVES_STRINGS[player2_move]);
-	printf("MOVE = %s", MOVES_STRINGS[player1_move]);
 	strcpy(game_results[2], MOVES_STRINGS[player1_move]);
 	if (winner_idx == 1) {
 		strcpy(game_results[3], player1_name);

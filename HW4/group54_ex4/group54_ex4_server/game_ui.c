@@ -12,7 +12,8 @@ void InitLeaderboard(Node **head, char * file_path) {
 		RefreshLeaderboard(file_path, head);
 	}
 	else {
-		printf("no leaderboard.csv exist yet, play soem games!\n");
+		LinkedListToCsv(Leaderboard_head, CSV_NAME);
+		RefreshLeaderboard(file_path, head);
 	}
 }
 

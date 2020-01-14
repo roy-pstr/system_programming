@@ -184,7 +184,7 @@ ErrorCode_t GoToClientLeaderboard() {
 		ret_val = RecvData(&m_socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 		if (SERVER_LEADERBOARD == GetType(&recv_protocol)) {
-			printf("%s\n", recv_protocol.leaderboard_param);
+			printf("%s", recv_protocol.leaderboard_param);
 			ret_val = RecvData(&m_socket, &recv_protocol);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 			if (SERVER_LEADERBORAD_MENU == GetType(&recv_protocol)) {

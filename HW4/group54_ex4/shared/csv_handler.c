@@ -24,7 +24,7 @@ int RefreshLeaderboard(char *filename, Node **head)
 	FILE* fp_leaderboard = NULL;
 	char line[LINE_MAX_LEN], client_name[USERNAME_MAX_LEN] = "", W[INT_MAX_LEN] = "", L[INT_MAX_LEN] = "", W_L[RATIO_MAX_LEN] = ""; 
 	int wins, loses;
-	float ratio;
+	double ratio;
 	int field_count, ret_val = SUCCESS, line_num = 0;
 	if (NULL == (fp_leaderboard = fopen(filename, "r")))
 	{
@@ -73,20 +73,16 @@ EXIT:
 	}
 	return ret_val;
 }
-/*Move to linked list module*/
-int LeaderBoardLinkedList()
-{
-	Node;
-}
+
 
 /*Function to create a node*/
-Node *CreateNode(char *name, int win, int lose)
+Node *CreateNode(char *name, int win, int lose) // MAYBE DEBUG 
 {
 	Node *new_element = NULL;
 	if (NULL == (new_element = (Node*)malloc(sizeof(Node))))
 	{
 		printf("Node Memory Allocation Failed");
-		return;
+		return new_element;
 	}
 	strcpy(new_element->name, name);
 	new_element->won = win;

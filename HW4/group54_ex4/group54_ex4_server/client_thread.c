@@ -228,14 +228,13 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	bool exit = false;
 	while (!exit) {
 		linkedlist_depth = LengthOfLinkedList(Leaderboard_head);
-		string_size = linkedlist_depth * LINE_MAX_LEN + SPACES_MAX_LEN;
+		string_size = linkedlist_depth * LINE_MAX_LEN + SPACES_MAX_LEN +100;
 		if (NULL != leaderboard_str) {
 			free(leaderboard_str);
 		}
 		ret_val = AllocateString(&leaderboard_str, string_size);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
-
 		/* send leaderboard to client */
 		ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_LEADERBOARD, &leaderboard_str, 1);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");

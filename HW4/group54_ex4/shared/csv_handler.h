@@ -1,8 +1,9 @@
 #ifndef _CSV_HANDLER_H
 #define _CSV_HANDLER_H
 
-#define CSV_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
-//#define CSV_NAME "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
+//#define CSV_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
+//#define CSV_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\GameSession.txt"
+#define CSV_NAME "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
 #define GS_NAME "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\GameSession.txt"
 //#define CSV_NAME "\\Leaderboard.csv"
 
@@ -11,7 +12,7 @@ typedef struct node_st
 	char name[20];
 	int won;
 	int lost;
-	float ratio;
+	double ratio;
 	struct node_st *next;
 } Node;
 
