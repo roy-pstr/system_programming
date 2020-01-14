@@ -9,87 +9,6 @@
 
 /*This reads Leaderboard.csv and print it in the needed format*/
 //No use 
-int OLD_RefreshLeaderboard(char *filename)  // DEBUG - Should be on server
-{
-	FILE *fp_leaderboard = NULL;
-	char line[1024], client_name[20]="", W[5]="", L[5]="", W_L[15]="" ; //DEBUG CONSTANTS
-	int field_count, ret_val = SUCCESS;
-	if (NULL == (fp_leaderboard = fopen(filename, "r")))
-	{
-		printf("File ERROR\n");
-		ret_val = FILE_ERROR;
-		goto EXIT;
-	}
-	fp_leaderboard = fopen(filename, "r");
-	while (fgets(line, 1024, fp_leaderboard))
-	{
-		field_count = 0;
-		char *field = strtok(line, ",");
-		while (field) {
-			if (field_count == 0) {
-				strcpy(client_name, field);
-			}
-			if (field_count == 1) {
-				strcpy(W, field);
-			}
-			if (field_count == 2) {
-				strcpy(L, field);
-			}
-			if (field_count == 3) {
-				strtok(field, "\n");
-				strcpy(W_L, field);
-			}
-			field = strtok(NULL, ",");
-			field_count++;
-		}
-		strcpy(client_name, ""); strcpy(W, ""); strcpy(L, ""); strcpy(W_L, "");
-	}
-	fclose(fp_leaderboard);
-EXIT:
-	return ret_val;
-}
-//No use
-int OLD_UpdateLeaderBoardFile(char *filename, char *name, int win)
-{
-	FILE *fp_leaderboard = NULL;
-	char line[1024], client_name[20] = "", W[5] = "", L[5] = "", W_L[15] = ""; //DEBUG CONSTANTS
-	int field_count, ret_val = SUCCESS;
-	//int win = 0, lost = 0;
-	float ratio = -1;
-	if (NULL == (fp_leaderboard = fopen(filename, "r")))
-	{
-		printf("File ERROR\n");
-		ret_val = FILE_ERROR;
-		goto EXIT;
-	}
-	fp_leaderboard = fopen(filename, "r");
-	while (fgets(line, 1024, fp_leaderboard))
-	{
-		field_count = 0;
-		char *field = strtok(line, ",");
-		while (field) {
-			if (field_count == 0) {
-				strcpy(client_name, field);
-			}
-			if (field_count == 1) {
-				strcpy(W, field);
-			}
-			if (field_count == 2) {
-				strcpy(L, field);
-			}
-			if (field_count == 3) {
-				strtok(field, "\n");
-				strcpy(W_L, field);
-			}
-			field = strtok(NULL, ",");
-			field_count++;
-		}
-		strcpy(client_name, ""); strcpy(W, ""); strcpy(L, ""); strcpy(W_L, "");
-	}
-EXIT:
-	return ret_val;
-}
-
 /*##############################*/
 /*From here - Relevant functions*/
 
@@ -113,7 +32,7 @@ int RefreshLeaderboard(char *filename, Node **head)
 		ret_val = FILE_ERROR;
 		goto EXIT;
 	}
-	fp_leaderboard = fopen(filename, "r");
+	//fp_leaderboard = fopen(filename, "r");
 	while (fgets(line, LINE_MAX_LEN, fp_leaderboard))
 	{
 		field_count = 0;
@@ -146,8 +65,12 @@ int RefreshLeaderboard(char *filename, Node **head)
 		line_num ++;
 		strcpy(client_name, ""); strcpy(W, ""); strcpy(L, ""); strcpy(W_L, "");
 	}
-	fclose(fp_leaderboard);
+	
 EXIT:
+	if (fp_leaderboard != NULL)
+	{
+		fclose(fp_leaderboard);
+	}
 	return ret_val;
 }
 /*Move to linked list module*/
@@ -364,4 +287,56 @@ int IsFileExists(char* filename)
 		/*file not found*/
 		return FILE_ERROR;
 	}
+}
+
+/* GameSession.txt functions*/
+/*function to write the client move*/
+int WriteMove(char *move)
+{
+	int ret_val = SUCCESS;
+	FILE *fp_gamesession = NULL;
+	if (NULL == (fp_gamesession = fopen(GS_NAME, "w")))
+	{
+		printf("File ERROR\n");
+		ret_val = FILE_ERROR;
+		goto EXIT;
+	}
+	fprintf("%s", move);
+EXIT:
+	if (fp_gamesession != NULL)
+	{
+		fclose(fp_gamesession);
+	}
+	return ret_val;
+}
+
+/*function to read the other client move*/
+MOVES_ENUM ReadMove()
+{
+	MOVES_ENUM ret_val = UNDEFINED_MOVE;
+	FILE *fp_gamesession = NULL;
+	char move[MOVE_STRING_MAX_LEN] = "";
+	if (NULL == (fp_gamesession = fopen(GS_NAME, "r")))
+	{
+		printf("File ERROR\n");
+		ret_val = UNDEFINED_MOVE;
+		goto EXIT;
+	}
+	fgets(move, MOVE_STRING_MAX_LEN, fp_gamesession);
+	ret_val = StringToEnum(move);
+EXIT:
+	if (fp_gamesession != NULL)
+	{
+		fclose(fp_gamesession);
+	}
+	return ret_val;
+}
+
+int DeleteGameSessionFile()
+{
+	if (remove(GS_NAME) == 0)
+		printf("File %s deleted\n");
+	else
+		printf("Unable to delete the file %s\n");
+	return 0;
 }
