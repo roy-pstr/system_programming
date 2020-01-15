@@ -4,7 +4,7 @@
 #include "msg_protocol.h"
 ErrorCode_t InitThreadCommunicationModule();
 ErrorCode_t SignleSecondPlayerConnected();
-ErrorCode_t ResetSecondPlayerEvent();
+ErrorCode_t ResetSecondPlayerConnectedEvent();
 ErrorCode_t TryCreateSessionFile(bool *created);
 ErrorCode_t WaitForSecondPlayerToConnect(bool * second_player_status, bool * created_session_file);
 ErrorCode_t WaitForSecondPlayerReplay(bool * second_player_replay);

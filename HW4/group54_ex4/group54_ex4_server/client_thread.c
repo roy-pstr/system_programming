@@ -157,16 +157,6 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	protocol_t recv_protocol;
 	bool second_player_replay = false;
 	while (!exit) {
-		/* wait for second player to continue game */
-		ret_val = WaitForSecondPlayerReplay(&second_player_replay);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
-		if (false == second_player_replay) {
-			/* go back to main menu */
-			ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_OPPONENT_QUIT, &opponent_name, 1);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
-			exit = true;
-			continue;
-		}
 		/* start playing */
 		ret_val = PlayClientVsClient(Args, created_session_file);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
@@ -178,7 +168,14 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 		switch (GetType(&recv_protocol))
 		{
 		case CLIENT_REPLAY:
-			continue; /* go to start of the loop and play again */
+			ret_val = WaitForSecondPlayerReplay(&second_player_replay);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayerReplay() failed.\n");
+			if (second_player_replay) {
+				ResetSecondPlayerReplayEvent();
+				continue; /* go to start of the loop and play again */
+			}
+			exit = true; /* exit loop */
+			break;
 		case CLIENT_MAIN_MENU:
 			exit = true; /* exit loop */
 			break;
@@ -188,7 +185,7 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 		}
 	}
 EXIT:
-	ret_val = ResetSecondPlayerEvent();
+	ret_val = ResetSecondPlayerConnectedEvent();
 	if (true == created_session_file) {
 		DeleteGameSessionFile();
 	}
@@ -345,10 +342,6 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 										failure - >  SERVER_NO_OPPONENTS */
 				ret_val = ClientVsClient(Args);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsClient() failed!\n");
-				/*ret_val = SendProtcolMsg(Args->socket, SERVER_INVITE);
-				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-				ret_val = SendProtcolMsg(Args->socket, SERVER_NO_OPPONENTS);
-				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");*/
 				break;
 			case CLIENT_CPU:
 				/* client vs cpu */
@@ -359,8 +352,6 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 				/* client leaderboard */
 				ret_val = ClientLeaderboard(Args);
 				GO_TO_EXIT_ON_FAILURE(ret_val, "ClientLeaderboard() failed!\n");
-				/*ret_val = SendProtcolMsg(Args->socket, SERVER_LEADERBOARD);
-				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");*/
 				/* wait for client to decide what to do */
 				break;
 			case CLIENT_DISCONNECT:
