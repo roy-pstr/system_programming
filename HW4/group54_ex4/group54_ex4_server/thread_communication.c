@@ -76,6 +76,19 @@ EXIT:
 ErrorCode_t WaitForSecondPlayerToConnect(bool *second_player_connected, bool *created_session_file) {
 	ErrorCode_t ret_val = SUCCESS;
 
+	/* try to create the game session file */
+	ret_val = TryCreateSessionFile(created_session_file);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSession() failed.\n");
+
+	/* check if it is the second player */
+	if (false == created_session_file) {
+		ret_val = SignleSecondPlayerConnected();
+		GO_TO_EXIT_ON_FAILURE(ret_val, "SignleSecondPlayerConnected() failed!\n");
+		//DEBUG_PRINT(printf("User: %s is the second user connected\n", Args->user_name));
+	}
+	//else {
+	//	DEBUG_PRINT(printf("Waiting for second user (from user: %s)\n", Args->user_name));
+	//}
 	
 	DWORD wait_code = WaitForSingleObject(second_client_connected_event, WAIT_FOR_SECOND_PLAYER);
 	if (wait_code == WAIT_TIMEOUT)
@@ -90,7 +103,8 @@ ErrorCode_t WaitForSecondPlayerToConnect(bool *second_player_connected, bool *cr
 	else {
 		*second_player_connected = true;
 	}
-	return SUCCESS;
+EXIT:
+	return ret_val;
 }
 ErrorCode_t WaitForSecondPlayerReplay(bool * second_player_replay)
 {
