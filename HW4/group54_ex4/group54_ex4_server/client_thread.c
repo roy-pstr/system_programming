@@ -38,7 +38,7 @@ ErrorCode_t TestConnectionWithServer(client_params_t *Args) {
 	bool client_connected = false;
 	protocol_t protocol_msg;
 	while (!client_connected) {
-		ret_val = RecvData(&Args->socket, &protocol_msg);
+		ret_val = RecvData(&Args->socket, &protocol_msg); /* add timeout */
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 		switch (GetType(&protocol_msg)) {
 		case CLIENT_REQUEST:
@@ -91,7 +91,7 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
 		/* wait for response frrom client : with user move */
-		ret_val = RecvData(&Args->socket, &recv_protocol);
+		ret_val = RecvData(&Args->socket, &recv_protocol); /* wait 30 sec */
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
@@ -131,35 +131,42 @@ EXIT:
 ErrorCode_t ClientVsClient(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientVsClient.\n"));
 	ErrorCode_t ret_val = SUCCESS;
-	protocol_t recv_protocol;
-	
 	bool created_session_file = false;
-	/* try to create the game session file */
-	ret_val = TryCreateSessionFile(&created_session_file);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSession() failed.\n");
-
-	/* check if it is the second player */
-	if (false == created_session_file) {
-		ret_val = SignleSecondPlayerConnected();
-		GO_TO_EXIT_ON_FAILURE(ret_val, "SignleSecondPlayerConnected() failed!\n");
-		DEBUG_PRINT(printf("User: %s is the second user connected\n", Args->user_name));
+	bool exit = false;
+	bool second_player_connected = false;
+	char * opponent_name = NULL;
+	/* wait */
+	ret_val = WaitForSecondPlayerToConnect(&second_player_connected, &created_session_file);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
+	if (false==second_player_connected)
+	{
+		/* send SERVER_NO_OPPONENTS to client */
+		ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_NO_OPPONENTS);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+		exit = true; /* skip while loop, goto to exit */
 	}
 	else {
-		DEBUG_PRINT(printf("Waiting for second user (from user: %s)\n", Args->user_name));
+		/* send SERVER_INVITE to client */
+		ret_val = GetOpponentName(Args);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "GetOpponentName() failed!\n");
+		opponent_name = Args->opponent_name;
+		ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_INVITE, &opponent_name, 1);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 	}
 
-	/* wait until the second player connect and signle the event */
-	ret_val = WaitForSecondPlayer();
-	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
-
-	/* send SERVER_INVITE to client */
-	ret_val = GetOpponentName(Args);
-	char * opponent_name = Args->opponent_name;
-	ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_INVITE, &opponent_name, 1);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
-
-	bool exit = false;
+	protocol_t recv_protocol;
+	bool second_player_replay = false;
 	while (!exit) {
+		/* wait for second player to continue game */
+		ret_val = WaitForSecondPlayerReplay(&second_player_replay);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
+		if (false == second_player_replay) {
+			/* go back to main menu */
+			ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_OPPONENT_QUIT, &opponent_name, 1);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
+			exit = true;
+			continue;
+		}
 		/* start playing */
 		ret_val = PlayClientVsClient(Args, created_session_file);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
@@ -207,7 +214,7 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
 		/* wait for response frrom client : with user move */
-		ret_val = RecvData(&Args->socket, &recv_protocol);
+		ret_val = RecvData(&Args->socket, &recv_protocol); /* no timeout */
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
@@ -248,7 +255,7 @@ ErrorCode_t ClientVsCpu(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
 
 		/* wait to client to decide: play again or back to main menu */
-		ret_val = RecvData(&Args->socket, &recv_protocol);
+		ret_val = RecvData(&Args->socket, &recv_protocol); /* no timeout */
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		switch (GetType(&recv_protocol))
@@ -293,7 +300,7 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* wait for response frrom client */
-		ret_val = RecvData(&Args->socket, &recv_protocol);
+		ret_val = RecvData(&Args->socket, &recv_protocol); /* no timeout */
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
 		switch (GetType(&recv_protocol)) {
@@ -328,7 +335,7 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 		while (!quit) {
 			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_MAIN_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-			ret_val = RecvData(&Args->socket, &protocol_msg);
+			ret_val = RecvData(&Args->socket, &protocol_msg); /* no timeout */
 			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 			switch (GetType(&protocol_msg)) {
 			case CLIENT_VERSUS:

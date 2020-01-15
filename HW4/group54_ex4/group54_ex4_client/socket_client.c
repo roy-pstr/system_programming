@@ -9,7 +9,7 @@
 
 extern SOCKET m_socket;
 
-
+/* connection functions */
 ErrorCode_t ConnectClient(char *server_ip, int server_port) {
 	ErrorCode_t ret_val = SUCCESS;
 
@@ -104,21 +104,7 @@ EXIT:
 	return ret_val;
 }
 
-ErrorCode_t WaitForOpponent() {
-	ErrorCode_t ret_val = SUCCESS;
-	protocol_t recv_protocol;
-	ret_val = RecvData(&m_socket, &recv_protocol);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
-	if (SERVER_INVITE == GetType(&recv_protocol)) {
-		DEBUG_PRINT(printf("Playing against: %s\n", recv_protocol.param_list[0]));
-	}
-	else {
-		ret_val = PROTOCOL_MSG_TYPE_ERROR;
-		GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
-	}
-EXIT:
-	return ret_val;
-}
+/* ClientVsClient functions */
 
 ErrorCode_t StartGameClientVsClient() {
 	ErrorCode_t ret_val = SUCCESS;
@@ -169,6 +155,11 @@ ErrorCode_t StartGameClientVsClient() {
 				GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
 			}
 		}
+		else if (SERVER_OPPONENT_QUIT == GetType(&recv_protocol)) {
+			printf(OPONENT_LEFT_GAME, recv_protocol.param_list[0]);
+			still_playing = false; /* exit loop! */
+			continue;
+		}
 		else {
 			ret_val = PROTOCOL_MSG_TYPE_ERROR;
 			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
@@ -177,11 +168,27 @@ ErrorCode_t StartGameClientVsClient() {
 EXIT:
 	return ret_val;
 }
-ErrorCode_t WaitForServerGameResult() {
+ErrorCode_t WaitForOpponent() {
 	ErrorCode_t ret_val = SUCCESS;
+	protocol_t recv_protocol;
+	ret_val = RecvData(&m_socket, &recv_protocol);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+	if (SERVER_INVITE == GetType(&recv_protocol)) {
+		DEBUG_PRINT(printf("Playing against: %s\n", recv_protocol.param_list[0]));
+		ret_val = StartGameClientVsClient();
+		GO_TO_EXIT_ON_FAILURE(ret_val, "StartGameClientVsClient() failed!\n");
+	}
+	else if (SERVER_NO_OPPONENTS == GetType(&recv_protocol)) {
+		DEBUG_PRINT(printf("No opponent, back to main menu\n"));
+	}
+	else {
+		ret_val = PROTOCOL_MSG_TYPE_ERROR;
+		GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+	}
 EXIT:
 	return ret_val;
 }
+/* ClientVsCpu functions */
 ErrorCode_t StartGameClientVsCpu() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -244,6 +251,7 @@ EXIT:
 	return ret_val;
 }
 
+/* Leaderboard */
 ErrorCode_t GoToClientLeaderboard() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -290,13 +298,14 @@ EXIT:
 	return ret_val;
 }
 
+/* Start Game */
 ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 	ErrorCode_t ret_val = SUCCESS;
 	PROTOCOL_ENUM main_menu_protocol;
 	protocol_t recv_protocol;
 	/* wait for SERVER_MAIN_MENU */
-	bool wait_for_exit_main_menu = true;
-	while (wait_for_exit_main_menu) {
+	bool still_alive = true;
+	while (still_alive) {
 		ret_val = RecvData(&m_socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 		if (SERVER_MAIN_MENU == GetType(&recv_protocol)) {
@@ -311,8 +320,6 @@ ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 			case CLIENT_VERSUS:
 				ret_val = WaitForOpponent();
 				GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForOpponent() failed!\n");
-				ret_val = StartGameClientVsClient();
-				GO_TO_EXIT_ON_FAILURE(ret_val, "StartGameClientVsClient() failed!\n");
 				break;
 			case CLIENT_CPU:
 				/* client vs cpu */
@@ -326,8 +333,8 @@ ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 				break;
 			case CLIENT_DISCONNECT:
 				/* send nothing back to client, close current client thread */
-				DEBUG_PRINT("Client request to disconnect from server.\n");
-				break;
+				still_alive = false; /* exit loop */
+				continue;
 			default:
 				ret_val = PROTOCOL_MSG_TYPE_ERROR;
 				GO_TO_EXIT_ON_FAILURE(ret_val, "Invalid protocol type!");
@@ -340,5 +347,6 @@ ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 		}
 	}
 EXIT:
+	/* close socket...*/
 	return ret_val;
 }

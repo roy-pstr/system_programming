@@ -3,8 +3,10 @@
 #include "csv_handler.h"
 #include "thread_tools.h"
 
+
 HANDLE create_session_mtx = NULL;
 HANDLE second_client_connected_event = NULL;
+HANDLE second_client_replayed_event = NULL;
 HANDLE first_player_write_event = NULL;
 HANDLE second_player_write_event = NULL;
 ErrorCode_t InitThreadCommunicationModule() {
@@ -26,6 +28,11 @@ ErrorCode_t InitThreadCommunicationModule() {
 		goto EXIT;
 	}
 	if (NULL == (second_player_write_event = CreateEventSimple())) {
+		printf("Error when creating Event: %d\n", GetLastError());
+		ret_val = MUTEX_CREATE_FAILED;
+		goto EXIT;
+	}
+	if (NULL == (second_client_replayed_event = CreateEventSimple())) {
 		printf("Error when creating Event: %d\n", GetLastError());
 		ret_val = MUTEX_CREATE_FAILED;
 		goto EXIT;
@@ -66,14 +73,31 @@ EXIT:
 	return ret_val;
 }
 
-ErrorCode_t WaitForSecondPlayer() {
-	DWORD wait_code = WaitForSingleObject(second_client_connected_event, INFINITE);
-	if (wait_code != WAIT_OBJECT_0)
+ErrorCode_t WaitForSecondPlayerToConnect(bool *second_player_connected, bool *created_session_file) {
+	ErrorCode_t ret_val = SUCCESS;
+
+	
+	DWORD wait_code = WaitForSingleObject(second_client_connected_event, WAIT_FOR_SECOND_PLAYER);
+	if (wait_code == WAIT_TIMEOUT)
 	{
-		printf("Wair for event failed with %d\n", GetLastError());
+		*second_player_connected = false;
+	}
+	else if (wait_code != WAIT_OBJECT_0)
+	{
+		printf("Wait for event failed with %d\n", GetLastError());
 		return EVENT_WAIT_ERROR;
 	}
+	else {
+		*second_player_connected = true;
+	}
 	return SUCCESS;
+}
+ErrorCode_t WaitForSecondPlayerReplay(bool * second_player_replay)
+{
+	ErrorCode_t ret_val = SUCCESS;
+
+	*second_player_replay = true;
+	return ret_val;
 }
 ErrorCode_t WaitForFirstPlayerToWriteMove() {
 	DWORD wait_code = WaitForSingleObject(first_player_write_event, INFINITE);

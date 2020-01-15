@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 //#define DEBUG true
-#define DEBUG false
+#define DEBUG true
 
 #define INT_MAX_LEN 20 // x64
 #define RATIO_MAX_LEN 24 // .###
@@ -31,6 +31,7 @@
 #define WAIT_FOR_SERVER_RESPONSE 15000 //15 seconds
 #define WAIT_FOR_CLIENT_RESPONSE 15000 //15 seconds
 #define WAIT_FOR_CLOSING_CLIENT_THREAD 5000
+#define WAIT_FOR_SECOND_PLAYER 30000 // 30 seconds
 
 /* inline MACRO function defenition: */
 #define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
@@ -62,6 +63,7 @@ typedef enum {
 	CLIENT_PARAMS_CASTING_FAILED,
 	EVENT_CREATE_FAILED,
 	EVENT_WAIT_ERROR,
+	EVENT_WAIT_TIMEOUT,
 	EVENT_RESET_ERROR,
 	SET_EVENT_ERROR,
 	MUTEX_CREATE_FAILED,

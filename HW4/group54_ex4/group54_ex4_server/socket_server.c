@@ -142,7 +142,7 @@ ErrorCode_t StartGameServer(int port) {
 	InitHandels(ClientThreadHandles, NUMBER_OF_CLIENTS);
 
 	InitThreadCommunicationModule();
-
+	
 	ret_val = WaitForClientToConnect(&MainSocket, &ClientThreadArgs[0], &ClientThreadHandles[0]);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForClientToConnect failed. \n");
 	ret_val = WaitForClientToConnect(&MainSocket, &ClientThreadArgs[1], &ClientThreadHandles[1]);

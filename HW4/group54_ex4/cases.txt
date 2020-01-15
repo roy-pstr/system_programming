@@ -3,3 +3,8 @@ fix leaderboard path to local path
 handle case 	won x loss 0
 think if there is a need to change the refersh when showing leaderboard (from main menu before refersh)
 fix stncmp in stringtoenum
+
+MAIN THINGS LEFT:
+exit from server
+handle timeouts
+...

@@ -15,7 +15,7 @@
 #define GAME_RESULT_MSG "You played: %s\n%s played : %s\n%s won!\n"
 #define TEKO_MSG "You played: %s\n%s played : %s\n"
 #define END_GAME_MENU "Choose what to do next:\n1. Play again\n2. Return to the main menu\n"
-#define CLIENT_LEFT_GAME "%s has left the game!\n"
+#define OPONENT_LEFT_GAME "%s has left the game!\n"
 #define CHOOSE_WHAT_NEXT_ON_CLIENT_CONNECTION_FAILURE "Choose what to do next:\n1. Try to reconnect\n2. Exit\n"
 #define GAME_RESULTS "You played: %s\n%s played: %s\n%s won!\n"
 typedef enum {
