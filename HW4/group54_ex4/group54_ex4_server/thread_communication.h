@@ -5,6 +5,9 @@
 ErrorCode_t InitThreadCommunicationModule();
 ErrorCode_t SignleSecondPlayerConnected();
 ErrorCode_t ResetSecondPlayerConnectedEvent();
+ErrorCode_t WaitForOpponentDecision(PROTOCOL_ENUM my_decision, PROTOCOL_ENUM * opponent_decision);
+ErrorCode_t ResetOpponentDecisionEvent();
+ErrorCode_t ResetSecondPlayerReplayEvent();
 ErrorCode_t TryCreateSessionFile(bool *created);
 ErrorCode_t WaitForSecondPlayerToConnect(bool * second_player_status, bool * created_session_file);
 ErrorCode_t WaitForSecondPlayerReplay(bool * second_player_replay);

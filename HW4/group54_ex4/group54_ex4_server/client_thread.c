@@ -135,7 +135,7 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	bool exit = false;
 	bool second_player_connected = false;
 	char * opponent_name = NULL;
-	/* wait */
+	/* wait for opponent to connect*/
 	ret_val = WaitForSecondPlayerToConnect(&second_player_connected, &created_session_file);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
 	if (false==second_player_connected)
@@ -155,8 +155,10 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	}
 
 	protocol_t recv_protocol;
-	bool second_player_replay = false;
 	while (!exit) {
+		/* reset oppenent decision */
+		PROTOCOL_ENUM opponent_decision = ERROR_MSG_TYPE;
+
 		/* start playing */
 		ret_val = PlayClientVsClient(Args, created_session_file);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
@@ -165,23 +167,36 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 		ret_val = RecvData(&Args->socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
-		switch (GetType(&recv_protocol))
-		{
-		case CLIENT_REPLAY:
-			ret_val = WaitForSecondPlayerReplay(&second_player_replay);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayerReplay() failed.\n");
-			if (second_player_replay) {
-				ResetSecondPlayerReplayEvent();
+		/* wait to opponent to decide play again or quit */
+		ret_val = WaitForOpponentDecision(GetType(&recv_protocol),&opponent_decision);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForOpponentDecision() failed.\n");
+		if (opponent_decision == CLIENT_MAIN_MENU && GetType(&recv_protocol)== CLIENT_REPLAY) {
+			/* send SERVER_OPPONENT_QUIT */
+			ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_OPPONENT_QUIT, &opponent_name, 1);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolSendProtcolMsgWithParamsMsgNoParams() failed!\n");
+			exit = true; /* exit loop */
+			continue; /* go to start of the loop and play again */
+		}
+		else if (opponent_decision == CLIENT_REPLAY) {
+			switch (GetType(&recv_protocol))
+			{
+			case CLIENT_REPLAY:
 				continue; /* go to start of the loop and play again */
+			case CLIENT_MAIN_MENU:
+				exit = true; /* exit loop */
+				continue;
+			default:
+				ret_val = PROTOCOL_MSG_TYPE_ERROR;
+				GO_TO_EXIT_ON_FAILURE(ret_val, "Client sent invalid protocol type!\n");
 			}
+		}
+		else if (opponent_decision == CLIENT_MAIN_MENU && GetType(&recv_protocol) == CLIENT_MAIN_MENU){
 			exit = true; /* exit loop */
-			break;
-		case CLIENT_MAIN_MENU:
-			exit = true; /* exit loop */
-			break;
-		default:
+			continue;
+		}
+		else {
 			ret_val = PROTOCOL_MSG_TYPE_ERROR;
-			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+			GO_TO_EXIT_ON_FAILURE(ret_val, "Client sent invalid protocol type: %d!\n");
 		}
 	}
 EXIT:
