@@ -219,7 +219,14 @@ int LinkedListToCsv(Node *head, char *filename)
 	fprintf(fp_leaderboard, "Name,W,L,W/L Ratio\n");
 	while (temp != NULL)
 	{
-		fprintf(fp_leaderboard, "%s,%d,%d,%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+		if (temp->ratio == -1)
+		{
+			fprintf(fp_leaderboard, "%s,%d,%d,\n", temp->name, temp->won, temp->lost);
+		}
+		else
+		{
+			fprintf(fp_leaderboard, "%s,%d,%d,%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+		}
 		temp = temp->next;
 	}
 EXIT:
@@ -252,7 +259,14 @@ void LinkedListToStr(Node *head, char **leaderboard_str,int buff_size)
 	length += snprintf(*leaderboard_str + length, buff_size - length, "Name\t\tWon\t\tLost\t\tW/L Ratio\n");
 	while (temp != NULL)
 	{
-		length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio); 
+		if (temp->ratio == -1)
+		{
+			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost, temp->ratio);
+		}
+		else
+		{
+			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+		}
 		temp = temp->next;
 	}
 }
