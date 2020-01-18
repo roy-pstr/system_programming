@@ -7,4 +7,5 @@ fix stncmp in stringtoenum
 MAIN THINGS LEFT:
 exit from server
 handle timeouts
-...
+
+Ilay - Figure out how to allocate for long leaderboard
