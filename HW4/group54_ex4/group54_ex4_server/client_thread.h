@@ -12,6 +12,7 @@ typedef struct {
 	char opponent_name[USERNAME_MAX_LEN];
 } client_params_t;
 DWORD ClientThread(LPVOID lpParam);
+void InitArgs(client_params_t * args_arr, int size);
 #endif
 
 

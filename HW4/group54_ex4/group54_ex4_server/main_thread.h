@@ -8,7 +8,6 @@
 typedef struct {
 	int port;
 } main_params_t;
-
 DWORD MainThread(LPVOID lpParam);
 DWORD MyExitThread();
 

@@ -48,6 +48,9 @@
     <ClInclude Include="main_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="accept_thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main_server.c">
@@ -81,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main_thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="accept_thread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

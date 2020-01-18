@@ -18,10 +18,11 @@ DWORD MainThread(LPVOID lpParam)
 	GO_TO_EXIT_ON_FAILURE(ret_val, "StartGameServer failed.\n");
 
 EXIT:
-	printf("Server(main thread): \"byebye.\"\n");
+	DEBUG_PRINT(printf("Server(main thread): \"byebye.\"\n"));
 	return ret_val;
 }
 extern bool main_thread_still_alive;
+
 DWORD MyExitThread()
 {
 	ErrorCode_t ret_val = SUCCESS;
@@ -32,7 +33,7 @@ DWORD MyExitThread()
 			break; /*exit thread*/
 		}
 	}
-
 EXIT:
 	return ret_val;
 }
+

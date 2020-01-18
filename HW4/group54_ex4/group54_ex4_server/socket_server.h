@@ -8,7 +8,6 @@
 #include "socket_tools.h"
 #include "client_thread.h"
 
-ErrorCode_t CleanupClientThreads(SOCKET * client_connections, HANDLE * client_handles, int number_of_threads);
 ErrorCode_t SetUpTheServer(SOCKET * p_socket, int port);
 ErrorCode_t StartGameServer(int port);
 #endif
