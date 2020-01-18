@@ -53,13 +53,8 @@ int main(int argc, char *argv[]) {
 		goto EXIT;
 	}
 	// Create a socket.
-	m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (m_socket == INVALID_SOCKET)
-	{
-		printf("Error at socket( ) in client: %ld\n", WSAGetLastError());
-		ret_val = SOCKET_CREATE_ERROR;
-		goto EXIT;
-	}
+	ret_val = CreateSocket(&m_socket);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSocket() failed.\n");
 
 	/* try to connect to server */
 	ret_val = TryToConnectClient(server_ip, server_port, username);

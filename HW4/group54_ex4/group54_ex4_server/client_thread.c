@@ -32,31 +32,6 @@ ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
 	return ret_val;
 }
 
-/* Conenct functions */
-ErrorCode_t TestConnectionWithServer(client_params_t *Args) {
-	ErrorCode_t ret_val = SUCCESS;
-	bool client_connected = false;
-	protocol_t protocol_msg;
-	while (!client_connected) {
-		ret_val = RecvData(&Args->socket, &protocol_msg); /* add timeout */
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
-		switch (GetType(&protocol_msg)) {
-		case CLIENT_REQUEST:
-			strcpy_s(Args->user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
-			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_APPROVED);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-			client_connected = true; /* exit while loop */
-			break;
-		default:
-			ret_val = PROTOCOL_MSG_TYPE_ERROR;
-			GO_TO_EXIT_ON_FAILURE(ret_val, "Client sent invalid protocol type!");
-			break;
-		}
-	}
-EXIT:
-	return ret_val;
-}
-
 /* ClientVsClient functions */
 extern HANDLE second_client_connected_event;
 extern client_params_t ClientThreadArgs[NUMBER_OF_CLIENTS];
@@ -395,18 +370,16 @@ DWORD ClientThread(LPVOID lpParam)
 	client_params_t *Args;
 	if (NULL == lpParam) {
 		printf("error with arguments passed to thread\n");
-		return CLIENT_PARAMS_CASTING_FAILED;
+		return THREAD_PARAMS_CASTING_FAILED;
 	}
 	Args = (client_params_t*)lpParam;
 
-	ret_val = TestConnectionWithServer(Args);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "TestConnectionWithServer() failed!\n");
 	DEBUG_PRINT(printf("user name: %s\n", Args->user_name));
 	ret_val = ClientMainMenu(Args);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");
 
 EXIT:
-	printf("Conversation ended.\n");
+	printf("From ClientThread: \"Conversation ended\".\n");
 	closesocket(Args->socket);
 	Args->socket = INVALID_SOCKET;
 	return ret_val;

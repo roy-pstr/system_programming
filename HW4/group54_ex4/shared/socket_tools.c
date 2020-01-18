@@ -11,6 +11,22 @@ void InitSockets(SOCKET *sockets, int size) {
 	}
 }
 
+ErrorCode_t CreateSocket(SOCKET *s) {
+	ErrorCode_t ret_val = SUCCESS;
+	if (*s != INVALID_SOCKET) {
+		closesocket(*s);
+	}
+	*s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (*s == INVALID_SOCKET)
+	{
+		printf("Error at socket( ) in client: %ld\n", WSAGetLastError());
+		ret_val = SOCKET_CREATE_ERROR;
+		goto EXIT;
+	}
+EXIT:
+	return ret_val;
+}
+
 ErrorCode_t RecvData(SOCKET *t_socket, protocol_t * prtcl_msg) {
 	TransferResult_t RecvRes;
 	ErrorCode_t ret_val = SUCCESS;

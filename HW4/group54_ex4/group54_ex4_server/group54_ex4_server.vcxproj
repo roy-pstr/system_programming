@@ -145,6 +145,7 @@
     <ClInclude Include="..\shared\utils.h" />
     <ClInclude Include="client_thread.h" />
     <ClInclude Include="game_engine.h" />
+    <ClInclude Include="main_thread.h" />
     <ClInclude Include="socket_server.h" />
     <ClInclude Include="thread_communication.h" />
   </ItemGroup>
@@ -157,6 +158,7 @@
     <ClCompile Include="client_thread.c" />
     <ClCompile Include="game_engine.c" />
     <ClCompile Include="main_server.c" />
+    <ClCompile Include="main_thread.c" />
     <ClCompile Include="socket_server.c" />
     <ClCompile Include="thread_communication.c" />
   </ItemGroup>

@@ -3,6 +3,7 @@
 
 #include <windows.h>
 #include "utils.h"
+
 ErrorCode_t MyResetEvent(HANDLE event);
 ErrorCode_t WaitForMutex(HANDLE mutex);
 ErrorCode_t ReleaseMutexSimp(HANDLE mutex);
@@ -15,6 +16,8 @@ HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine, LPVOID p_threa
 
 ErrorCode_t HandlerExitCode(HANDLE p_thread_handle);
 
-#endif // SOCKET_SEND_RECV_TOOLS_H
+ErrorCode_t CloseThreads(HANDLE * p_threads, int num_of_threads);
+
+#endif 
 
 

@@ -10,6 +10,7 @@
 extern SOCKET m_socket;
 
 /* connection functions */
+
 ErrorCode_t ConnectClient(char *server_ip, int server_port) {
 	ErrorCode_t ret_val = SUCCESS;
 
@@ -30,34 +31,8 @@ ErrorCode_t ConnectClient(char *server_ip, int server_port) {
 	// Call the connect function, passing the created socket and the sockaddr_in structure as parameters. 
 	if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) == SOCKET_ERROR) {
 		DEBUG_PRINT(printf("Error at connect( ): %ld\n", WSAGetLastError()));
-		ret_val = SOCKET_ERROR_CONNECT;
-		return ret_val;
+		ret_val = SOCKET_CONNECT_FAILED;
 	}
-	return ret_val;
-}
-ErrorCode_t CheckIfServerApproval(char *server_ip, int server_port, char username[]) {
-	ErrorCode_t ret_val = SUCCESS;
-	/* send CLIENT_REQUEST */
-	DEBUG_PRINT(printf("CheckIfServerApproval starts\n"));
-	ret_val = SendProtcolMsgWithParams(&m_socket, CLIENT_REQUEST, &username, 1);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!");
-
-	/* wait for SERVER_APPROVED*/
-	protocol_t recv_protocol;
-	ret_val = RecvData(&m_socket, &recv_protocol);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
-	switch (GetType(&recv_protocol)) {
-	case SERVER_APPROVED:
-		return SUCCESS;
-	case SERVER_DENIED:
-		/* go back to try to connect client */
-		return SERVER_DENIED_CONNECT;
-	default:
-		ret_val = PROTOCOL_MSG_TYPE_ERROR;
-		GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!");
-		break;
-	}
-EXIT:
 	return ret_val;
 }
 ErrorCode_t TryToConnectClient(char *server_ip, int server_port, char username[]) {
@@ -66,30 +41,8 @@ ErrorCode_t TryToConnectClient(char *server_ip, int server_port, char username[]
 	bool connection_success = false;
 	while (!connection_success) {
 		ret_val = ConnectClient(server_ip, server_port);
-		if (SOCKET_ERROR_CONNECT == ret_val) {
+		if (ret_val != SUCCESS) {
 			printf(FAILURE_ON_CONNECT_TO_SERVER, server_ip, server_port);
-			/* then show reconnect menu */
-		}
-		else {
-			GO_TO_EXIT_ON_FAILURE(ret_val, "ConnectClient() failed. exit progrem.\n");
-		}
-
-		if (SUCCESS == ret_val) { /* only on connection success */
-			ret_val = CheckIfServerApproval(server_ip, server_port, username);
-			if (SERVER_DENIED_CONNECT == ret_val) {
-				printf(SERVER_DENEID_CLIENT, server_ip, server_port);
-				/* then show reconnect menu */
-			}
-			else {
-				GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForServerApproval() failed.\n");
-			}
-			/* server approval success: */
-			connection_success = true;
-			continue; /* exit while loop with SUCCESS */
-		}
-		
-		/* if connection failed -> show reconnect menu */
-		if (SOCKET_ERROR_CONNECT == ret_val || SERVER_DENIED_CONNECT == ret_val) {
 			menu_code = ReconnectMenu();
 			if (CLIENT_TRY_RECONNECT == menu_code) {
 				continue; /* try reconnect */
@@ -99,7 +52,40 @@ ErrorCode_t TryToConnectClient(char *server_ip, int server_port, char username[]
 				goto EXIT;
 			}
 		}
+
+		/* connect succeeded */
+		ret_val = SendProtcolMsgWithParams(&m_socket, CLIENT_REQUEST, &username, 1);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!");
+
+		/* wait for sever response*/
+		protocol_t recv_protocol;
+		ret_val = RecvData(&m_socket, &recv_protocol);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+
+		switch (GetType(&recv_protocol)) {
+		case SERVER_APPROVED:
+			connection_success = true;
+			continue; /* exit while loop with SUCCESS */
+		case SERVER_DENIED:
+			/* go back to try to connect client */
+			printf(SERVER_DENEID_CLIENT, server_ip, server_port);
+			menu_code = ReconnectMenu();
+			if (CLIENT_TRY_RECONNECT == menu_code) {
+				ret_val = CreateSocket(&m_socket);
+				GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSocket() failed.\n");
+				continue; /* try reconnect */
+			}
+			else if (CLIENT_EXIT_RECONNECT == menu_code) {
+				ret_val = CLIENT_EXIT_TRY_CONNECT;
+				goto EXIT;
+			}
+		default:
+			ret_val = PROTOCOL_MSG_TYPE_ERROR;
+			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!");
+			break;
+		}
 	}
+		
 EXIT:
 	return ret_val;
 }

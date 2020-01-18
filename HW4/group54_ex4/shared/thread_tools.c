@@ -107,3 +107,28 @@ ErrorCode_t HandlerExitCode(HANDLE p_thread_handle) {
 	}
 	return ret_val;
 }
+
+/* Close multiple threads */
+ErrorCode_t CloseThreads(HANDLE *p_threads, int num_of_threads) {
+	ErrorCode_t ret_val = SUCCESS;
+	ErrorCode_t thread_exit_code;
+	for (int i = 0; i < num_of_threads; i++)
+	{
+		if (p_threads[i] != NULL)
+		{
+			/* handle the thread exit code */
+			if (SUCCESS != (thread_exit_code= HandlerExitCode(p_threads[i]))) {
+				printf("HandlerExitCode failed.\n");
+				ret_val = thread_exit_code;
+			}
+			/* close handle */
+			if (FALSE == CloseHandle(p_threads[i]))
+			{
+				printf("Error when closing thread: %d\n", GetLastError());
+				ret_val = CLIENT_THREAD_CLOSE_ERROR;
+			}
+			p_threads[i] = NULL;
+		}
+	}
+	return ret_val;
+}
