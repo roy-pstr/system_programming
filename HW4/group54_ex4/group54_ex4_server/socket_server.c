@@ -30,7 +30,7 @@ ErrorCode_t SetUpTheServer(SOCKET *p_socket, int port) {
 		printf("error %ld at WSAStartup( ), ending program.\n", WSAGetLastError());
 		return WSASTARTUP_FAILURE;
 	}
-
+	
 	// Create a socket.
 	
 	*p_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);

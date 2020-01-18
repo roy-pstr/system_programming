@@ -153,7 +153,15 @@ bool ShouldHaveParams(protocol_t * msg)
 		return false;
 	}
 }
-
+void copyparam(char *dest, int size, char *source) {
+	for (int i = 0; i < size; i++)
+	{
+		if (source[i] == '\n') {
+			break;
+		}
+		dest[i] = source[i];
+	}
+}
 ErrorCode_t AddParam(char * param, protocol_t * msg)
 {
 	ErrorCode_t ret_val = SUCCESS;
@@ -165,7 +173,8 @@ ErrorCode_t AddParam(char * param, protocol_t * msg)
 		for (int i = 0; i < PROTOCOL_PARAM_LIST_SIZE; i++)
 		{
 			if (STRINGS_ARE_EQUAL(msg->param_list[i], "")) { /* last param_list param */
-				strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, param);
+				//strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, param);
+				copyparam(msg->param_list[i], PARAM_STR_MAX_LEN, param);
 				break;
 			}
 		}
