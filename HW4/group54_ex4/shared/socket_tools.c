@@ -122,7 +122,15 @@ TransferResult_t SendBuffer( const char* Buffer, int BytesToSend, SOCKET sd )
 
 	return TRNS_SUCCEEDED;
 }
-
+int CountNumberOfCharsInMsg(const char *str) {
+	int size = 0;
+	while (*str != '\n') {
+		str++;
+		size++;
+	}
+	size++; /*for the \n*/
+	return size;
+}
 TransferResult_t SendString( const char *Str, SOCKET sd )
 {
 	/* Send the the request to the server on socket sd */
@@ -131,8 +139,8 @@ TransferResult_t SendString( const char *Str, SOCKET sd )
 
 	/* The request is sent in two parts. First the Length of the string (stored in 
 	   an int variable ), then the string itself. */
-		
-	TotalStringSizeInBytes = (int)( strlen(Str) + 1 ); // terminating zero also sent	
+	TotalStringSizeInBytes = CountNumberOfCharsInMsg(Str);
+	//TotalStringSizeInBytes = (int)( strlen(Str) + 1 ); // terminating zero also sent	
 
 	SendRes = SendBuffer( 
 		(const char *)( &TotalStringSizeInBytes ),
