@@ -160,6 +160,14 @@ EXIT:
 	return ret_val;
 }
 bool CheckIfUsernameExists(char new_user_name[USERNAME_MAX_LEN]) {
+	for (int i = 0; i < NUMBER_OF_CLIENTS; i++)
+	{
+		if (ClientThreadHandles[i] != NULL) {
+			if (STRINGS_ARE_EQUAL(new_user_name, ClientThreadArgs[i].user_name)) {
+				return true;
+			}
+		}
+	}
 	return false;
 }
 int FindFirstNullHandler(HANDLE *client_handles, int size) {

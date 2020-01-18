@@ -154,7 +154,7 @@ TransferResult_t ReceiveBuffer( char* OutputBuffer, int BytesToReceive, SOCKET s
 	char* CurPlacePtr = OutputBuffer;
 	int BytesJustTransferred;
 	int RemainingBytesToReceive = BytesToReceive;
-	
+
 	while ( RemainingBytesToReceive > 0 )  
 	{
 		/* send does not guarantee that the entire message is sent */

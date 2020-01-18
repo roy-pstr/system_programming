@@ -10,6 +10,7 @@ void InitArgs(client_params_t *args_arr, int size) {
 	for (int i = 0; i < size; i++)
 	{
 		args_arr[i].socket = INVALID_SOCKET;
+		args_arr[i].exit = false;
 	}
 }
 
