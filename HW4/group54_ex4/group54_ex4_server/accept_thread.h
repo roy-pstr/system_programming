@@ -13,4 +13,6 @@ typedef struct {
 } accept_params_t;
 DWORD AcceptThread(LPVOID lpParam);
 
+SOCKET accept_while_checking_stdin_for_exit(SOCKET socket, int timeout_in_seconds);
+
 #endif

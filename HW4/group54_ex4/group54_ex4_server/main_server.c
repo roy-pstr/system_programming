@@ -53,15 +53,16 @@ int main(int argc, char *argv[]) {
 	DWORD wait_code = WaitForMultipleObjects(TOTAL_THREADS_AMOUNT, thread_handles, FALSE, INFINITE);
 	if (wait_code == WAIT_OBJECT_0+EXIT_THREAD) {/* exit thread returned a value */
 		DEBUG_PRINT(printf("exit thread signled.\n"));
-		exit_server = true; /* exit thread will go out */
+		exit_server = true; /* main thread start closing itself. */
 		/* wait for main thread to close */
-		wait_code = WaitForSingleObject(thread_handles[MAIN_THREAD], 2000);
+		wait_code = WaitForSingleObject(thread_handles[MAIN_THREAD], WAIT_TIME_TO_MAIN_THREAD_TO_CLOSE_AFTER_EXIT);
 		if (wait_code != WAIT_OBJECT_0) {
 			printf("Error when waiting to main thread.\n");
 		}
 	}
 	else if (wait_code == WAIT_OBJECT_0 + MAIN_THREAD) {/* main thread returned a value */
 		DEBUG_PRINT(printf("main thread signled.\n"));
+		goto EXIT;
 	}
 	else {
 		printf("WaitForMultipleObjects() failed. Ending program\n");

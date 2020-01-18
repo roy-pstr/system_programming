@@ -10,7 +10,21 @@ void InitSockets(SOCKET *sockets, int size) {
 		*sockets = INVALID_SOCKET;
 	}
 }
-
+ErrorCode_t ShutDownAndCloseSocket(SOCKET *t_socket) {
+	ErrorCode_t ret_val = SUCCESS;
+	/* CLOSE SOCKET */
+	if (*t_socket != INVALID_SOCKET) {
+		/*shutdown SOCKET*/
+		if (shutdown(*t_socket, 2) == SOCKET_ERROR) {
+			printf("Failed to shutdown one of the clients connection sockets, error %ld.\n", WSAGetLastError());
+		}
+		if (closesocket(*t_socket) == SOCKET_ERROR) {
+			printf("Failed to close one of the clients connection sockets, error %ld.\n", WSAGetLastError());
+		}
+		*t_socket = INVALID_SOCKET;
+	}
+	return ret_val;
+}
 ErrorCode_t CreateSocket(SOCKET *s) {
 	ErrorCode_t ret_val = SUCCESS;
 	if (*s != INVALID_SOCKET) {

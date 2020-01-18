@@ -38,7 +38,8 @@
 #define SERVER_RECIVE_TIMEOUT 5 //seconds(CHANGE TO 15)
 #define CLIENT_VERSUS_TIMEOUT 30 //seconds
 #define SERVER_WAIT_FOR_OTHER_PLAYER_MOVE 30 //seconds
-
+#define ACCEPT_LIESNTER_INTERVALS_SEC 1 //seconds
+#define WAIT_TIME_TO_MAIN_THREAD_TO_CLOSE_AFTER_EXIT 3000 //miliseconds
 /* inline MACRO function defenition: */
 #define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
 #define GO_TO_EXIT_ON_FAILURE(ret_val, msg) {if (SUCCESS != ret_val){printf("%s\n",msg);goto EXIT;}}
