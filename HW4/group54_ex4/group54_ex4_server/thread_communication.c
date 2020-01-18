@@ -5,10 +5,13 @@
 
 
 HANDLE create_session_mtx = NULL;
-HANDLE second_client_flag_mtx = NULL;
 bool first_client_waiting = false;
+bool first_client_waiting_to_second_client_decision = false;
+PROTOCOL_ENUM first_client_descition = ERROR_MSG_TYPE;
+PROTOCOL_ENUM second_client_descition = ERROR_MSG_TYPE;
 HANDLE second_client_connected_event = NULL;
 HANDLE second_client_replayed_event = NULL;
+HANDLE opponent_decision_event = NULL;
 HANDLE first_player_write_event = NULL;
 HANDLE second_player_write_event = NULL;
 
@@ -16,11 +19,6 @@ ErrorCode_t InitThreadCommunicationModule() {
 	int ret_val = SUCCESS;
 
 	if (NULL == (create_session_mtx = CreateMutexSimple())) {
-		printf("Error when creating Mutex: %d\n", GetLastError());
-		ret_val = MUTEX_CREATE_FAILED;
-		goto EXIT;
-	}
-	if (NULL == (second_client_flag_mtx = CreateMutexSimple())) {
 		printf("Error when creating Mutex: %d\n", GetLastError());
 		ret_val = MUTEX_CREATE_FAILED;
 		goto EXIT;
@@ -45,42 +43,17 @@ ErrorCode_t InitThreadCommunicationModule() {
 		ret_val = MUTEX_CREATE_FAILED;
 		goto EXIT;
 	}
+	if (NULL == (opponent_decision_event = CreateEventSimple())) {
+		printf("Error when creating Event: %d\n", GetLastError());
+		ret_val = MUTEX_CREATE_FAILED;
+		goto EXIT;
+	}
 EXIT:
 	return ret_val;
 }
 
-ErrorCode_t TryCreateSessionFile(bool *created)
-{
-	int ret_val = SUCCESS;
-	FILE *fp_gamesession = NULL;
 
-	ret_val = WaitForMutex(create_session_mtx);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForMutex() failed!\n");
-	
-	/* critical code start*/
-	if (false == IsFileExists(GS_NAME))
-	{
-		if (NULL == (fp_gamesession = fopen(GS_NAME, "w")))
-		{
-			printf("File ERROR\n");
-			ret_val = FILE_ERROR;
-			goto EXIT;
-		}
-		*created = true;
-	}
-	
-	/* critical code end */
-
-	ret_val = ReleaseMutexSimp(create_session_mtx);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "ReleaseMutexSimp() failed!\n");
-EXIT:
-	if (fp_gamesession != NULL)
-	{
-		fclose(fp_gamesession);
-	}
-	return ret_val;
-}
-
+/* other player connect handling */
 ErrorCode_t WaitForSecondPlayerToConnect(bool *second_player_connected, bool *created_session_file) {
 	ErrorCode_t ret_val = SUCCESS;
 
@@ -98,7 +71,7 @@ ErrorCode_t WaitForSecondPlayerToConnect(bool *second_player_connected, bool *cr
 	//	DEBUG_PRINT(printf("Waiting for second user (from user: %s)\n", Args->user_name));
 	//}
 	
-	DWORD wait_code = WaitForSingleObject(second_client_connected_event, WAIT_FOR_SECOND_PLAYER);
+	DWORD wait_code = WaitForSingleObject(second_client_connected_event, WAIT_FOR_SECOND_PLAYER_TO_JOIN_GAME);
 	if (wait_code == WAIT_TIMEOUT)
 	{
 		*second_player_connected = false;
@@ -114,6 +87,74 @@ ErrorCode_t WaitForSecondPlayerToConnect(bool *second_player_connected, bool *cr
 EXIT:
 	return ret_val;
 }
+ErrorCode_t SignleSecondPlayerConnected() {
+	DWORD ret_code = SetEvent(second_client_connected_event);
+	if (ret_code == 0 )
+	{
+		printf("SetEvent failed with %d\n", GetLastError());
+		return SET_EVENT_ERROR;
+	}
+	return SUCCESS;
+}
+ErrorCode_t ResetSecondPlayerConnectedEvent() {
+	return MyResetEvent(second_client_connected_event);
+}
+
+/* opponent decision handling */
+ErrorCode_t WaitForOpponentDecision(PROTOCOL_ENUM my_decision, PROTOCOL_ENUM *opponent_decision) {
+	ErrorCode_t ret_val = SUCCESS;
+	bool am_i_the_first_client = false;
+	ret_val = WaitForMutex(create_session_mtx);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForMutex() failed!\n");
+
+	/* critical code start */
+	if (!first_client_waiting_to_second_client_decision) {
+		/* first client */
+		am_i_the_first_client = true;
+		first_client_waiting_to_second_client_decision = true;
+		first_client_descition = my_decision;
+	}
+	else {
+		/* second client */
+		second_client_descition = my_decision;
+		*opponent_decision = first_client_descition;
+		DWORD ret_code = SetEvent(opponent_decision_event);
+		if (ret_code == 0)
+		{
+			printf("SetEvent failed with %d\n", GetLastError());
+			ret_val = SET_EVENT_ERROR;
+			goto EXIT;
+		}
+	}
+	/* critical code end */
+
+	ret_val = ReleaseMutexSimp(create_session_mtx);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "ReleaseMutexSimp() failed!\n");
+
+	DWORD wait_code = WaitForSingleObject(opponent_decision_event, WAIT_FOR_SECOND_PLAYER_TO_CHOOSE_WHAT_TO_DO);
+	if (wait_code != WAIT_OBJECT_0)
+	{
+		printf("Wait for event failed with %d\n", GetLastError());
+		return EVENT_WAIT_ERROR;
+	}
+
+	if (am_i_the_first_client) {
+		*opponent_decision = second_client_descition;
+		ResetOpponentDecisionEvent();
+	}
+	
+	
+EXIT:
+	return ret_val;
+}
+ErrorCode_t ResetOpponentDecisionEvent() {
+	first_client_waiting_to_second_client_decision = false;
+	first_client_descition = ERROR_MSG_TYPE;
+	second_client_descition = ERROR_MSG_TYPE;
+	return MyResetEvent(opponent_decision_event);
+}
+
+/* replay event handling */
 ErrorCode_t WaitForSecondPlayerReplay(bool * second_player_replay)
 {
 	ErrorCode_t ret_val = SUCCESS;
@@ -135,11 +176,11 @@ ErrorCode_t WaitForSecondPlayerReplay(bool * second_player_replay)
 		}
 	}
 	/* critical code end */
-	
+
 	ret_val = ReleaseMutexSimp(create_session_mtx);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ReleaseMutexSimp() failed!\n");
 
-	DWORD wait_code = WaitForSingleObject(second_client_replayed_event, WAIT_FOR_SECOND_PLAYER);
+	DWORD wait_code = WaitForSingleObject(second_client_replayed_event, WAIT_FOR_SECOND_PLAYER_TO_CHOOSE_WHAT_TO_DO);
 	if (wait_code == WAIT_TIMEOUT)
 	{
 		*second_player_replay = false;
@@ -156,32 +197,43 @@ EXIT:
 	DEBUG_PRINT(printf("WaitForSecondPlayerReplay exit\n"));
 	return ret_val;
 }
-ErrorCode_t WaitForFirstPlayerToWriteMove() {
-	DWORD wait_code = WaitForSingleObject(first_player_write_event, INFINITE);
-	if (wait_code != WAIT_OBJECT_0)
-	{
-		printf("Wair for event failed with %d\n", GetLastError());
-		return EVENT_WAIT_ERROR;
-	}
-	return SUCCESS;
+ErrorCode_t ResetSecondPlayerReplayEvent() {
+	first_client_waiting = false;
+	return MyResetEvent(second_client_replayed_event);
 }
-ErrorCode_t WaitForSecondPlayerToWriteMove() {
-	DWORD wait_code = WaitForSingleObject(second_player_write_event, INFINITE);
-	if (wait_code != WAIT_OBJECT_0)
+
+
+/* game_session.txt handling */
+ErrorCode_t TryCreateSessionFile(bool *created)
+{
+	int ret_val = SUCCESS;
+	FILE *fp_gamesession = NULL;
+
+	ret_val = WaitForMutex(create_session_mtx);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForMutex() failed!\n");
+
+	/* critical code start*/
+	if (false == IsFileExists(GS_NAME))
 	{
-		printf("Wair for event failed with %d\n", GetLastError());
-		return EVENT_WAIT_ERROR;
+		if (NULL == (fp_gamesession = fopen(GS_NAME, "w")))
+		{
+			printf("File ERROR\n");
+			ret_val = FILE_ERROR;
+			goto EXIT;
+		}
+		*created = true;
 	}
-	return SUCCESS;
-}
-ErrorCode_t SignleSecondPlayerConnected() {
-	DWORD ret_code = SetEvent(second_client_connected_event);
-	if (ret_code == 0 )
+
+	/* critical code end */
+
+	ret_val = ReleaseMutexSimp(create_session_mtx);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "ReleaseMutexSimp() failed!\n");
+EXIT:
+	if (fp_gamesession != NULL)
 	{
-		printf("SetEvent failed with %d\n", GetLastError());
-		return SET_EVENT_ERROR;
+		fclose(fp_gamesession);
 	}
-	return SUCCESS;
+	return ret_val;
 }
 ErrorCode_t SignleSecondPlayerWriteMove() {
 	DWORD ret_code = SetEvent(second_player_write_event);
@@ -201,12 +253,23 @@ ErrorCode_t SignleFirstPlayerWriteMove() {
 	}
 	return SUCCESS;
 }
-ErrorCode_t ResetSecondPlayerConnectedEvent() {
-	return MyResetEvent(second_client_connected_event);
+ErrorCode_t WaitForFirstPlayerToWriteMove() {
+	DWORD wait_code = WaitForSingleObject(first_player_write_event, INFINITE);
+	if (wait_code != WAIT_OBJECT_0)
+	{
+		printf("Wair for event failed with %d\n", GetLastError());
+		return EVENT_WAIT_ERROR;
+	}
+	return SUCCESS;
 }
-ErrorCode_t ResetSecondPlayerReplayEvent() {
-	first_client_waiting = false;
-	return MyResetEvent(second_client_replayed_event);
+ErrorCode_t WaitForSecondPlayerToWriteMove() {
+	DWORD wait_code = WaitForSingleObject(second_player_write_event, INFINITE);
+	if (wait_code != WAIT_OBJECT_0)
+	{
+		printf("Wair for event failed with %d\n", GetLastError());
+		return EVENT_WAIT_ERROR;
+	}
+	return SUCCESS;
 }
 ErrorCode_t ResetPlayersWriteEvents() {
 	ErrorCode_t ret_val = MyResetEvent(first_player_write_event);
@@ -216,7 +279,6 @@ ErrorCode_t ResetPlayersWriteEvents() {
 EXIT:
 	return ret_val;
 }
-
 ErrorCode_t WriteAndReadMoves(MOVES_ENUM my_move, MOVES_ENUM *oppent_move, bool first_player) {
 	
 	ErrorCode_t ret_val = SUCCESS;
@@ -254,7 +316,6 @@ ErrorCode_t WriteAndReadMoves(MOVES_ENUM my_move, MOVES_ENUM *oppent_move, bool 
 EXIT:
 	return ret_val;
 }
-/*function to write the client move*/
 ErrorCode_t WriteMove(char *move)
 {
 	ErrorCode_t ret_val = SUCCESS;
@@ -275,8 +336,6 @@ EXIT:
 	}
 	return ret_val;
 }
-
-/*function to read the other client move*/
 ErrorCode_t ReadMove(MOVES_ENUM *move_enum)
 {
 	ErrorCode_t ret_val = SUCCESS;
@@ -298,7 +357,6 @@ EXIT:
 	}
 	return ret_val;
 }
-
 int DeleteGameSessionFile()
 {
 	if (remove(GS_NAME) == 0)

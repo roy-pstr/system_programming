@@ -52,15 +52,13 @@ int main(int argc, char *argv[]) {
 		printf("error %ld at WSAStartup( ), ending program.\n", WSAGetLastError());
 		goto EXIT;
 	}
+	
 	// Create a socket.
-	m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (m_socket == INVALID_SOCKET)
-	{
-		printf("Error at socket( ) in client: %ld\n", WSAGetLastError());
-		ret_val = SOCKET_CREATE_ERROR;
-		goto EXIT;
-	}
+	ret_val = CreateSocket(&m_socket);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSocket() failed.\n");
 
+	//DWORD timeout = 5 * 1000;
+	//setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
 	/* try to connect to server */
 	ret_val = TryToConnectClient(server_ip, server_port, username);
 	if (CLIENT_EXIT_TRY_CONNECT == ret_val) {

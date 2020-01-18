@@ -6,6 +6,14 @@
 //#include "socket_server.h"
 #include "thread_communication.h"
 
+void InitArgs(client_params_t *args_arr, int size) {
+	for (int i = 0; i < size; i++)
+	{
+		args_arr[i].socket = INVALID_SOCKET;
+		args_arr[i].exit = false;
+	}
+}
+
 extern Node *Leaderboard_head;
 ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
 	Node *update_lb = NULL; /*, *update_server = NULL;*/
@@ -29,31 +37,6 @@ ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
 		LinkedListToCsv(Leaderboard_head, CSV_NAME);
 
 	}
-	return ret_val;
-}
-
-/* Conenct functions */
-ErrorCode_t TestConnectionWithServer(client_params_t *Args) {
-	ErrorCode_t ret_val = SUCCESS;
-	bool client_connected = false;
-	protocol_t protocol_msg;
-	while (!client_connected) {
-		ret_val = RecvData(&Args->socket, &protocol_msg); /* add timeout */
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
-		switch (GetType(&protocol_msg)) {
-		case CLIENT_REQUEST:
-			strcpy_s(Args->user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
-			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_APPROVED);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-			client_connected = true; /* exit while loop */
-			break;
-		default:
-			ret_val = PROTOCOL_MSG_TYPE_ERROR;
-			GO_TO_EXIT_ON_FAILURE(ret_val, "Client sent invalid protocol type!");
-			break;
-		}
-	}
-EXIT:
 	return ret_val;
 }
 
@@ -135,7 +118,7 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	bool exit = false;
 	bool second_player_connected = false;
 	char * opponent_name = NULL;
-	/* wait */
+	/* wait for opponent to connect*/
 	ret_val = WaitForSecondPlayerToConnect(&second_player_connected, &created_session_file);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayer() failed.\n");
 	if (false==second_player_connected)
@@ -155,8 +138,10 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	}
 
 	protocol_t recv_protocol;
-	bool second_player_replay = false;
 	while (!exit) {
+		/* reset oppenent decision */
+		PROTOCOL_ENUM opponent_decision = ERROR_MSG_TYPE;
+
 		/* start playing */
 		ret_val = PlayClientVsClient(Args, created_session_file);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
@@ -165,23 +150,36 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 		ret_val = RecvData(&Args->socket, &recv_protocol);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
 
-		switch (GetType(&recv_protocol))
-		{
-		case CLIENT_REPLAY:
-			ret_val = WaitForSecondPlayerReplay(&second_player_replay);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForSecondPlayerReplay() failed.\n");
-			if (second_player_replay) {
-				ResetSecondPlayerReplayEvent();
+		/* wait to opponent to decide play again or quit */
+		ret_val = WaitForOpponentDecision(GetType(&recv_protocol),&opponent_decision);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForOpponentDecision() failed.\n");
+		if (opponent_decision == CLIENT_MAIN_MENU && GetType(&recv_protocol)== CLIENT_REPLAY) {
+			/* send SERVER_OPPONENT_QUIT */
+			ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_OPPONENT_QUIT, &opponent_name, 1);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolSendProtcolMsgWithParamsMsgNoParams() failed!\n");
+			exit = true; /* exit loop */
+			continue; /* go to start of the loop and play again */
+		}
+		else if (opponent_decision == CLIENT_REPLAY) {
+			switch (GetType(&recv_protocol))
+			{
+			case CLIENT_REPLAY:
 				continue; /* go to start of the loop and play again */
+			case CLIENT_MAIN_MENU:
+				exit = true; /* exit loop */
+				continue;
+			default:
+				ret_val = PROTOCOL_MSG_TYPE_ERROR;
+				GO_TO_EXIT_ON_FAILURE(ret_val, "Client sent invalid protocol type!\n");
 			}
+		}
+		else if (opponent_decision == CLIENT_MAIN_MENU && GetType(&recv_protocol) == CLIENT_MAIN_MENU){
 			exit = true; /* exit loop */
-			break;
-		case CLIENT_MAIN_MENU:
-			exit = true; /* exit loop */
-			break;
-		default:
+			continue;
+		}
+		else {
 			ret_val = PROTOCOL_MSG_TYPE_ERROR;
-			GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+			GO_TO_EXIT_ON_FAILURE(ret_val, "Client sent invalid protocol type: %d!\n");
 		}
 	}
 EXIT:
@@ -380,18 +378,16 @@ DWORD ClientThread(LPVOID lpParam)
 	client_params_t *Args;
 	if (NULL == lpParam) {
 		printf("error with arguments passed to thread\n");
-		return CLIENT_PARAMS_CASTING_FAILED;
+		return THREAD_PARAMS_CASTING_FAILED;
 	}
 	Args = (client_params_t*)lpParam;
 
-	ret_val = TestConnectionWithServer(Args);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "TestConnectionWithServer() failed!\n");
 	DEBUG_PRINT(printf("user name: %s\n", Args->user_name));
 	ret_val = ClientMainMenu(Args);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");
 
 EXIT:
-	printf("Conversation ended.\n");
+	printf("From ClientThread: \"Conversation ended\".\n");
 	closesocket(Args->socket);
 	Args->socket = INVALID_SOCKET;
 	return ret_val;
