@@ -74,8 +74,8 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
 		/* wait for response frrom client : with user move */
-		ret_val = RecvData(&Args->socket, &recv_protocol); /* wait 30 sec */
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&Args->socket, &recv_protocol, SERVER_WAIT_FOR_OTHER_PLAYER_MOVE); /* wait 30 sec */
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 
@@ -147,8 +147,8 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "PlayClientVsClient() failed!\n");
 
 		/* wait to client to decide: play again or back to main menu */
-		ret_val = RecvData(&Args->socket, &recv_protocol);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&Args->socket, &recv_protocol, INFINITE);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 
 		/* wait to opponent to decide play again or quit */
 		ret_val = WaitForOpponentDecision(GetType(&recv_protocol),&opponent_decision);
@@ -209,8 +209,8 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
 		/* wait for response frrom client : with user move */
-		ret_val = RecvData(&Args->socket, &recv_protocol); /* no timeout */
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&Args->socket, &recv_protocol, INFINITE); /* no timeout */
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 			/* get game results */
@@ -250,8 +250,8 @@ ErrorCode_t ClientVsCpu(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
 
 		/* wait to client to decide: play again or back to main menu */
-		ret_val = RecvData(&Args->socket, &recv_protocol); /* no timeout */
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&Args->socket, &recv_protocol, INFINITE); /* no timeout */
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 
 		switch (GetType(&recv_protocol))
 		{
@@ -295,8 +295,8 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* wait for response frrom client */
-		ret_val = RecvData(&Args->socket, &recv_protocol); /* no timeout */
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&Args->socket, &recv_protocol,INFINITE); /* no timeout */
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 
 		switch (GetType(&recv_protocol)) {
 			{
@@ -330,8 +330,8 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 		while (!quit) {
 			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_MAIN_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
-			ret_val = RecvData(&Args->socket, &protocol_msg); /* no timeout */
-			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+			ret_val = RecvData_WithTimeout(&Args->socket, &protocol_msg, INFINITE); /* no timeout */
+			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 			switch (GetType(&protocol_msg)) {
 			case CLIENT_VERSUS:
 				/* client vs client:

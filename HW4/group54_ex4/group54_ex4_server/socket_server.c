@@ -75,8 +75,8 @@ ErrorCode_t SetUpTheServer(SOCKET *p_socket, int port) {
 ErrorCode_t GetUserNameFromClient(SOCKET *p_socket, char *user_name) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t protocol_msg;
-	ret_val = RecvData(p_socket, &protocol_msg); /* add timeout */
-	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+	ret_val = RecvData_WithTimeout(p_socket, &protocol_msg, SERVER_RECIVE_TIMEOUT); /* add timeout */
+	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 	switch (GetType(&protocol_msg)) {
 	case CLIENT_REQUEST:
 		strcpy_s(user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
@@ -120,7 +120,7 @@ bool CheckIfUsernameExists(char new_user_name[USERNAME_MAX_LEN]) {
 	{
 		if (ClientThreadHandles[i] != NULL) {
 			if (STRINGS_ARE_EQUAL(new_user_name, ClientThreadArgs[i].user_name)) {
-				return false;
+				return !ALLOW_SAME_USER_NAME;
 			}
 		}
 	}

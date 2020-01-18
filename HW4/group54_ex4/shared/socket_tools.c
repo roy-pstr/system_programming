@@ -27,6 +27,60 @@ EXIT:
 	return ret_val;
 }
 
+ErrorCode_t RecvData_WithTimeout(SOCKET *t_socket, protocol_t * prtcl_msg, int timeout_in_seconds) {
+	TransferResult_t RecvRes;
+	ErrorCode_t ret_val = SUCCESS;
+	char *AcceptedStr = NULL;
+
+	int retval_select = 1;
+	fd_set set;
+	struct timeval timeout;
+	FD_ZERO(&set); /* clear the set */
+	FD_SET(*t_socket, &set); /* add our file descriptor to the set */
+	timeout.tv_sec = timeout_in_seconds;
+	timeout.tv_usec = 0;
+	if (timeout_in_seconds != INFINITE) {
+		retval_select = select(0, &set, NULL, NULL, &timeout);
+	}
+	if (retval_select == SOCKET_ERROR) {
+		// select error...
+		printf("Error while waiting in RecvData_WithTimeout\n");
+		ret_val = SERVER_RECIVE_FAILED;
+		goto EXIT;
+	}
+	if (retval_select == 0) {
+		// timeout, socket does not have anything to read
+		printf("TIMEOUT during RecvData_WithTimeout\n");
+		ret_val = SERVER_RECV_TIMEDOUT;
+		goto EXIT;
+	}
+	
+	DEBUG_PRINT(printf("Waiting to recive something...\n"));
+	InitProtocol(prtcl_msg);
+	RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+	if (RecvRes == TRNS_FAILED)
+	{
+		printf("Service socket error while reading.\n");
+		ret_val = SOCKET_ERROR_RECV_DATA;
+		goto EXIT;
+	}
+	else if (RecvRes == TRNS_DISCONNECTED)
+	{
+		printf("Connection closed while reading.\n");
+		ret_val = SOCKET_ERROR_RECV_DATA;
+		goto EXIT;
+	}
+
+	DEBUG_PRINT(printf("Recived message : %s\n", AcceptedStr));
+	ret_val = ParseMessage(AcceptedStr, (int)strlen(AcceptedStr) + 1, prtcl_msg);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "ParseMessage() failed!\n");
+
+EXIT:
+	if (NULL != AcceptedStr)
+		free(AcceptedStr);
+	return ret_val;
+}
+
 ErrorCode_t RecvData(SOCKET *t_socket, protocol_t * prtcl_msg) {
 	TransferResult_t RecvRes;
 	ErrorCode_t ret_val = SUCCESS;
@@ -197,7 +251,7 @@ TransferResult_t ReceiveString( char** OutputStrPtr, SOCKET sd )
 			   "\tReceiveString( &Buffer, ___ )\n" );
 		return TRNS_FAILED;
 	}
-
+	
 	/* The request is received in two parts. First the Length of the string (stored in 
 	   an int variable ), then the string itself. */
 		

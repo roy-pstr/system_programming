@@ -59,8 +59,8 @@ ErrorCode_t TryToConnectClient(char *server_ip, int server_port, char username[]
 
 		/* wait for sever response*/
 		protocol_t recv_protocol;
-		ret_val = RecvData(&m_socket, &recv_protocol);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_RECIVE_TIMEOUT);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 
 		switch (GetType(&recv_protocol)) {
 		case SERVER_APPROVED:
@@ -100,45 +100,48 @@ ErrorCode_t StartGameClientVsClient() {
 	PROTOCOL_ENUM end_game_menu_res;
 	while (still_playing) {
 		/* CLIENT_VERSUS already sent, wait for response from server */
-		ret_val = RecvData(&m_socket, &recv_protocol);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_VERSUS_TIMEOUT);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 		if (SERVER_PLAYER_MOVE_REQUEST == GetType(&recv_protocol)) {
 			player_move = ChooseMove();
 			ret_val = SendProtcolMsgWithParams(&m_socket, CLIENT_PLAYER_MOVE, &MOVES_STRINGS[player_move], 1);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
-		}
-		else if (SERVER_GAME_RESULTS == GetType(&recv_protocol))
-		{
-			PrintGameResult(&recv_protocol);
 
-			/* wait to recive from server */
-			ret_val = RecvData(&m_socket, &recv_protocol);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+			/* wait for SERVER_GAME_RESULTS response */
+			ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, INFINITE);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
+			if (SERVER_GAME_RESULTS == GetType(&recv_protocol)) {
+				PrintGameResult(&recv_protocol);
 
-			/* next must come SERVER_GAME_OVER_MENU from server */
-			if (SERVER_GAME_OVER_MENU == GetType(&recv_protocol)) {
-				/* let the user choose what to do */
-				end_game_menu_res = EndGameMenu();
+				/* wait to recive from server */
+				ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_RECIVE_TIMEOUT);
+				GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 
-				/* send to server */
-				ret_val = SendProtcolMsgNoParams(&m_socket, end_game_menu_res);
-				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+				/* next must come SERVER_GAME_OVER_MENU from server */
+				if (SERVER_GAME_OVER_MENU == GetType(&recv_protocol)) {
+					/* let the user choose what to do */
+					end_game_menu_res = EndGameMenu();
 
-				switch (end_game_menu_res) {
-				case CLIENT_REPLAY:
-					continue; /* goto start of loop and wait to get the server move */
-				case CLIENT_MAIN_MENU:
-					still_playing = false; /* exit loop! */
-					continue;
-				default:
-					ret_val = PROTOCOL_MSG_TYPE_ERROR;
-					GO_TO_EXIT_ON_FAILURE(ret_val, "Invalid protocol type!\n");
-					break;
+					/* send to server */
+					ret_val = SendProtcolMsgNoParams(&m_socket, end_game_menu_res);
+					GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+
+					switch (end_game_menu_res) {
+					case CLIENT_REPLAY:
+						continue; /* goto start of loop and wait to get the server move */
+					case CLIENT_MAIN_MENU:
+						still_playing = false; /* exit loop! */
+						continue;
+					default:
+						ret_val = PROTOCOL_MSG_TYPE_ERROR;
+						GO_TO_EXIT_ON_FAILURE(ret_val, "Invalid protocol type!\n");
+						break;
+					}
 				}
-			}
-			else {
-				ret_val = PROTOCOL_MSG_TYPE_ERROR;
-				GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+				else {
+					ret_val = PROTOCOL_MSG_TYPE_ERROR;
+					GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+				}
 			}
 		}
 		else if (SERVER_OPPONENT_QUIT == GetType(&recv_protocol)) {
@@ -157,8 +160,8 @@ EXIT:
 ErrorCode_t WaitForOpponent() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
-	ret_val = RecvData(&m_socket, &recv_protocol);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+	ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, INFINITE);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 	if (SERVER_INVITE == GetType(&recv_protocol)) {
 		DEBUG_PRINT(printf("Playing against: %s\n", recv_protocol.param_list[0]));
 		ret_val = StartGameClientVsClient();
@@ -183,49 +186,48 @@ ErrorCode_t StartGameClientVsCpu() {
 	PROTOCOL_ENUM end_game_menu_res;
 	while (still_playing) {
 		/* CLIENT_CPU already sent, wait for response from server */
-		ret_val = RecvData(&m_socket, &recv_protocol);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_RECIVE_TIMEOUT);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 		if (SERVER_PLAYER_MOVE_REQUEST == GetType(&recv_protocol)) {
 			player_move = ChooseMove();
 			ret_val = SendProtcolMsgWithParams(&m_socket, CLIENT_PLAYER_MOVE, &MOVES_STRINGS[player_move] , 1);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
-			//ret_val = WaitForServerGameResult();
-			//GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForServerGameResult() failed!\n");
-		}
-		else if (SERVER_GAME_RESULTS == GetType(&recv_protocol))
-		{
-			PrintGameResult(&recv_protocol);
-		
-			//DetectAndUpdateElement(&Leaderboard_head, name, 1); ILAY
+			
+			ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_RECIVE_TIMEOUT);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
+			if (SERVER_GAME_RESULTS == GetType(&recv_protocol))
+			{
+				PrintGameResult(&recv_protocol);
 
-			/* wait to recive from server */
-			ret_val = RecvData(&m_socket, &recv_protocol);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+				/* wait to recive from server */
+				ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_RECIVE_TIMEOUT);
+				GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 
-			/* next must come SERVER_GAME_OVER_MENU from server */
-			if (SERVER_GAME_OVER_MENU == GetType(&recv_protocol)) {
-				/* let the user choose what to do */
-				end_game_menu_res = EndGameMenu();
+				/* next must come SERVER_GAME_OVER_MENU from server */
+				if (SERVER_GAME_OVER_MENU == GetType(&recv_protocol)) {
+					/* let the user choose what to do */
+					end_game_menu_res = EndGameMenu();
 
-				/* send to server */
-				ret_val = SendProtcolMsgNoParams(&m_socket, end_game_menu_res);
-				GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
+					/* send to server */
+					ret_val = SendProtcolMsgNoParams(&m_socket, end_game_menu_res);
+					GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
 
-				switch (end_game_menu_res) {
-				case CLIENT_REPLAY:
-					continue; /* goto start of loop and wait to get the server move */
-				case CLIENT_MAIN_MENU:
-					still_playing = false; /* exit loop! */
-					continue;
-				default:
-					ret_val = PROTOCOL_MSG_TYPE_ERROR;
-					GO_TO_EXIT_ON_FAILURE(ret_val, "Invalid protocol type!\n");
-					break;
+					switch (end_game_menu_res) {
+					case CLIENT_REPLAY:
+						continue; /* goto start of loop and wait to get the server move */
+					case CLIENT_MAIN_MENU:
+						still_playing = false; /* exit loop! */
+						continue;
+					default:
+						ret_val = PROTOCOL_MSG_TYPE_ERROR;
+						GO_TO_EXIT_ON_FAILURE(ret_val, "Invalid protocol type!\n");
+						break;
+					}
 				}
-			}
-			else {
-				ret_val = PROTOCOL_MSG_TYPE_ERROR;
-				GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+				else {
+					ret_val = PROTOCOL_MSG_TYPE_ERROR;
+					GO_TO_EXIT_ON_FAILURE(ret_val, "Server sent invalid protocol type!\n");
+				}
 			}
 		}
 		else {
@@ -244,14 +246,14 @@ ErrorCode_t GoToClientLeaderboard() {
 	PROTOCOL_ENUM menu_ret_val;
 	bool wait_for_leaderboard_from_server = true;
 	while (wait_for_leaderboard_from_server) {
-		ret_val = RecvData(&m_socket, &recv_protocol);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_RECIVE_TIMEOUT);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 		if (SERVER_LEADERBOARD == GetType(&recv_protocol)) {
 			/* printing leaderboard */
 			printf("%s\n", recv_protocol.leaderboard_param);
 
-			ret_val = RecvData(&m_socket, &recv_protocol);
-			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+			ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_RECIVE_TIMEOUT);
+			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 			if (SERVER_LEADERBORAD_MENU == GetType(&recv_protocol)) {
 				menu_ret_val = LeaderboardMenu();
 				ret_val = SendProtcolMsgNoParams(&m_socket, menu_ret_val);
@@ -292,8 +294,8 @@ ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 	/* wait for SERVER_MAIN_MENU */
 	bool still_alive = true;
 	while (still_alive) {
-		ret_val = RecvData(&m_socket, &recv_protocol);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData() failed.\n");
+		ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, INFINITE);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 		if (SERVER_MAIN_MENU == GetType(&recv_protocol)) {
 			/* show menu */
 			main_menu_protocol = MainMenu();

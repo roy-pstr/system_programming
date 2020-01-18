@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DEBUG false
+#define DEBUG true
+#define ALLOW_SAME_USER_NAME true
 
 #define INT_MAX_LEN 20 // x64
 #define RATIO_MAX_LEN 24 // .###
@@ -33,6 +34,10 @@
 #define WAIT_FOR_CLOSING_CLIENT_THREAD 5000
 #define WAIT_FOR_SECOND_PLAYER_TO_JOIN_GAME 30000 // 30 seconds
 #define WAIT_FOR_SECOND_PLAYER_TO_CHOOSE_WHAT_TO_DO INFINITE // 30 seconds
+#define CLIENT_RECIVE_TIMEOUT 5 //seconds (CHANGE TO 15)
+#define SERVER_RECIVE_TIMEOUT 5 //seconds(CHANGE TO 15)
+#define CLIENT_VERSUS_TIMEOUT 30 //seconds
+#define SERVER_WAIT_FOR_OTHER_PLAYER_MOVE 30 //seconds
 
 /* inline MACRO function defenition: */
 #define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
@@ -52,6 +57,8 @@ typedef enum {
 	SOCKET_ERROR_RECV_DATA,
 	SOCKET_ACCEPT_FAILED,
 	SERVER_DENIED_CONNECT,
+	SERVER_RECV_TIMEDOUT,
+	SERVER_RECIVE_FAILED,
 	THREAD_PARAMS_CASTING_FAILED,
 	THREAD_CREATE_FAILED,
 	THREAD_WAIT_FAILED,
