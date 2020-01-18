@@ -1,5 +1,5 @@
 #include "accept_thread.h"
-
+#include "thread_communication.h"
 DWORD AcceptThread(LPVOID lpParam)
 {
 	ErrorCode_t ret_val = SUCCESS;
@@ -10,7 +10,6 @@ DWORD AcceptThread(LPVOID lpParam)
 		return THREAD_PARAMS_CASTING_FAILED;
 	}
 	Args = (accept_params_t*)lpParam;
-
 	Args->accepted = accept(Args->main, NULL, NULL);
 	if (Args->accepted == INVALID_SOCKET)
 	{
@@ -19,6 +18,7 @@ DWORD AcceptThread(LPVOID lpParam)
 		goto EXIT;
 	}
 	DEBUG_PRINT(printf("Client Connected.\n"));
+	
 
 EXIT:
 	return ret_val;

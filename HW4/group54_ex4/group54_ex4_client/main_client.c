@@ -52,25 +52,41 @@ int main(int argc, char *argv[]) {
 		printf("error %ld at WSAStartup( ), ending program.\n", WSAGetLastError());
 		goto EXIT;
 	}
-	
-	// Create a socket.
-	ret_val = CreateSocket(&m_socket);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSocket() failed.\n");
+	bool exit = false;
+	while (!exit) {
+		// Create a socket.
+		ret_val = CreateSocket(&m_socket);
+		GO_TO_EXIT_ON_FAILURE(ret_val, "CreateSocket() failed.\n");
 
-	//DWORD timeout = 5 * 1000;
-	//setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-	/* try to connect to server */
-	ret_val = TryToConnectClient(server_ip, server_port, username);
-	if (CLIENT_EXIT_TRY_CONNECT == ret_val) {
-		goto EXIT;
+		//DWORD timeout = 5 * 1000;
+		//setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+		/* try to connect to server */
+		ret_val = TryToConnectClient(server_ip, server_port, username);
+		if (CLIENT_EXIT_TRY_CONNECT == ret_val) {
+			goto EXIT;
+		}
+		GO_TO_EXIT_ON_FAILURE(ret_val, "TryToConnectClient() failed.\n");
+
+		/* client connected */
+		printf(ON_CONNECT_TO_SERVER, server_ip, server_port);
+		ret_val = StartGameClient(server_ip, server_port, username);
+		if (SUCCESS != ret_val) {
+			printf(TIMEOUT_FAILURE_FROM_SERVER, server_ip, server_port);
+			MenuCode_t menu_code = ReconnectMenu();
+			if (CLIENT_TRY_RECONNECT == menu_code) {
+				continue; /* try reconnect */
+			}
+			else if (CLIENT_EXIT_RECONNECT == menu_code) {
+				ret_val = CLIENT_EXIT_TRY_CONNECT;
+				goto EXIT;
+			}
+		}
+		else{
+			break; /* exit loop */
+		}
+		
 	}
-	GO_TO_EXIT_ON_FAILURE(ret_val, "TryToConnectClient() failed.\n");
-
-	/* client connected */
-	printf(ON_CONNECT_TO_SERVER, server_ip, server_port);
-	ret_val = StartGameClient(server_ip, server_port, username);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "StartGameClient() failed.\n");
-
+	
 EXIT:
 	if (m_socket != INVALID_SOCKET) {
 		if (closesocket(m_socket) == SOCKET_ERROR)

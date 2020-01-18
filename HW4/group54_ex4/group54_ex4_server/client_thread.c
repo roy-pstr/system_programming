@@ -381,7 +381,7 @@ DWORD ClientThread(LPVOID lpParam)
 		return THREAD_PARAMS_CASTING_FAILED;
 	}
 	Args = (client_params_t*)lpParam;
-
+	
 	DEBUG_PRINT(printf("user name: %s\n", Args->user_name));
 	ret_val = ClientMainMenu(Args);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");

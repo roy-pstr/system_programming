@@ -89,51 +89,7 @@ ErrorCode_t GetUserNameFromClient(SOCKET *p_socket, char *user_name) {
 EXIT:
 	return ret_val;
 }
-ErrorCode_t WaitForClientToConnect(SOCKET *p_main_socket, SOCKET *accepted_socket) {
-	ErrorCode_t ret_val = SUCCESS;
-	DEBUG_PRINT(printf("Waiting for a client to connect...\n"));
-	HANDLE accept_thread = NULL;
-	accept_params_t thread_args;
-	thread_args.main = *p_main_socket;
-	if (NULL == (accept_thread = CreateThreadSimple((LPTHREAD_START_ROUTINE)AcceptThread, &thread_args)))
-	{
-		printf("Error when creating exit thread: %d\n", GetLastError());
-		ret_val = THREAD_CREATE_FAILED;
-		goto EXIT;
-	}
 
-	bool wait_for_accept_thread = true;
-	while (wait_for_accept_thread) {
-		DWORD wait_code = WaitForSingleObject(accept_thread, 100);
-		if (wait_code == WAIT_OBJECT_0) {
-			/*finish running, check return value*/
-			wait_for_accept_thread = false;
-			if (SUCCESS != HandlerExitCode(accept_thread)) {
-				ret_val = ACCEPT_THREAD_FAILED;
-				goto EXIT;
-			}
-		}
-		if (exit_server) {
-			if (FALSE == TerminateThread(accept_thread, SUCCESS)) {
-				printf("TerminateThread() failed with: %d\n",GetLastError());
-				ret_val = THRAD_TERMINATE_FAILED;
-			}
-			goto EXIT; 
-		}
-	}
-	
-	*accepted_socket = thread_args.accepted; // shallow copy: close client_socket when the time comes.
-
-EXIT:
-	if (NULL != accept_thread) {
-		if (FALSE == CloseHandle(accept_thread))
-		{
-			printf("Error when closing thread: %d\n", GetLastError());
-			ret_val = THREAD_CLOSE_ERROR;
-		}
-	}
-	return ret_val;
-}
 ErrorCode_t PutClientInThread( client_params_t *client_args, HANDLE *client_handle) {
 	ErrorCode_t ret_val = SUCCESS;
 	ret_val = SendProtcolMsgNoParams(&client_args->socket, SERVER_APPROVED);
@@ -164,7 +120,7 @@ bool CheckIfUsernameExists(char new_user_name[USERNAME_MAX_LEN]) {
 	{
 		if (ClientThreadHandles[i] != NULL) {
 			if (STRINGS_ARE_EQUAL(new_user_name, ClientThreadArgs[i].user_name)) {
-				return true;
+				return false;
 			}
 		}
 	}
@@ -220,33 +176,64 @@ ErrorCode_t CleanupClientThreads(client_params_t *client_args, HANDLE *client_ha
 	}
 	return ret_val;
 }
-ErrorCode_t GetConnections()
-{
+
+//ErrorCode_t GetConnections()
+//{
+//	ErrorCode_t ret_val = SUCCESS;
+//	int ind = 0;
+//	DEBUG_PRINT(printf("Waiting for a client to connect...\n"));
+//	while (!exit_server) {
+//		SOCKET accepted_socket;
+//		char new_user_name[USERNAME_MAX_LEN];
+//		ret_val = WaitForClientToConnect(&MainSocket, &accepted_socket);
+//		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForClientToConnect failed. \n");
+//		if (exit_server) { continue; }
+//		if (accepted_socket == INVALID_SOCKET) { continue; }
+//
+//		ret_val = GetUserNameFromClient(&accepted_socket, &new_user_name[0]);
+//		GO_TO_EXIT_ON_FAILURE(ret_val, "GetUserNameFromClient failed. \n");
+//
+//		ind = FindFirstNullHandler(ClientThreadHandles, NUMBER_OF_CLIENTS);
+//		if (ind == NUMBER_OF_CLIENTS) {
+//			ret_val = SendServerDenied(&accepted_socket, FULL); /*close the socket*/
+//			GO_TO_EXIT_ON_FAILURE(ret_val, "ServerIsFull failed. \n");
+//			continue;
+//		}
+//		if (CheckIfUsernameExists(new_user_name)) {
+//			ret_val = SendServerDenied(&accepted_socket, USERNAME_EXIST); /*close the socket*/
+//			GO_TO_EXIT_ON_FAILURE(ret_val, "ServerIsFull failed. \n");
+//			continue;
+//		}
+//
+//		ClientThreadArgs[ind].socket = accepted_socket; // shallow copy: close client_socket when the time comes.
+//		strcpy_s(ClientThreadArgs[ind].user_name, USERNAME_MAX_LEN, new_user_name);
+//		ret_val = PutClientInThread(&ClientThreadArgs[ind], &ClientThreadHandles[ind]);
+//		GO_TO_EXIT_ON_FAILURE(ret_val, "PutClientInThread failed. \n");
+//
+//		DEBUG_PRINT(printf("Waiting for a client to connect...\n"));
+//	}
+//EXIT:
+//	return ret_val;
+//}
+ErrorCode_t SetUpTheConnection(SOCKET *accepted_socket) {
 	ErrorCode_t ret_val = SUCCESS;
+	char new_user_name[USERNAME_MAX_LEN];
 	int ind = 0;
-	while (!exit_server) {
-		SOCKET accepted_socket;
-		char new_user_name[USERNAME_MAX_LEN];
-		ret_val = WaitForClientToConnect(&MainSocket, &accepted_socket);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForClientToConnect failed. \n");
-		if (exit_server) { continue; }
 
-		ret_val = GetUserNameFromClient(&accepted_socket, &new_user_name[0]);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "GetUserNameFromClient failed. \n");
+	ret_val = GetUserNameFromClient(accepted_socket, &new_user_name[0]);
+	GO_TO_EXIT_ON_FAILURE(ret_val, "GetUserNameFromClient failed. \n");
 
-		ind = FindFirstNullHandler(ClientThreadHandles, NUMBER_OF_CLIENTS);
-		if (ind == NUMBER_OF_CLIENTS) {
-			ret_val = SendServerDenied(&accepted_socket, FULL); /*close the socket*/
-			GO_TO_EXIT_ON_FAILURE(ret_val, "ServerIsFull failed. \n");
-			continue;
-		}
-		if (CheckIfUsernameExists(new_user_name)) {
-			ret_val = SendServerDenied(&accepted_socket, USERNAME_EXIST); /*close the socket*/
-			GO_TO_EXIT_ON_FAILURE(ret_val, "ServerIsFull failed. \n");
-			continue;
-		}
-
-		ClientThreadArgs[ind].socket = accepted_socket; // shallow copy: close client_socket when the time comes.
+	ind = FindFirstNullHandler(ClientThreadHandles, NUMBER_OF_CLIENTS);
+	if (ind == NUMBER_OF_CLIENTS) {
+		ret_val = SendServerDenied(accepted_socket, FULL); /*close the socket*/
+		GO_TO_EXIT_ON_FAILURE(ret_val, "ServerIsFull failed. \n");
+	}
+	else if (CheckIfUsernameExists(new_user_name)) {
+		ret_val = SendServerDenied(accepted_socket, USERNAME_EXIST); /*close the socket*/
+		GO_TO_EXIT_ON_FAILURE(ret_val, "ServerIsFull failed. \n");
+	}
+	else {
+		ClientThreadArgs[ind].socket = *accepted_socket; // shallow copy: close client_socket when the time comes.
 		strcpy_s(ClientThreadArgs[ind].user_name, USERNAME_MAX_LEN, new_user_name);
 		ret_val = PutClientInThread(&ClientThreadArgs[ind], &ClientThreadHandles[ind]);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "PutClientInThread failed. \n");
@@ -254,11 +241,80 @@ ErrorCode_t GetConnections()
 EXIT:
 	return ret_val;
 }
+ErrorCode_t WaitForClientToConnect(HANDLE accept_thread, accept_params_t *thread_args) {
+	ErrorCode_t ret_val = SUCCESS;
 
+	if (accept_thread == NULL) {
+		thread_args->accepted = INVALID_SOCKET;
+		if (NULL == (accept_thread = CreateThreadSimple((LPTHREAD_START_ROUTINE)AcceptThread, thread_args)))
+		{
+			printf("Error when creating exit thread: %d\n", GetLastError());
+			ret_val = THREAD_CREATE_FAILED;
+			goto EXIT;
+		}
+	}
+	/* try get connection */
+	DWORD wait_code = WaitForSingleObject(accept_thread, 100);
+	if (wait_code == WAIT_OBJECT_0) {
+		/*finish running, check return value*/
+		if (thread_args->accepted != INVALID_SOCKET) {
+			SetUpTheConnection(&thread_args->accepted);
+			thread_args->accepted = INVALID_SOCKET;
+			if (NULL != accept_thread) {
+				if (FALSE == CloseHandle(accept_thread))
+				{
+					printf("Error when closing thread: %d\n", GetLastError());
+					ret_val = THREAD_CLOSE_ERROR;
+				}
+				accept_thread = NULL;
+			}
+		}
+	}
+
+EXIT:
+	return ret_val;
+}
+ErrorCode_t TerminateAllClients() {
+	ErrorCode_t ret_val = SUCCESS;
+	DWORD lpExitCode;
+	for (int i = 0; i < NUMBER_OF_CLIENTS; i++)
+	{
+		if (ClientThreadHandles[i] != NULL) {
+			if (FALSE == GetExitCodeThread(ClientThreadHandles[i], &lpExitCode))
+			{
+				if (FALSE == TerminateThread(ClientThreadHandles[i], THREAD_TREMINATE)) {
+					printf("TerminateThread() failed with: %d \n", GetLastError());
+					ret_val = THREAD_TERMINATE_FAILED;
+				}
+			}
+		}
+	}
+EXIT:
+	return ret_val;
+}
+ErrorCode_t CheckClientsStatus() {
+	ErrorCode_t ret_val = SUCCESS;
+	for (int i = 0; i < NUMBER_OF_CLIENTS; i++)
+	{
+		if (ClientThreadHandles[i] != NULL) {
+			DWORD wait_code = WaitForSingleObject(ClientThreadHandles[i], 0);
+			if (wait_code == WAIT_OBJECT_0) {
+				/* client quit */
+				if (CLIENT_THREAD_FAILED == HandlerExitCode(ClientThreadHandles[i])) {
+					/*client thread failed -> treminate all other clients and exit server */
+					TerminateAllClients();
+					exit_server = true;
+				}
+			}
+		}
+	}
+EXIT:
+	return ret_val;
+}
 /* this function create the server socket and then handles the clients threads creation and waiting */
 ErrorCode_t StartGameServer(int port) {
 	ErrorCode_t ret_val = SUCCESS;
-
+	HANDLE accept_thread = NULL;
 	ret_val = SetUpTheServer(&MainSocket, port); /* create, bind and listen */
 	GO_TO_EXIT_ON_FAILURE(ret_val, "SetUpTheServer failed. \n");
 
@@ -272,12 +328,56 @@ ErrorCode_t StartGameServer(int port) {
 	/* init the thread_communication module */
 	InitThreadCommunicationModule();
 	
-	/* start waiting for connection from clients - blocking function! */
-	ret_val = GetConnections();
-	GO_TO_EXIT_ON_FAILURE(ret_val, "GetConnections failed. \n");
+	/*create thread to handle accept requests */
+	
+	accept_params_t thread_args;
+	thread_args.main = MainSocket;
+
+	while (!exit_server) {
+		if (accept_thread == NULL) {
+			thread_args.accepted = INVALID_SOCKET;
+			if (NULL == (accept_thread = CreateThreadSimple((LPTHREAD_START_ROUTINE)AcceptThread, &thread_args)))
+			{
+				printf("Error when creating exit thread: %d\n", GetLastError());
+				ret_val = THREAD_CREATE_FAILED;
+				goto EXIT;
+			}
+		}
+		/* try get connection */
+		DWORD wait_code = WaitForSingleObject(accept_thread, 100);
+		if (wait_code == WAIT_OBJECT_0) {
+			/*finish running, check return value*/
+			if (thread_args.accepted != INVALID_SOCKET) {
+				SetUpTheConnection(&thread_args.accepted);
+				thread_args.accepted = INVALID_SOCKET;
+				if (NULL != accept_thread) {
+					if (FALSE == CloseHandle(accept_thread))
+					{
+						printf("Error when closing thread: %d\n", GetLastError());
+						ret_val = THREAD_CLOSE_ERROR;
+					}
+					accept_thread = NULL;
+				}
+			}
+		}
+		//ret_val = WaitForClientToConnect(accept_thread, &thread_args);
+		//GO_TO_EXIT_ON_FAILURE(ret_val, "CheckClientsStatus failed. \n");
+
+		/*check client status */
+		ret_val = CheckClientsStatus();
+		GO_TO_EXIT_ON_FAILURE(ret_val, "CheckClientsStatus failed. \n");
+	}
 
 EXIT:
 	DEBUG_PRINT(printf("StartGameServer: \"exit.\"\n"));
+	if (NULL != accept_thread) {
+		if (FALSE == CloseHandle(accept_thread))
+		{
+			printf("Error when closing thread: %d\n", GetLastError());
+			ret_val = THREAD_CLOSE_ERROR;
+		}
+		accept_thread = NULL;
+	}
 	if (SUCCESS != CleanupClientThreads(&ClientThreadArgs[0], &ClientThreadHandles[0], NUMBER_OF_CLIENTS)) {
 		printf("CleanupClientThreads Failed.\n");
 	}

@@ -334,5 +334,10 @@ ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 	}
 EXIT:
 	/* close socket...*/
+	if (m_socket != INVALID_SOCKET) {
+		if (closesocket(m_socket) == SOCKET_ERROR)
+			printf("Failed to close Client socket, error %ld. Ending program\n", WSAGetLastError());
+		m_socket = INVALID_SOCKET;
+	}
 	return ret_val;
 }
