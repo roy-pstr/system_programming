@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include "utils.h"
 #include "csv_handler.h"
+#include "msg_protocol.h"
 
 
 /*This reads Leaderboard.csv and print it in the needed format*/
@@ -99,8 +100,35 @@ Node *CreateNode(char *name, int win, int lose) // MAYBE DEBUG
 	return new_element;
 }
 
+param_node *CreateParamNode(char *line) 
+{
+	param_node *new_element = NULL;
+	if (NULL == (new_element = (param_node*)malloc(sizeof(param_node))))
+	{
+		printf("Node Memory Allocation Failed");
+		return new_element;
+	}
+	strcpy(new_element->param, line);
+	new_element->length = 0;
+	new_element->next = NULL;
+	return new_element;
+}
+
 /*Free linked list function*/
 void DestroyLinkedList(Node *head)
+{
+	Node *current = head;
+	Node *next = NULL;
+
+	while (current != NULL)
+	{
+		next = current->next;
+		free(current);
+		current = next;
+	}
+}
+
+void DestroyParamLinkedList(param_node *head)
 {
 	Node *current = head;
 	Node *next = NULL;
@@ -251,25 +279,57 @@ int LengthOfLinkedList(Node *head)
 }
 
 /*Function for printing the user the Leaderboard*/
-void LinkedListToStr(Node *head, char **leaderboard_str,int buff_size)
+//void LinkedListToStr(Node *head, char **leaderboard_str,int buff_size)
+//{
+//	int length = 0;
+//	Node *temp = head;
+//	//int buff_size = num_of_elements*LINE_MAX_LEN + 100;
+//	length += snprintf(*leaderboard_str + length, buff_size - length, "Name\t\tWon\t\tLost\t\tW/L Ratio\n");
+//	while (temp != NULL)
+//	{
+//		if (temp->ratio == -1)
+//		{
+//			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost, temp->ratio);
+//		}
+//		else
+//		{
+//			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+//		}
+//		temp = temp->next;
+//	}
+//}
+
+/*Function for printing the user the Leaderboard*/
+void LinkedListToParam(Node *head, param_node **head_msg)
 {
 	int length = 0;
 	Node *temp = head;
-	//int buff_size = num_of_elements*LINE_MAX_LEN + 100;
-	length += snprintf(*leaderboard_str + length, buff_size - length, "Name\t\tWon\t\tLost\t\tW/L Ratio\n");
+	char str_for_next[LINE_MAX_LEN] = "";
+	if (NULL != *(head_msg))
+	{
+		DestroyParamLinkedList(*(head_msg));  // DEBUG
+		return;
+	}
+	(*head_msg) = CreateParamNode("Name\t\tWon\t\tLost\t\tW/L Ratio\n");
+
 	while (temp != NULL)
 	{
 		if (temp->ratio == -1)
 		{
-			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost, temp->ratio);
+			sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost);
 		}
 		else
 		{
-			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+			sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
 		}
+		(*head_msg)->next = CreateParamNode(str_for_next);
 		temp = temp->next;
 	}
 }
+
+
+
+
 
 /*Funtction that rounds float #p points after the dot*/
 double Round(double x, int p)
