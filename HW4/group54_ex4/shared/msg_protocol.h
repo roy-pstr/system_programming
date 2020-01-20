@@ -90,6 +90,8 @@ void FreeProtocol(protocol_t * msg);
 
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
 
+void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node * param_list);
+
 ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg);
 
 /* msg_str is already allocated to 'size_in_bytes'. 

@@ -43,6 +43,7 @@ void FreeParamsList(param_node *head)
 		current = next;
 	}
 }
+
 char * GetParam(param_node *head, int ind) {
 	param_node *curr_node = head;
 	for (int i = 0; i < ind; i++)
@@ -85,6 +86,23 @@ void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char **param_list, int pa
 	{
 		AddParamToList(&msg->param_list_head, param_list[i]);
 		msg->size_in_bytes += (int)strlen(param_list[i]) + 1;
+	}
+	msg->size_in_bytes++;
+}
+void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node *param_list)
+{
+	InitProtocol(msg);
+	msg->type = type;
+	msg->size_in_bytes = (int)strlen(PROTOCOLS_STRINGS[msg->type]);
+	if (ShouldHaveParams(msg))
+	{
+		msg->size_in_bytes++; /* for he ':' */
+	}
+	msg->param_list_head = param_list;
+	param_node *curr_node = msg->param_list_head;
+	while (curr_node != NULL) {
+		msg->size_in_bytes += curr_node->length;
+		curr_node = curr_node->next;
 	}
 	msg->size_in_bytes++;
 }
