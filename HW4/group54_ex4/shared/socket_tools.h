@@ -7,7 +7,9 @@
 #include "msg_protocol.h"
 
 void InitSockets(SOCKET * sockets, int size);
+ErrorCode_t ShutDownAndCloseSocket(SOCKET * t_socket);
 ErrorCode_t CreateSocket(SOCKET * s);
+ErrorCode_t RecvData_WithTimeout(SOCKET * t_socket, protocol_t * prtcl_msg, int timeout_in_seconds);
 ErrorCode_t RecvData(SOCKET * t_socket, protocol_t * prtcl_msg);
 ErrorCode_t SendData(SOCKET * t_socket, protocol_t * prtcl_msg);
 ErrorCode_t SendProtcolMsgNoParams(SOCKET * t_socket, PROTOCOL_ENUM type);

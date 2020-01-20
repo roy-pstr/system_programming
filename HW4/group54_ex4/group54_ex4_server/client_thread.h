@@ -8,6 +8,7 @@
 #include "utils.h"
 typedef struct {
 	SOCKET socket;
+	SOCKET main;
 	char user_name[USERNAME_MAX_LEN];
 	char opponent_name[USERNAME_MAX_LEN];
 	bool exit;

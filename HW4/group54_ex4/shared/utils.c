@@ -11,23 +11,23 @@ void UpperString(char* str) {
 MOVES_ENUM StringToEnum(char *move)
 {
 	UpperString(move);
-	if (strncmp(move, "ROCK",4) == 0)
+	if (strcmp(move, "ROCK") == 0)
 	{
 		return ROCK;
 	}
-	if (strncmp(move, "PAPER",5) == 0)
+	if (strcmp(move, "PAPER") == 0)
 	{
 		return PAPER;
 	}
-	if (strncmp(move, "SCISSORS",7) == 0)
+	if (strcmp(move, "SCISSORS") == 0)
 	{
 		return SCISSORS;
 	}
-	if (strncmp(move, "LIZARD",6) == 0)
+	if (strcmp(move, "LIZARD") == 0)
 	{
 		return LIZARD;
 	}
-	if (strncmp(move, "SPOCK",5) == 0)
+	if (strcmp(move, "SPOCK") == 0)
 	{
 		return SPOCK;
 	}
