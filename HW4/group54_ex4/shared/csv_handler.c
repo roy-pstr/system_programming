@@ -270,7 +270,6 @@ void LinkedListToStr(Node *head, char **leaderboard_str,int buff_size)
 		temp = temp->next;
 	}
 }
-
 /*Funtction that rounds float #p points after the dot*/
 double Round(double x, int p)
 {
