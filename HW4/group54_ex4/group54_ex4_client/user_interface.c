@@ -89,9 +89,9 @@ PROTOCOL_ENUM MainMenu() {
 }
 
 void PrintGameResult(protocol_t *p_prot) {
-	char * username = p_prot->param_list[0];
-	char * oppent_move = p_prot->param_list[1];
-	char * my_move = p_prot->param_list[2];
-	char * winner_name = p_prot->param_list[3];
+	char * username = GetParam(p_prot->param_list_head, 0);
+	char * oppent_move = GetParam(p_prot->param_list_head, 1);
+	char * my_move = GetParam(p_prot->param_list_head, 2);
+	char * winner_name = GetParam(p_prot->param_list_head, 3);
 	printf(GAME_RESULTS, my_move, username, oppent_move, winner_name);
 }

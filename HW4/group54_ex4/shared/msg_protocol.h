@@ -59,16 +59,34 @@ static const char *SERVER_DENIED_REASONS[] = {
 	"Server is full: No slots available for client.",
 	"Username is already connected to server."
 };
+
+typedef struct p_node_st
+{
+	char param[PARAM_STR_MAX_LEN];
+	int length;
+	struct p_node_st *next;
+} param_node;
+
 typedef struct {
 	PROTOCOL_ENUM type; /* message type as defiend in server_protocol or client_protocol */
-	char param_list[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN]; /* <param1>;<param2>;<param3>\n*/
+	//char param_list[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN]; /* <param1>;<param2>;<param3>\n*/
 	char leaderboard_param[LEADERBOARD_STR_MAX_LEN];
 	int size_in_bytes;
+	param_node *param_list_head;
 } protocol_t;
+
+
+
+
+
 
 ErrorCode_t AllocateString(char ** str_ptr, int len);
 
+char * GetParam(param_node * head, int ind);
+
 void InitProtocol(protocol_t * msg);
+
+void FreeProtocol(protocol_t * msg);
 
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
 
@@ -78,7 +96,8 @@ ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg);
 	the output will be a sting in the following format:
 	<protocol_type>:<param_list>
 */
-ErrorCode_t ProtocolToString(protocol_t * msg, char **msg_str);
+
+ErrorCode_t ProtocolToString(protocol_t * msg, char ** p_msg_str);
 
 PROTOCOL_ENUM GetType(protocol_t *msg);
 

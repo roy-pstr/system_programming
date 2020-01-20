@@ -78,7 +78,7 @@ ErrorCode_t GetUserNameFromClient(SOCKET *p_socket, char *user_name) {
 	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 	switch (GetType(&protocol_msg)) {
 	case CLIENT_REQUEST:
-		strcpy_s(user_name, USERNAME_MAX_LEN, protocol_msg.param_list[0]);
+		strcpy_s(user_name, USERNAME_MAX_LEN, GetParam(protocol_msg.param_list_head,0));
 		break;
 	default:
 		ret_val = PROTOCOL_MSG_TYPE_ERROR;
@@ -86,6 +86,7 @@ ErrorCode_t GetUserNameFromClient(SOCKET *p_socket, char *user_name) {
 		break;
 	}
 EXIT:
+	FreeProtocol(&protocol_msg);
 	return ret_val;
 }
 

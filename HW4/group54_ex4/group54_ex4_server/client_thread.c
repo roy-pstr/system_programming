@@ -62,6 +62,7 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
 	DEBUG_PRINT(printf("PlayClientVsClient.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
+	InitProtocol(&recv_protocol);
 	bool exit = false;
 	MOVES_ENUM other_user_move, user_move;
 	char **game_results;
@@ -80,7 +81,8 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 
 			/* get user move from protocol */
-			user_move = StringToEnum(recv_protocol.param_list[0]);
+			
+			user_move = StringToEnum(GetParam(recv_protocol.param_list_head, 0));
 
 			/* send my move and get oppent move and name */
 			WriteAndReadMoves(user_move, &other_user_move, first_player);
@@ -109,11 +111,14 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
 	}
 EXIT:
 	FreeFullParamList(&game_results);
+	FreeProtocol(&recv_protocol);
 	return ret_val;
 }
 ErrorCode_t ClientVsClient(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientVsClient.\n"));
 	ErrorCode_t ret_val = SUCCESS;
+	protocol_t recv_protocol;
+	InitProtocol(&recv_protocol);
 	bool created_session_file = false;
 	bool exit = false;
 	bool second_player_connected = false;
@@ -137,7 +142,7 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 	}
 
-	protocol_t recv_protocol;
+	
 	while (!exit) {
 		/* reset oppenent decision */
 		PROTOCOL_ENUM opponent_decision = ERROR_MSG_TYPE;
@@ -183,6 +188,7 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 		}
 	}
 EXIT:
+	FreeProtocol(&recv_protocol);
 	ret_val = ResetSecondPlayerConnectedEvent();
 	if (true == created_session_file) {
 		DeleteGameSessionFile();
@@ -196,6 +202,7 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 	DEBUG_PRINT(printf("PlayClientVsCpu.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
+	InitProtocol(&recv_protocol);
 	bool exit = false;
 	MOVES_ENUM server_move, user_move;
 	char **game_results;
@@ -214,7 +221,7 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 
 		if (CLIENT_PLAYER_MOVE == GetType(&recv_protocol)) {
 			/* get game results */
-			user_move = StringToEnum(recv_protocol.param_list[0]);
+			user_move = StringToEnum(GetParam(recv_protocol.param_list_head, 0));
 			GetGameResults(game_results, user_move, Args->user_name, server_move, "server");
 			//DEBUG_PRINT(printf("GetGameResults: %s,%s,%s,%s\n", game_results[0], game_results[1], game_results[2], game_results[3]));
 
@@ -237,6 +244,7 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 		}
 	}
 EXIT:
+	FreeProtocol(&recv_protocol);
 	FreeFullParamList(&game_results);
 	return ret_val;
 }
@@ -244,6 +252,7 @@ ErrorCode_t ClientVsCpu(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientVsCpu.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
+	InitProtocol(&recv_protocol);
 	bool exit = false;
 	while (!exit) {
 		ret_val = PlayClientVsCpu(Args);
@@ -266,6 +275,7 @@ ErrorCode_t ClientVsCpu(client_params_t *Args) {
 		}
 	}
 EXIT:
+	FreeProtocol(&recv_protocol);
 	return ret_val;
 }
 
@@ -274,6 +284,7 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientLeaderboard.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
+	InitProtocol(&recv_protocol);
 	char *leaderboard_str = NULL;
 	int linkedlist_depth = 0, string_size = 0;
 	bool exit = false;
@@ -315,6 +326,7 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	}
 
 EXIT:
+	FreeProtocol(&recv_protocol);
 	if (NULL != leaderboard_str) {
 		free(leaderboard_str);
 		leaderboard_str = NULL;
@@ -326,6 +338,7 @@ EXIT:
 ErrorCode_t ClientMainMenu(client_params_t *Args) {
 		ErrorCode_t ret_val = SUCCESS;
 		protocol_t protocol_msg;
+		InitProtocol(&protocol_msg);
 		bool quit = false;
 		while (!quit) {
 			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_MAIN_MENU);
@@ -364,6 +377,7 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 			}
 		}
 EXIT:
+	FreeProtocol(&protocol_msg);
 	return ret_val;
 }
 

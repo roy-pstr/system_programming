@@ -17,7 +17,7 @@ bool main_thread_still_alive = true;
 bool exit_server = false;
 int main(int argc, char *argv[]) {
 	ErrorCode_t ret_val = SUCCESS;
-
+	
 	//check argv:
 	if (argc != SERVER_ARGUMENTS_NUM)
 	{
