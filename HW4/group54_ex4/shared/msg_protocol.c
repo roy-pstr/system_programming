@@ -1,4 +1,5 @@
 #include "msg_protocol.h"
+#include "utils.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -13,7 +14,9 @@ param_node *CreateParamNode(char *param)
 		return new_element;
 	}
 	strcpy_s(new_element->param, PARAM_STR_MAX_LEN, param);
+	printf("[Ilay]: new_element->param is %s\n", new_element->param);
 	new_element->length = (int)strlen(param);
+	printf("[Ilay]: new_element->length is %d\n", new_element->length);
 	new_element->next = NULL;
 	return new_element;
 
@@ -21,27 +24,43 @@ param_node *CreateParamNode(char *param)
 void AddParamToList(param_node **head, char *param)
 {
 	param_node *new_node = CreateParamNode(param);
-	if (*head == NULL) {
+	if (NULL == (*head)) {
 		*head = new_node;
-		return;
 	}
-	param_node *curr_node = *head;
-	while (curr_node->next != NULL) {
-		curr_node = curr_node->next;
+	else
+	{
+		param_node *curr_node = *head;
+		while (curr_node->next != NULL) {
+			curr_node = curr_node->next;
+		}
+		curr_node->next = new_node;
 	}
-	curr_node->next = new_node;
 }
-void FreeParamsList(param_node *head)
+void printParamsList(param_node *head)
 {
-	param_node *current = head;
+	param_node *temp = head;
+	printf("Name\t\tWon\t\tLost\t\tW/L Ratio\n");
+	while (temp != NULL)
+	{
+		printf("%s\n", temp->param);
+		//print_buffer2(temp->param, 5); DEBUG
+		temp = temp->next;
+	}
+}
+void FreeParamsList(param_node **head)
+{
+	param_node *current = *head;
 	param_node *next = NULL;
 	
 	while (current != NULL)
 	{
 		next = current->next;
+		printf("[Ilay]: inside FreeParamsList, freeing 1 pointer.\n");
 		free(current);
 		current = next;
 	}
+
+	*head = NULL;
 }
 
 char * GetParam(param_node *head, int ind) {
@@ -55,7 +74,9 @@ char * GetParam(param_node *head, int ind) {
 void InitProtocol(protocol_t * msg)
 {
 	if (ShouldHaveParams(msg)) {
-		FreeParamsList(msg->param_list_head);
+		printf("[Ilay]: inside InitProtocol, calling FreeParamsList\n");
+		FreeParamsList(&(msg->param_list_head));
+		//msg->param_list_head = NULL;
 	}
 	msg->type = ERROR_MSG_TYPE;
 	int i = 0;
@@ -70,7 +91,9 @@ void InitProtocol(protocol_t * msg)
 void FreeProtocol(protocol_t * msg)
 {
 	if (msg->param_list_head != NULL) {
-		FreeParamsList(msg->param_list_head);
+		printf("[Ilay]: inside FreeProtocol, calling FreeParamsList\n");
+		FreeParamsList(&(msg->param_list_head));
+		//msg->param_list_head = NULL;
 	}
 }
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char **param_list, int param_list_size)
@@ -93,7 +116,7 @@ void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node *param_lis
 {
 	InitProtocol(msg);
 	msg->type = type;
-	msg->size_in_bytes = (int)strlen(PROTOCOLS_STRINGS[msg->type]);
+	msg->size_in_bytes = (int)strlen(PROTOCOLS_STRINGS[msg->type])+1;
 	if (ShouldHaveParams(msg))
 	{
 		msg->size_in_bytes++; /* for he ':' */
@@ -101,7 +124,7 @@ void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node *param_lis
 	msg->param_list_head = param_list;
 	param_node *curr_node = msg->param_list_head;
 	while (curr_node != NULL) {
-		msg->size_in_bytes += curr_node->length;
+		msg->size_in_bytes += curr_node->length+1;
 		curr_node = curr_node->next;
 	}
 	msg->size_in_bytes++;
@@ -236,7 +259,7 @@ ErrorCode_t ProtocolToString(protocol_t * msg, char **p_msg_str)
 	const char * type_str = &PROTOCOLS_STRINGS[GetType(msg)][0];
 	int type_len = strlen(type_str);
 	/* copy type */
-	while (str_ind< type_len) {
+	while (str_ind < type_len) {
 		msg_str[str_ind] = *type_str;
 		str_ind++;
 		type_str++;

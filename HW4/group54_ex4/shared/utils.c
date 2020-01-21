@@ -55,3 +55,21 @@ ErrorCode_t AllocateString(char **str_ptr, int len) {
 	}
 	return SUCCESS;
 }
+
+void print_buffer(const char *buffer, char last_char) //DEBUG DELETE
+{
+	while (*buffer != last_char)
+	{
+		printf("%c", *buffer);
+		buffer++;
+	}
+	printf("\n");
+}
+
+void print_buffer2(const char *buffer, int len) //DEBUG DELETE
+{
+	for (int i = 0; i < len; i++)
+		printf("%c", buffer[i]);
+	printf("\n");
+}
+

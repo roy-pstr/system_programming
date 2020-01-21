@@ -6,6 +6,7 @@
 client_params_t ClientThreadArgs[NUMBER_OF_CLIENTS];
 HANDLE ClientThreadHandles[NUMBER_OF_CLIENTS];
 Node *Leaderboard_head = NULL;
+param_node *Leader_param = NULL;
 SOCKET MainSocket = INVALID_SOCKET;
 extern bool exit_server;
 
@@ -14,7 +15,7 @@ void InitLeaderboard(Node **head, char * file_path) {
 		RefreshLeaderboard(file_path, head);
 	}
 	else {
-		printf("no leaderboard.csv exist yet, play soem games!\n");
+		printf("no leaderboard.csv exist yet, play some games!\n");
 	}
 }
 ErrorCode_t SetUpTheServer(SOCKET *p_socket, int port) {

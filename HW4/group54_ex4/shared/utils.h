@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DEBUG true
+//#define DEBUG true
+#define DEBUG false
 #define ALLOW_SAME_USER_NAME true
 
 #define INT_MAX_LEN 20 // x64
@@ -20,7 +21,7 @@
 #define MOVE_STRING_MAX_LEN 9
 /* protocols */
 #define PROTOCOL_TYPE_STR_MAX_LEN 27
-#define PARAM_STR_MAX_LEN 50
+#define PARAM_STR_MAX_LEN 65
 #define PROTOCOL_PARAM_LIST_SIZE 4
 #define PROTOCOL_MESSAGE_MAX_LEN (PROTOCOL_TYPE_STR_MAX_LEN+PROTOCOL_PARAM_LIST_SIZE*PARAM_STR_MAX_LEN+10)+500
 #define LEADERBOARD_STR_MAX_LEN 500
@@ -111,6 +112,8 @@ MOVES_ENUM StringToEnum(char *move);
 void AllocateFullParamList(char *** param_list);
 
 void FreeFullParamList(char *** param_list);
+void print_buffer(const char *buffer, char last_char);
+void print_buffer2(const char *buffer, int len);
 
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
 

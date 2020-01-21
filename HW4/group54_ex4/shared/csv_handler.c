@@ -100,19 +100,19 @@ Node *CreateNode(char *name, int win, int lose) // MAYBE DEBUG
 	return new_element;
 }
 
-param_node *CreateParamNode(char *line) 
-{
-	param_node *new_element = NULL;
-	if (NULL == (new_element = (param_node*)malloc(sizeof(param_node))))
-	{
-		printf("Node Memory Allocation Failed");
-		return new_element;
-	}
-	strcpy(new_element->param, line);
-	new_element->length = 0;
-	new_element->next = NULL;
-	return new_element;
-}
+//param_node *CreateParamNode(char *line) 
+//{
+//	param_node *new_element = NULL;
+//	if (NULL == (new_element = (param_node*)malloc(sizeof(param_node))))
+//	{
+//		printf("Node Memory Allocation Failed");
+//		return new_element;
+//	}
+//	strcpy(new_element->param, line);
+//	new_element->length = 0;
+//	new_element->next = NULL;
+//	return new_element;
+//}
 
 /*Free linked list function*/
 void DestroyLinkedList(Node *head)
@@ -123,23 +123,24 @@ void DestroyLinkedList(Node *head)
 	while (current != NULL)
 	{
 		next = current->next;
+		printf("[Ilay]: inside DestroyLinkedList, freeing 1 pointer.\n");
 		free(current);
 		current = next;
 	}
 }
 
-void DestroyParamLinkedList(param_node *head)
-{
-	Node *current = head;
-	Node *next = NULL;
-
-	while (current != NULL)
-	{
-		next = current->next;
-		free(current);
-		current = next;
-	}
-}
+//void DestroyParamLinkedList(param_node *head)
+//{
+//	Node *current = head;
+//	Node *next = NULL;
+//
+//	while (current != NULL)
+//	{
+//		next = current->next;
+//		free(current);
+//		current = next;
+//	}
+//}
 
 /*Function that inserts a new node into a linked list (sorted by w/l ratio)*/
 void sortedInsert(Node **head, Node* new_node)
@@ -304,31 +305,45 @@ void LinkedListToParam(Node *head, param_node **head_msg)
 {
 	int length = 0;
 	Node *temp = head;
-	char str_for_next[LINE_MAX_LEN] = "";
-	if (NULL != *(head_msg))
-	{
-		DestroyParamLinkedList(*(head_msg));  // DEBUG
-		return;
-	}
-	(*head_msg) = CreateParamNode("Name\t\tWon\t\tLost\t\tW/L Ratio\n");
+	char str_for_next[LINE_MAX_LEN];
+	FreeParamsList(head_msg);
+	//if (NULL != *(head_msg))
+	//{
+	//	printParamsList(*head_msg);
+	//	FreeParamsList(head_msg);  // DEBUG	
+	//}
+	//(*head_msg) = CreateParamNode("Name\t\tWon\t\tLost\t\tW/L Ratio");
 
 	while (temp != NULL)
 	{
-		if (temp->ratio == -1)
+		if (temp->next == NULL)
 		{
-			sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost);
+			if (temp->ratio == -1)
+			{
+				sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost);
+			}
+			else
+			{
+				sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+			}
 		}
 		else
 		{
-			sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+			if (temp->ratio == -1)
+			{
+				sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t", temp->name, temp->won, temp->lost);
+			}
+			else
+			{
+				sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t%.3f", temp->name, temp->won, temp->lost, temp->ratio);
+			}
 		}
-		(*head_msg)->next = CreateParamNode(str_for_next);
+		//str_for_next[LINE_MAX_LEN - 1] = '\0';
+		AddParamToList(head_msg, str_for_next);
+		//strcpy(str_for_next, "");
 		temp = temp->next;
 	}
 }
-
-
-
 
 
 /*Funtction that rounds float #p points after the dot*/
@@ -342,7 +357,7 @@ double Round(double x, int p)
 	}
 }
 //
-///*Check if file exist*/
+/*Check if file exists*/
 bool IsFileExists(char* filename)
 {
 	struct stat buffer;

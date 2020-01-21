@@ -283,6 +283,7 @@ EXIT:
 ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientLeaderboard.\n"));
 	ErrorCode_t ret_val = SUCCESS;
+	param_node *leadearboard_param = NULL;
 	protocol_t recv_protocol;
 	InitProtocol(&recv_protocol);
 	char *leaderboard_str = NULL;
@@ -291,14 +292,14 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	while (!exit) {
 		linkedlist_depth = LengthOfLinkedList(Leaderboard_head);
 		string_size = linkedlist_depth * LINE_MAX_LEN + SPACES_MAX_LEN +100;
-		if (NULL != leaderboard_str) {
-			free(leaderboard_str);
-		}
+		//if (NULL != leaderboard_str) {
+		//	free(leaderboard_str);
+		//}
 		ret_val = AllocateString(&leaderboard_str, string_size);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString() failed!\n");
-		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
+		LinkedListToParam(Leaderboard_head, &leadearboard_param); // DEBUG - DOESN'T WORK AFTER RFRESH
 		/* send leaderboard to client */
-		ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_LEADERBOARD, &leaderboard_str, 1);
+		ret_val = SendProtcolMsgWithParamsList(&Args->socket, SERVER_LEADERBOARD, leadearboard_param);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* send show leaderboard menu to client */
@@ -312,7 +313,10 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 		switch (GetType(&recv_protocol)) {
 			{
 		case CLIENT_REFRESH:
+			//LinkedListToParam(Leaderboard_head, &leadearboard_param); DEBUG
 			RefreshLeaderboard(CSV_NAME, &Leaderboard_head);
+			//printList(Leaderboard_head); DEBUG - WORKS
+			//printParamsList(leadearboard_param); DEBUG - DOESN'T WORK! 
 			continue;
 		case CLIENT_MAIN_MENU:
 			exit = true; /* exit loop! */
@@ -331,6 +335,12 @@ EXIT:
 		free(leaderboard_str);
 		leaderboard_str = NULL;
 	}
+	//if (NULL != leadearboard_param)
+	//{
+	//	printf("TWO!!!!");
+	//	FreeParamsList(leadearboard_param);  // DEBUG
+	//	leadearboard_param = NULL;
+	//}
 	return ret_val;
 }
 
