@@ -2,7 +2,7 @@
 
 MOVES_ENUM ChooseMove() {
 	bool valid_input = false;
-	char user_answer[MOVE_STRING_MAX_LEN];
+	char user_answer[MAX_STR_LEN];
 	MOVES_ENUM move = UNDEFINED_MOVE;
 	while (!valid_input) {
 		printf(CHOOSE_MOVE);

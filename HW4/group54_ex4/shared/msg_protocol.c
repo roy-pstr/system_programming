@@ -69,7 +69,17 @@ char * GetParam(param_node *head, int ind) {
 	}
 	return &curr_node->param[0];
 }
-
+void printParamsList(param_node *head)
+{
+	param_node *temp = head;
+	printf("Name\t\tWon\t\tLost\t\tW/L Ratio\n");
+	while (temp != NULL)
+	{
+		printf("%s\n", temp->param);
+		//print_buffer2(temp->param, 5); DEBUG
+		temp = temp->next;
+	}
+}
 /* protocol_t functions */
 void InitProtocol(protocol_t * msg)
 {

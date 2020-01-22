@@ -6,8 +6,8 @@
 #include <string.h>
 
 //#define DEBUG true
-#define DEBUG false
-#define ALLOW_SAME_USER_NAME true
+#define DEBUG true
+#define ALLOW_SAME_USER_NAME false
 
 #define INT_MAX_LEN 20 // x64
 #define RATIO_MAX_LEN 24 // .###
