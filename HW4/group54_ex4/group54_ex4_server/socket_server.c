@@ -5,11 +5,11 @@
 
 client_params_t ClientThreadArgs[NUMBER_OF_CLIENTS];
 HANDLE ClientThreadHandles[NUMBER_OF_CLIENTS];
-Node *Leaderboard_head = NULL;
+LB_Node *Leaderboard_head = NULL;
 SOCKET MainSocket = INVALID_SOCKET;
 extern bool exit_server;
 
-void InitLeaderboard(Node **head, char * file_path) {
+void InitLeaderboard(LB_Node **head, char * file_path) {
 	if (true == IsFileExists(file_path)) {
 		RefreshLeaderboard(file_path, head);
 	}

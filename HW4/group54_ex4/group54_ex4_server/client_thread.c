@@ -14,9 +14,9 @@ void InitArgs(client_params_t *args_arr, int size) {
 	}
 }
 
-extern Node *Leaderboard_head;
+extern LB_Node *Leaderboard_head;
 ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
-	Node *update_lb = NULL; /*, *update_server = NULL;*/
+	LB_Node *update_lb = NULL; /*, *update_server = NULL;*/
 	ErrorCode_t ret_val = SUCCESS;
 	if (strcmp(game_results[3], "NONE") != 0)
 	{
@@ -284,21 +284,24 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientLeaderboard.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
+	param_node *lb_param_list = NULL;
 	InitProtocol(&recv_protocol);
 	char *leaderboard_str = NULL;
 	int linkedlist_depth = 0, string_size = 0;
 	bool exit = false;
 	while (!exit) {
-		linkedlist_depth = LengthOfLinkedList(Leaderboard_head);
-		string_size = linkedlist_depth * LINE_MAX_LEN + SPACES_MAX_LEN +100;
-		if (NULL != leaderboard_str) {
-			free(leaderboard_str);
-		}
-		ret_val = AllocateString(&leaderboard_str, string_size);
-		GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString() failed!\n");
-		LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
+		//linkedlist_depth = LengthOfLinkedList(Leaderboard_head);
+		//string_size = linkedlist_depth * LINE_MAX_LEN + SPACES_MAX_LEN +100;
+		//if (NULL != leaderboard_str) {
+		//	free(leaderboard_str);
+		//}
+		//ret_val = AllocateString(&leaderboard_str, string_size);
+		//GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString() failed!\n");
+		//LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
+		
+		LinkedListToParam(Leaderboard_head, &lb_param_list);
 		/* send leaderboard to client */
-		ret_val = SendProtcolMsgWithParams(&Args->socket, SERVER_LEADERBOARD, &leaderboard_str, 1);
+		ret_val = SendProtcolMsgWithParamsList(&Args->socket, SERVER_LEADERBOARD, &lb_param_list);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* send show leaderboard menu to client */

@@ -112,6 +112,12 @@ void AllocateFullParamList(char *** param_list);
 
 void FreeFullParamList(char *** param_list);
 
+ErrorCode_t AllocateString(char ** str_ptr, int len);
+
+double Round(double x, int p);
+
+bool IsFileExists(char* filename);
+
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
 
 #endif

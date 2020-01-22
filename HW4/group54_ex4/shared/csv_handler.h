@@ -10,31 +10,26 @@
 //#define CSV_NAME ".\\Leaderboard.csv"
 //#define GS_NAME ".\\GameSession.txt"
 
-typedef struct node_st
+typedef struct lb_node_st
 {
 	char name[20];
 	int won;
 	int lost;
 	double ratio;
-	struct node_st *next;
-} Node;
+	struct lb_node_st *next;
+} LB_Node;
 
-/*OLD are not relevant at the moment*/
-int OLD_RefreshLeaderboard(char *filename);
-int OLD_UpdateLeaderBoardFile(char *filename, char *name, int win);
-
-/*###################*/
 /*Relevant functions*/
-Node *DetectAndUpdateElement(Node **head, char* name, int w);
-void sortedInsert(Node** head, Node* new_node);
-Node *CreateNode(char *name, int win, int lose);
-int RefreshLeaderboard(char *filename, Node **Head);
-void DestroyLinkedList(Node *head);
-double Round(double x, int p);
-void printList(Node *head);
-int LinkedListToCsv(Node *head, char *filename);
-void LinkedListToStr(Node *head, char **leaderboard_str, int buff_size);
-int LengthOfLinkedList(Node *head);
+LB_Node *DetectAndUpdateElement(LB_Node **head, char* name, int w);
+void sortedInsert(LB_Node** head, LB_Node* new_node);
+LB_Node *CreateNode(char *name, int win, int lose);
+int RefreshLeaderboard(char *filename, LB_Node **Head);
+void DestroyLinkedList(LB_Node *head);
+
+void printList(LB_Node *head);
+int LinkedListToCsv(LB_Node *head, char *filename);
+void LinkedListToStr(LB_Node *head, char **leaderboard_str, int buff_size);
+int LengthOfLinkedList(LB_Node *head);
 bool IsFileExists(char* filename);
 
 

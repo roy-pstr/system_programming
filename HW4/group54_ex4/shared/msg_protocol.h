@@ -2,8 +2,9 @@
 #define MSG_PROTOCOL_H
 #include <stdbool.h>
 #include "utils.h"
+#include "csv_handler.h"
 
-
+/* defenition of all protocol message types */
 typedef enum  {
 	SERVER_MAIN_MENU,
 	SERVER_APPROVED,
@@ -51,15 +52,8 @@ static const char *PROTOCOLS_STRINGS[] = {
 	"CLIENT_REFRESH",
 	"CLIENT_DISCONNECT" 
 };
-typedef enum  {
-	FULL,
-	USERNAME_EXIST
-} SERVER_DENIED_REASONS_IND;
-static const char *SERVER_DENIED_REASONS[] = {
-	"Server is full: No slots available for client.",
-	"Username is already connected to server."
-};
 
+/* linked list for parameter_list inside protocol_t */
 typedef struct p_node_st
 {
 	char param[PARAM_STR_MAX_LEN];
@@ -67,6 +61,12 @@ typedef struct p_node_st
 	struct p_node_st *next;
 } param_node;
 
+/* params linked list external functions */
+char * GetParam(param_node * head, int ind);
+/* copy leaderboard from leadboard linked list to parameters linked list */
+void LinkedListToParam(LB_Node *head, param_node **head_msg);
+
+/* protocol_t for handling all the protocol message parsing */
 typedef struct {
 	PROTOCOL_ENUM type; /* message type as defiend in server_protocol or client_protocol */
 	//char param_list[PROTOCOL_PARAM_LIST_SIZE][PARAM_STR_MAX_LEN]; /* <param1>;<param2>;<param3>\n*/
@@ -75,22 +75,13 @@ typedef struct {
 	param_node *param_list_head;
 } protocol_t;
 
-
-
-
-
-
-ErrorCode_t AllocateString(char ** str_ptr, int len);
-
-char * GetParam(param_node * head, int ind);
-
 void InitProtocol(protocol_t * msg);
 
 void FreeProtocol(protocol_t * msg);
 
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
 
-void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node * param_list);
+void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node ** param_list);
 
 ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg);
 
@@ -98,7 +89,6 @@ ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg);
 	the output will be a sting in the following format:
 	<protocol_type>:<param_list>
 */
-
 ErrorCode_t ProtocolToString(protocol_t * msg, char ** p_msg_str);
 
 PROTOCOL_ENUM GetType(protocol_t *msg);
@@ -108,9 +98,8 @@ PROTOCOL_ENUM FindType(char *type_str);
 
 bool ShouldHaveParams(protocol_t *msg);
 
-ErrorCode_t AddParam(char * param, protocol_t *msg);
-
 ErrorCode_t ParseParams(char * params_list, protocol_t *msg);
+
 /* debug */
 void PrintProtocol(protocol_t *msg);
 #endif // MSG_PROTOCOL_H

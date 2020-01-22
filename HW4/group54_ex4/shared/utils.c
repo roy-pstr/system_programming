@@ -1,5 +1,7 @@
 #include "utils.h"
 #include <ctype.h>
+#include <sys/stat.h>
+#include <math.h>
 
 void UpperString(char* str) {
 	char *s = str;
@@ -54,4 +56,30 @@ ErrorCode_t AllocateString(char **str_ptr, int len) {
 		return(MALLOC_STRING_FAIL);
 	}
 	return SUCCESS;
+}
+/*Funtction that rounds float #p points after the dot*/
+double Round(double x, int p)
+{
+	if (x != 0.0) {
+		return ((floor((fabs(x)*pow((double)(10.0), p)) + 0.5)) / pow((double)(10.0), p))*(x / fabs(x));
+	}
+	else {
+		return 0.0;
+	}
+}
+/*Check if a file exist*/
+bool IsFileExists(char* filename)
+{
+	struct stat buffer;
+	int exist = stat(filename, &buffer);
+	if (exist == 0)
+	{
+		/*file exists*/
+		return true;
+	}
+	else
+	{
+		/*file not found*/
+		return false;
+	}
 }

@@ -1,20 +1,13 @@
 #include <stdio.h>
-#include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 #include "utils.h"
 #include "csv_handler.h"
 
-
 /*This reads Leaderboard.csv and print it in the needed format*/
-//No use 
-/*##############################*/
-/*From here - Relevant functions*/
-
 
 /*Implement Leaderboard.csv into linked list*/
-int RefreshLeaderboard(char *filename, Node **head)
+int RefreshLeaderboard(char *filename, LB_Node **head)
 {
 	if (NULL != *head)
 	{
@@ -59,7 +52,7 @@ int RefreshLeaderboard(char *filename, Node **head)
 		}
 		if (line_num != 0)
 		{
-			Node *line_node = CreateNode(client_name, wins, loses);
+			LB_Node *line_node = CreateNode(client_name, wins, loses);
 			sortedInsert(head, line_node);
 		}
 		line_num ++;
@@ -74,12 +67,10 @@ EXIT:
 	return ret_val;
 }
 
-
 /*Function to create a node*/
-Node *CreateNode(char *name, int win, int lose) // MAYBE DEBUG 
-{
-	Node *new_element = NULL;
-	if (NULL == (new_element = (Node*)malloc(sizeof(Node))))
+LB_Node *CreateNode(char *name, int win, int lose) {
+	LB_Node *new_element = NULL;
+	if (NULL == (new_element = (LB_Node*)malloc(sizeof(LB_Node))))
 	{
 		printf("Node Memory Allocation Failed");
 		return new_element;
@@ -100,10 +91,10 @@ Node *CreateNode(char *name, int win, int lose) // MAYBE DEBUG
 }
 
 /*Free linked list function*/
-void DestroyLinkedList(Node *head)
+void DestroyLinkedList(LB_Node *head)
 {
-	Node *current = head;
-	Node *next = NULL;
+	LB_Node *current = head;
+	LB_Node *next = NULL;
 
 	while (current != NULL)
 	{
@@ -114,9 +105,9 @@ void DestroyLinkedList(Node *head)
 }
 
 /*Function that inserts a new node into a linked list (sorted by w/l ratio)*/
-void sortedInsert(Node **head, Node* new_node)
+void sortedInsert(LB_Node **head, LB_Node* new_node)
 {
-	Node* current;
+	LB_Node* current;
 
 	/* Special case for the head end */
 	if (NULL == *head || new_node->ratio == -1)
@@ -143,9 +134,9 @@ void sortedInsert(Node **head, Node* new_node)
 }
 
 /* Function to print linked list */
-void printList(Node *head)
+void printList(LB_Node *head)
 {
-	Node *temp = head;
+	LB_Node *temp = head;
 	while (temp != NULL)
 	{
 		printf("Name = %s\nWins = %d\nLoses= %d\nW/L = %.3f\n", temp->name,temp->won,temp->lost,temp->ratio); 
@@ -154,10 +145,10 @@ void printList(Node *head)
 }
 
 /*Function that update linked list after any move*/
-Node *DetectAndUpdateElement(Node **head, char* name,int w)
+LB_Node *DetectAndUpdateElement(LB_Node **head, char* name,int w)
 {
 
-	Node *curr, *prev;
+	LB_Node *curr, *prev;
 
 	/* For 1st node, indicate there is no previous. */
 	prev = NULL;
@@ -205,10 +196,10 @@ Node *DetectAndUpdateElement(Node **head, char* name,int w)
 }//DEBUG DRAW?
 
 /*Updating Leaderboard.csv file from linked list*/
-int LinkedListToCsv(Node *head, char *filename)
+int LinkedListToCsv(LB_Node *head, char *filename)
 {
 	int ret_val = SUCCESS;
-	Node *temp = head;
+	LB_Node *temp = head;
 	FILE *fp_leaderboard = NULL;
 	if (NULL == (fp_leaderboard = fopen(filename, "w")))
 	{
@@ -237,66 +228,42 @@ EXIT:
 	return ret_val;
 }
 
-/*Simple function to get length of linked list*/
-int LengthOfLinkedList(Node *head)
-{
-	int num_of_elements = 0;
-	Node *temp = head;
-	while (temp != NULL)
-	{
-		num_of_elements++;
-		temp = temp->next;
-	}
-	return num_of_elements;
-}
-
-/*Function for printing the user the Leaderboard*/
-void LinkedListToStr(Node *head, char **leaderboard_str,int buff_size)
-{
-	int length = 0;
-	Node *temp = head;
-	//int buff_size = num_of_elements*LINE_MAX_LEN + 100;
-	length += snprintf(*leaderboard_str + length, buff_size - length, "Name\t\tWon\t\tLost\t\tW/L Ratio\n");
-	while (temp != NULL)
-	{
-		if (temp->ratio == -1)
-		{
-			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost, temp->ratio);
-		}
-		else
-		{
-			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
-		}
-		temp = temp->next;
-	}
-}
-/*Funtction that rounds float #p points after the dot*/
-double Round(double x, int p)
-{
-	if (x != 0.0) {
-		return ((floor((fabs(x)*pow((double)(10.0), p)) + 0.5)) / pow((double)(10.0), p))*(x / fabs(x));
-	}
-	else {
-		return 0.0;
-	}
-}
+///*Simple function to get length of linked list*/
+//int LengthOfLinkedList(LB_Node *head)
+//{
+//	int num_of_elements = 0;
+//	LB_Node *temp = head;
+//	while (temp != NULL)
+//	{
+//		num_of_elements++;
+//		temp = temp->next;
+//	}
+//	return num_of_elements;
+//}
 //
-///*Check if file exist*/
-bool IsFileExists(char* filename)
-{
-	struct stat buffer;
-	int exist = stat(filename, &buffer);
-	if (exist == 0) 
-	{
-		/*file exists*/
-		return true;
-	}
-	else
-	{
-		/*file not found*/
-		return false;
-	}
-}
+///*Function for printing the user the Leaderboard*/
+//void LinkedListToStr(LB_Node *head, char **leaderboard_str,int buff_size)
+//{
+//	int length = 0;
+//	LB_Node *temp = head;
+//	//int buff_size = num_of_elements*LINE_MAX_LEN + 100;
+//	length += snprintf(*leaderboard_str + length, buff_size - length, "Name\t\tWon\t\tLost\t\tW/L Ratio\n");
+//	while (temp != NULL)
+//	{
+//		if (temp->ratio == -1)
+//		{
+//			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost, temp->ratio);
+//		}
+//		else
+//		{
+//			length += snprintf(*leaderboard_str + length, buff_size - length, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+//		}
+//		temp = temp->next;
+//	}
+//}
+
+
+
 
 
 

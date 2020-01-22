@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-/* linked list for params list */
+/* parameters linked list functions */
 param_node *CreateParamNode(char *param)
 {
 	param_node *new_element = NULL;
@@ -35,7 +35,7 @@ void FreeParamsList(param_node *head)
 {
 	param_node *current = head;
 	param_node *next = NULL;
-	
+
 	while (current != NULL)
 	{
 		next = current->next;
@@ -43,7 +43,24 @@ void FreeParamsList(param_node *head)
 		current = next;
 	}
 }
-
+void LinkedListToParam(LB_Node *head, param_node **head_msg)
+{
+	LB_Node *curr_node = head;
+	char str_for_next[PARAM_STR_MAX_LEN];
+	while (curr_node != NULL)
+	{
+		if (curr_node->ratio == -1)
+		{
+			sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t", curr_node->name, curr_node->won, curr_node->lost);
+		}
+		else
+		{
+			sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t%.3f", curr_node->name, curr_node->won, curr_node->lost, curr_node->ratio);
+		}
+		AddParamToList(head_msg, &str_for_next[0]);
+		curr_node = curr_node->next;
+	}
+}
 char * GetParam(param_node *head, int ind) {
 	param_node *curr_node = head;
 	for (int i = 0; i < ind; i++)
@@ -52,6 +69,8 @@ char * GetParam(param_node *head, int ind) {
 	}
 	return &curr_node->param[0];
 }
+
+/* protocol_t functions */
 void InitProtocol(protocol_t * msg)
 {
 	if (ShouldHaveParams(msg)) {
@@ -89,7 +108,7 @@ void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char **param_list, int pa
 	}
 	msg->size_in_bytes++;
 }
-void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node *param_list)
+void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node **param_list)
 {
 	InitProtocol(msg);
 	msg->type = type;
@@ -98,7 +117,8 @@ void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node *param_lis
 	{
 		msg->size_in_bytes++; /* for he ':' */
 	}
-	msg->param_list_head = param_list;
+	msg->param_list_head = *param_list; /*shallow copy*/
+	*param_list = NULL;
 	param_node *curr_node = msg->param_list_head;
 	while (curr_node != NULL) {
 		msg->size_in_bytes += curr_node->length;
@@ -324,26 +344,7 @@ void copyparam(char *dest, int size, char *source) {
 		dest[i] = source[i];
 	}
 }
-//ErrorCode_t AddParam(char * param, protocol_t * msg)
-//{
-//	ErrorCode_t ret_val = SUCCESS;
-//	if (GetType(msg) == SERVER_LEADERBOARD) {
-//		strcpy_s(msg->leaderboard_param, LEADERBOARD_STR_MAX_LEN, param);
-//		strcpy_s(msg->param_list[0], PARAM_STR_MAX_LEN, "dummy_param");
-//	}
-//	else {
-//		for (int i = 0; i < PROTOCOL_PARAM_LIST_SIZE; i++)
-//		{
-//			if (STRINGS_ARE_EQUAL(msg->param_list[i], "")) { /* last param_list param */
-//				//strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, param);
-//				copyparam(msg->param_list[i], PARAM_STR_MAX_LEN, param);
-//				break;
-//			}
-//		}
-//	}
-//	AddParamToList(&msg->param_list_head, param);
-//	return ret_val;
-//}
+
 ErrorCode_t ParseParams(char * msg_str, protocol_t * msg)
 {
 	ErrorCode_t ret_val = SUCCESS;

@@ -3,6 +3,7 @@
 
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
+
 #include "utils.h"
 #include "msg_protocol.h"
 
@@ -13,7 +14,7 @@ ErrorCode_t RecvData_WithTimeout(SOCKET * t_socket, protocol_t * prtcl_msg, int 
 ErrorCode_t RecvData(SOCKET * t_socket, protocol_t * prtcl_msg);
 ErrorCode_t SendData(SOCKET * t_socket, protocol_t * prtcl_msg);
 ErrorCode_t SendProtcolMsgNoParams(SOCKET * t_socket, PROTOCOL_ENUM type);
-ErrorCode_t SendProtcolMsgWithParamsList(SOCKET * t_socket, PROTOCOL_ENUM type, param_node * param_list);
+ErrorCode_t SendProtcolMsgWithParamsList(SOCKET * t_socket, PROTOCOL_ENUM type, param_node ** param_list);
 ErrorCode_t SendProtcolMsgWithParams(SOCKET * t_socket, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
 
 typedef enum { TRNS_FAILED, TRNS_DISCONNECTED, TRNS_SUCCEEDED } TransferResult_t;
