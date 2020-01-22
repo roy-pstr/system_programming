@@ -121,7 +121,7 @@ void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node **param_li
 	*param_list = NULL;
 	param_node *curr_node = msg->param_list_head;
 	while (curr_node != NULL) {
-		msg->size_in_bytes += curr_node->length;
+		msg->size_in_bytes += curr_node->length + 1;
 		curr_node = curr_node->next;
 	}
 	msg->size_in_bytes++;
