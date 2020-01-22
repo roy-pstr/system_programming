@@ -103,3 +103,9 @@ ErrorCode_t ParseParams(char * params_list, protocol_t *msg);
 /* debug */
 void PrintProtocol(protocol_t *msg);
 #endif // MSG_PROTOCOL_H
+
+param_node *CreateParamNode(char *param);
+void FreeParamsList(param_node **head);
+void printParamsList(param_node *head);
+void FreeParamsListNormal(param_node * head);
+void AddParamToList(param_node **head, char *param);

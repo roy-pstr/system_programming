@@ -260,8 +260,8 @@ ErrorCode_t GoToClientLeaderboard() {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 		if (SERVER_LEADERBOARD == GetType(&recv_protocol)) {
 			/* printing leaderboard */
-			printf("%s\n", recv_protocol.leaderboard_param);
-
+			//printf("%s\n", recv_protocol.leaderboard_param);
+			printParamsList(recv_protocol.param_list_head);
 			ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, CLIENT_RECIVE_TIMEOUT);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 			if (SERVER_LEADERBORAD_MENU == GetType(&recv_protocol)) {
