@@ -306,7 +306,7 @@ void LinkedListToParam(Node *head, param_node **head_msg)
 	int length = 0;
 	Node *temp = head;
 	char str_for_next[LINE_MAX_LEN];
-	FreeParamsList(head_msg);
+	FreeParamsListNormal(*head_msg);
 	//if (NULL != *(head_msg))
 	//{
 	//	printParamsList(*head_msg);
@@ -316,19 +316,19 @@ void LinkedListToParam(Node *head, param_node **head_msg)
 
 	while (temp != NULL)
 	{
-		if (temp->next == NULL)
-		{
-			if (temp->ratio == -1)
-			{
-				sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost);
-			}
-			else
-			{
-				sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
-			}
-		}
-		else
-		{
+		//if (temp->next == NULL)
+		//{
+		//	if (temp->ratio == -1)
+		//	{
+		//		sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t\n", temp->name, temp->won, temp->lost);
+		//	}
+		//	else
+		//	{
+		//		sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t%.3f\n", temp->name, temp->won, temp->lost, temp->ratio);
+		//	}
+		//}
+		//else
+		//{
 			if (temp->ratio == -1)
 			{
 				sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t", temp->name, temp->won, temp->lost);
@@ -337,9 +337,9 @@ void LinkedListToParam(Node *head, param_node **head_msg)
 			{
 				sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t%.3f", temp->name, temp->won, temp->lost, temp->ratio);
 			}
-		}
+		//}
 		//str_for_next[LINE_MAX_LEN - 1] = '\0';
-		AddParamToList(head_msg, str_for_next);
+		AddParamToList(head_msg, &str_for_next[0]);
 		//strcpy(str_for_next, "");
 		temp = temp->next;
 	}

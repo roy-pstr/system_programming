@@ -90,7 +90,7 @@ void FreeProtocol(protocol_t * msg);
 
 void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char ** param_list, int param_list_size);
 
-void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node * param_list);
+void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node ** param_list);
 
 ErrorCode_t ParseMessage(char * msg_str, int msg_length, protocol_t * msg);
 
@@ -118,4 +118,5 @@ void PrintProtocol(protocol_t *msg);
 param_node *CreateParamNode(char *param);
 void FreeParamsList(param_node **head);
 void printParamsList(param_node *head);
+void FreeParamsListNormal(param_node * head);
 void AddParamToList(param_node **head, char *param);

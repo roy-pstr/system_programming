@@ -158,7 +158,7 @@ ErrorCode_t SendProtcolMsgNoParams(SOCKET *t_socket, PROTOCOL_ENUM type) {
 EXIT:
 	return ret_val;
 }
-ErrorCode_t SendProtcolMsgWithParamsList(SOCKET *t_socket, PROTOCOL_ENUM type, param_node *param_list) {
+ErrorCode_t SendProtcolMsgWithParamsList(SOCKET *t_socket, PROTOCOL_ENUM type, param_node **param_list) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t prtcl_msg;
 	SetProtocolList(&prtcl_msg, type, param_list);

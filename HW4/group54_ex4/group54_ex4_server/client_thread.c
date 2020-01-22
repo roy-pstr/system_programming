@@ -299,7 +299,7 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString() failed!\n");
 		LinkedListToParam(Leaderboard_head, &leadearboard_param); // DEBUG - DOESN'T WORK AFTER RFRESH
 		/* send leaderboard to client */
-		ret_val = SendProtcolMsgWithParamsList(&Args->socket, SERVER_LEADERBOARD, leadearboard_param);
+		ret_val = SendProtcolMsgWithParamsList(&Args->socket, SERVER_LEADERBOARD, &leadearboard_param);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
 
 		/* send show leaderboard menu to client */
@@ -335,12 +335,12 @@ EXIT:
 		free(leaderboard_str);
 		leaderboard_str = NULL;
 	}
-	//if (NULL != leadearboard_param)
-	//{
-	//	printf("TWO!!!!");
-	//	FreeParamsList(leadearboard_param);  // DEBUG
-	//	leadearboard_param = NULL;
-	//}
+	if (NULL != leadearboard_param)
+	{
+		printf("TWO!!!!");
+		FreeParamsListNormal(leadearboard_param);  // DEBUG
+		leadearboard_param = NULL;
+	}
 	return ret_val;
 }
 

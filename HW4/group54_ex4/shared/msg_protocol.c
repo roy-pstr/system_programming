@@ -47,6 +47,22 @@ void printParamsList(param_node *head)
 		temp = temp->next;
 	}
 }
+void FreeParamsListNormal(param_node *head)
+{
+	param_node *current = head;
+	param_node *next = NULL;
+
+	while (current != NULL)
+	{
+		next = current->next;
+		printf("[Ilay]: inside FreeParamsList, freeing 1 pointer.\n");
+		free(current);
+		current = NULL;
+		current = next;
+	}
+
+	head = NULL;
+}
 void FreeParamsList(param_node **head)
 {
 	param_node *current = *head;
@@ -76,14 +92,9 @@ void InitProtocol(protocol_t * msg)
 	if (ShouldHaveParams(msg)) {
 		printf("[Ilay]: inside InitProtocol, calling FreeParamsList\n");
 		FreeParamsList(&(msg->param_list_head));
-		//msg->param_list_head = NULL;
 	}
 	msg->type = ERROR_MSG_TYPE;
 	int i = 0;
-	//for (; i < PROTOCOL_PARAM_LIST_SIZE; i++) /* initialize params to "" */
-	//{
-	//	strcpy_s(msg->param_list[i], PARAM_STR_MAX_LEN, "");
-	//}
 	strcpy_s(msg->leaderboard_param, PARAM_STR_MAX_LEN, "");
 	msg->size_in_bytes = 0;
 	msg->param_list_head = NULL;
@@ -112,7 +123,7 @@ void SetProtocol(protocol_t * msg, PROTOCOL_ENUM type, char **param_list, int pa
 	}
 	msg->size_in_bytes++;
 }
-void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node *param_list)
+void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node **param_list)
 {
 	InitProtocol(msg);
 	msg->type = type;
@@ -121,7 +132,8 @@ void SetProtocolList(protocol_t * msg, PROTOCOL_ENUM type, param_node *param_lis
 	{
 		msg->size_in_bytes++; /* for he ':' */
 	}
-	msg->param_list_head = param_list;
+	msg->param_list_head = *param_list; /* shallow copy, from now the protocol_t is in charge of freeing the params list! */
+	*param_list = NULL;
 	param_node *curr_node = msg->param_list_head;
 	while (curr_node != NULL) {
 		msg->size_in_bytes += curr_node->length+1;
@@ -257,7 +269,7 @@ ErrorCode_t ProtocolToString(protocol_t * msg, char **p_msg_str)
 	char *msg_str = *p_msg_str;
 	
 	const char * type_str = &PROTOCOLS_STRINGS[GetType(msg)][0];
-	int type_len = strlen(type_str);
+	int type_len = (int)strlen(type_str);
 	/* copy type */
 	while (str_ind < type_len) {
 		msg_str[str_ind] = *type_str;
@@ -371,7 +383,7 @@ ErrorCode_t ParseParams(char * msg_str, protocol_t * msg)
 {
 	ErrorCode_t ret_val = SUCCESS;
 	
-	int str_ind = strlen(PROTOCOLS_STRINGS[GetType(msg)]); 
+	int str_ind = (int)strlen(PROTOCOLS_STRINGS[GetType(msg)]); 
 	if (msg_str[str_ind] != ':') {/* must point to ':' */
 		printf("The given protocol message does not have parameters!\n");
 		ret_val = PROTOCOL_MESSAGE_INVALID;
