@@ -6,6 +6,8 @@
 //#include "socket_server.h"
 #include "thread_communication.h"
 
+extern bool exit_server;
+
 void InitArgs(client_params_t *args_arr, int size) {
 	for (int i = 0; i < size; i++)
 	{
@@ -37,7 +39,7 @@ ErrorCode_t UpdateLeaderboard(char **game_results, char *username) {
 		LinkedListToCsv(Leaderboard_head, CSV_NAME);
 
 	}
-	return ret_val;
+	return (exit_server) ? SUCCESS : ret_val;
 }
 
 /* ClientVsClient functions */
@@ -56,7 +58,7 @@ ErrorCode_t GetOpponentName(client_params_t *curr_client) {
 		return GET_OPPENONT_NAME_FAILED;
 	}
 	strcpy_s(curr_client->opponent_name, USERNAME_MAX_LEN, ClientThreadArgs[opponent_ind].user_name);
-	return ret_val;
+	return (exit_server) ? SUCCESS : ret_val;
 }
 ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
 	DEBUG_PRINT(printf("PlayClientVsClient.\n"));
@@ -68,7 +70,7 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
 	char **game_results;
 	AllocateFullParamList(&game_results);
 
-	while (!exit) {
+	while (!exit && !exit_server) {
 
 		/* send SERVER_PLAYER_MOVE_REQUEST to client */
 		ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_PLAYER_MOVE_REQUEST);
@@ -112,7 +114,7 @@ ErrorCode_t PlayClientVsClient(client_params_t *Args, bool first_player) {
 EXIT:
 	FreeFullParamList(&game_results);
 	FreeProtocol(&recv_protocol);
-	return ret_val;
+	return (exit_server) ? SUCCESS : ret_val;
 }
 ErrorCode_t ClientVsClient(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientVsClient.\n"));
@@ -143,7 +145,7 @@ ErrorCode_t ClientVsClient(client_params_t *Args) {
 	}
 
 	
-	while (!exit) {
+	while (!exit && !exit_server) {
 		/* reset oppenent decision */
 		PROTOCOL_ENUM opponent_decision = ERROR_MSG_TYPE;
 
@@ -194,7 +196,7 @@ EXIT:
 		DeleteGameSessionFile();
 	}
 	GO_TO_EXIT_ON_FAILURE(ret_val, "MyResetEvent() failed!\n");
-	return ret_val;
+	return (exit_server) ? SUCCESS : ret_val;
 }
 
 /* ClientVsCpu functions */
@@ -207,7 +209,7 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 	MOVES_ENUM server_move, user_move;
 	char **game_results;
 	AllocateFullParamList(&game_results);
-	while (!exit) {
+	while (!exit && !exit_server) {
 
 		server_move = ServerRaffleMove();
 
@@ -246,7 +248,7 @@ ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
 EXIT:
 	FreeProtocol(&recv_protocol);
 	FreeFullParamList(&game_results);
-	return ret_val;
+	return (exit_server) ? SUCCESS : ret_val;
 }
 ErrorCode_t ClientVsCpu(client_params_t *Args) {
 	DEBUG_PRINT(printf("ClientVsCpu.\n"));
@@ -254,7 +256,7 @@ ErrorCode_t ClientVsCpu(client_params_t *Args) {
 	protocol_t recv_protocol;
 	InitProtocol(&recv_protocol);
 	bool exit = false;
-	while (!exit) {
+	while (!exit && !exit_server) {
 		ret_val = PlayClientVsCpu(Args);
 		GO_TO_EXIT_ON_FAILURE(ret_val, "ClientVsCpu() failed!\n");
 
@@ -276,7 +278,7 @@ ErrorCode_t ClientVsCpu(client_params_t *Args) {
 	}
 EXIT:
 	FreeProtocol(&recv_protocol);
-	return ret_val;
+	return (exit_server) ? SUCCESS : ret_val;
 }
 
 /* Leaderboard functions */
@@ -289,15 +291,7 @@ ErrorCode_t ClientLeaderboard(client_params_t *Args) {
 	char *leaderboard_str = NULL;
 	int linkedlist_depth = 0, string_size = 0;
 	bool exit = false;
-	while (!exit) {
-		//linkedlist_depth = LengthOfLinkedList(Leaderboard_head);
-		//string_size = linkedlist_depth * LINE_MAX_LEN + SPACES_MAX_LEN +100;
-		//if (NULL != leaderboard_str) {
-		//	free(leaderboard_str);
-		//}
-		//ret_val = AllocateString(&leaderboard_str, string_size);
-		//GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString() failed!\n");
-		//LinkedListToStr(Leaderboard_head, &leaderboard_str, string_size);
+	while (!exit && !exit_server) {
 		
 		LinkedListToParam(Leaderboard_head, &lb_param_list);
 		/* send leaderboard to client */
@@ -334,7 +328,7 @@ EXIT:
 		free(leaderboard_str);
 		leaderboard_str = NULL;
 	}
-	return ret_val;
+	return (exit_server) ? SUCCESS : ret_val;
 }
 
 /* MainMenu functions */
@@ -343,7 +337,7 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 		protocol_t protocol_msg;
 		InitProtocol(&protocol_msg);
 		bool quit = false;
-		while (!quit) {
+		while (!quit && !exit_server) {
 			ret_val = SendProtcolMsgNoParams(&Args->socket, SERVER_MAIN_MENU);
 			GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsg() failed!\n");
 			ret_val = RecvData_WithTimeout(&Args->socket, &protocol_msg, INFINITE); /* no timeout */
@@ -381,7 +375,7 @@ ErrorCode_t ClientMainMenu(client_params_t *Args) {
 		}
 EXIT:
 	FreeProtocol(&protocol_msg);
-	return ret_val;
+	return (exit_server) ? SUCCESS : ret_val;
 }
 
 
@@ -404,10 +398,14 @@ DWORD ClientThread(LPVOID lpParam)
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");
 
 EXIT:
-	printf("From ClientThread: \"Conversation ended\".\n");
-	closesocket(Args->socket);
+	printf("ClientThread: \"Conversation ended\".\n");
+	if (Args->socket != INVALID_SOCKET)
+	{
+		if (closesocket(Args->socket) == SOCKET_ERROR)
+			printf("Failed to close client thraed socker, error %ld. Ending program\n", WSAGetLastError());
+	}
 	Args->socket = INVALID_SOCKET;
-	return ret_val;
+	return (exit_server)?SUCCESS:ret_val;
 }
 
 

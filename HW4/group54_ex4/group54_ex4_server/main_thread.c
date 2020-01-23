@@ -13,7 +13,10 @@ DWORD MainThread(LPVOID lpParam)
 		return THREAD_PARAMS_CASTING_FAILED;
 	}
 	Args = (main_params_t*)lpParam;
-
+	/* make sure GameSession is dead */
+	if (IsFileExists(GS_NAME)){
+		DeleteGameSessionFile();
+	}
 	ret_val = StartGameServer(Args->port);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "StartGameServer failed.\n");
 

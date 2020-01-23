@@ -5,10 +5,10 @@
 
 //#define CSV_NAME "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
 //#define GS_NAME "C:\\Users\\Ilay Amar\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\GameSession.txt"
-#define GS_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\GameSession.txt"
-#define CSV_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
-//#define CSV_NAME ".\\Leaderboard.csv"
-//#define GS_NAME ".\\GameSession.txt"
+//#define GS_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\GameSession.txt"
+//#define CSV_NAME "C:\\Users\\roypa\\OneDrive\\Documents\\GitHub\\system_programming\\HW4\\group54_ex4\\Leaderboard.csv"
+#define CSV_NAME ".\\Leaderboard.csv"
+#define GS_NAME ".\\GameSession.txt"
 
 typedef struct lb_node_st
 {

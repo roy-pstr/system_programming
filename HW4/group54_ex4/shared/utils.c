@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <math.h>
 
+/*convert all chars in string to upper case*/
 void UpperString(char* str) {
 	char *s = str;
 	while (*s) {
@@ -35,6 +36,7 @@ MOVES_ENUM StringToEnum(char *move)
 	}
 	return UNDEFINED_MOVE;
 }
+
 void AllocateFullParamList(char ***param_list) {
 	// dynamically create array of pointers 
 	*param_list = (char **)malloc(PROTOCOL_PARAM_LIST_SIZE * sizeof(char *));
@@ -48,7 +50,7 @@ void FreeFullParamList(char ***param_list) {
 		free((*param_list)[i]);
 	free(*param_list);
 }
-/*Function for malloc*/
+
 ErrorCode_t AllocateString(char **str_ptr, int len) {
 	if (NULL == (*str_ptr = (char *)malloc(len)))
 	{
@@ -57,7 +59,7 @@ ErrorCode_t AllocateString(char **str_ptr, int len) {
 	}
 	return SUCCESS;
 }
-/*Funtction that rounds float #p points after the dot*/
+
 double Round(double x, int p)
 {
 	if (x != 0.0) {
@@ -67,7 +69,7 @@ double Round(double x, int p)
 		return 0.0;
 	}
 }
-/*Check if a file exist*/
+
 bool IsFileExists(char* filename)
 {
 	struct stat buffer;

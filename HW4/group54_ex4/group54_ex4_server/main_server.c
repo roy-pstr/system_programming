@@ -57,7 +57,13 @@ int main(int argc, char *argv[]) {
 		/* wait for main thread to close */
 		wait_code = WaitForSingleObject(thread_handles[MAIN_THREAD], WAIT_TIME_TO_MAIN_THREAD_TO_CLOSE_AFTER_EXIT);
 		if (wait_code != WAIT_OBJECT_0) {
-			printf("Error when waiting to main thread.\n");
+			if (wait_code == WAIT_TIMEOUT) {
+				printf("Main thread wait for client_threads to close - TIMEOUT. Exit process.\n");
+			}
+			else {
+				printf("Error when waiting to main thread.\n");
+			}
+			
 		}
 	}
 	else if (wait_code == WAIT_OBJECT_0 + MAIN_THREAD) {/* main thread returned a value */

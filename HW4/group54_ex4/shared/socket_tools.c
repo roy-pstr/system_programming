@@ -10,6 +10,7 @@ void InitSockets(SOCKET *sockets, int size) {
 		*sockets = INVALID_SOCKET;
 	}
 }
+
 ErrorCode_t ShutDownAndCloseSocket(SOCKET *t_socket) {
 	ErrorCode_t ret_val = SUCCESS;
 	/* CLOSE SOCKET */
@@ -25,6 +26,7 @@ ErrorCode_t ShutDownAndCloseSocket(SOCKET *t_socket) {
 	}
 	return ret_val;
 }
+
 ErrorCode_t CreateSocket(SOCKET *s) {
 	ErrorCode_t ret_val = SUCCESS;
 	if (*s != INVALID_SOCKET) {
@@ -74,37 +76,7 @@ ErrorCode_t RecvData_WithTimeout(SOCKET *t_socket, protocol_t * prtcl_msg, int t
 	RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 	if (RecvRes == TRNS_FAILED)
 	{
-		printf("Service socket error while reading.\n");
-		ret_val = SOCKET_ERROR_RECV_DATA;
-		goto EXIT;
-	}
-	else if (RecvRes == TRNS_DISCONNECTED)
-	{
-		printf("Connection closed while reading.\n");
-		ret_val = SOCKET_ERROR_RECV_DATA;
-		goto EXIT;
-	}
-
-	DEBUG_PRINT(printf("Recived message : %s\n", AcceptedStr));
-	ret_val = ParseMessage(AcceptedStr, (int)strlen(AcceptedStr) + 1, prtcl_msg);
-	GO_TO_EXIT_ON_FAILURE(ret_val, "ParseMessage() failed!\n");
-
-EXIT:
-	if (NULL != AcceptedStr)
-		free(AcceptedStr);
-	return ret_val;
-}
-
-ErrorCode_t RecvData(SOCKET *t_socket, protocol_t * prtcl_msg) {
-	TransferResult_t RecvRes;
-	ErrorCode_t ret_val = SUCCESS;
-	char *AcceptedStr = NULL;
-	DEBUG_PRINT(printf("Waiting to recive something...\n"));
-	InitProtocol(prtcl_msg);
-	RecvRes = ReceiveString(&AcceptedStr, *t_socket);
-	if (RecvRes == TRNS_FAILED)
-	{
-		printf("Service socket error while reading.\n");
+		printf("Socket error while reading.\n");
 		ret_val = SOCKET_ERROR_RECV_DATA;
 		goto EXIT;
 	}
@@ -134,7 +106,7 @@ ErrorCode_t SendData(SOCKET *t_socket, protocol_t * prtcl_msg) {
 	GO_TO_EXIT_ON_FAILURE(ret_val, "AllocateString failed!");
 	ret_val = ProtocolToString(prtcl_msg, &send_str);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ProtocolToString() failed.\n");
-	SendRes = SendString(send_str, *t_socket);
+	SendRes = SendProtocolMsg(send_str, *t_socket);
 	if (SendRes == TRNS_FAILED)
 	{
 		printf("Socket error while trying to write data to socket\n");
@@ -151,27 +123,29 @@ EXIT:
 ErrorCode_t SendProtcolMsgNoParams(SOCKET *t_socket, PROTOCOL_ENUM type) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t prtcl_msg;
-	SetProtocol(&prtcl_msg, type, NULL, 0);
+	CreateProtocol(&prtcl_msg, type, NULL, 0);
 	ret_val = SendData(t_socket, &prtcl_msg);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
 	FreeProtocol(&prtcl_msg);
 EXIT:
 	return ret_val;
 }
+
 ErrorCode_t SendProtcolMsgWithParamsList(SOCKET *t_socket, PROTOCOL_ENUM type, param_node **param_list) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t prtcl_msg;
-	SetProtocolList(&prtcl_msg, type, param_list);
+	CreateProtocolList(&prtcl_msg, type, param_list);
 	ret_val = SendData(t_socket, &prtcl_msg);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
 	FreeProtocol(&prtcl_msg);
 EXIT:
 	return ret_val;
 }
+
 ErrorCode_t SendProtcolMsgWithParams(SOCKET *t_socket, PROTOCOL_ENUM type, char **param_list, int param_list_size) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t prtcl_msg;
-	SetProtocol(&prtcl_msg, type, param_list, param_list_size);
+	CreateProtocol(&prtcl_msg, type, param_list, param_list_size);
 	ret_val = SendData(t_socket, &prtcl_msg);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "SendData() failed!");
 	FreeProtocol(&prtcl_msg);
@@ -201,6 +175,8 @@ TransferResult_t SendBuffer( const char* Buffer, int BytesToSend, SOCKET sd )
 
 	return TRNS_SUCCEEDED;
 }
+
+/* return the length of the array of chars till the '\n' first occurance */
 int CountNumberOfCharsInMsg(const char *str) {
 	int size = 0;
 	while (*str != '\n') {
@@ -210,7 +186,8 @@ int CountNumberOfCharsInMsg(const char *str) {
 	size++; /*for the \n*/
 	return size;
 }
-TransferResult_t SendString( const char *Str, SOCKET sd )
+
+TransferResult_t SendProtocolMsg( const char *Str, SOCKET sd )
 {
 	/* Send the the request to the server on socket sd */
 	int TotalStringSizeInBytes;

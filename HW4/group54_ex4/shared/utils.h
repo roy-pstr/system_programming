@@ -1,51 +1,50 @@
+/* module utils incluse all the shared definitions and gereral functions */
+
 #ifndef _UTILS_H
 #define _UTILS_H
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-//#define DEBUG true
-#define DEBUG true
+#define DEBUG false
 #define ALLOW_SAME_USER_NAME false
+
 
 #define INT_MAX_LEN 20 // x64
 #define RATIO_MAX_LEN 24 // .###
 #define LINE_MAX_LEN 65 //
-#define SPACES_MAX_LEN 50 //
 #define SERVER_ARGUMENTS_NUM 2
 #define CLIENT_ARGUMENTS_NUM 4
 #define USERNAME_MAX_LEN 20
 #define MAX_STR_LEN 256
-#define INPUT_ANSWER_STR_LEN 10
+#define INPUT_ANSWER_STR_LEN 256
 #define MOVE_STRING_MAX_LEN 9
+
 /* protocols */
 #define PROTOCOL_TYPE_STR_MAX_LEN 27
 #define PARAM_STR_MAX_LEN 65
 #define PROTOCOL_PARAM_LIST_SIZE 4
-#define PROTOCOL_MESSAGE_MAX_LEN (PROTOCOL_TYPE_STR_MAX_LEN+PROTOCOL_PARAM_LIST_SIZE*PARAM_STR_MAX_LEN+10)+500
-#define LEADERBOARD_STR_MAX_LEN 500
+
 /* socket related */
 #define MAX_CONN_LISTEN 10
 #define NUMBER_OF_CLIENTS 2
 #define SERVER_ADDRESS_STR "127.0.0.1"
-#define SERVER_PORT 8888
-#define WAIT_FOR_SERVER_RESPONSE 15000 //15 seconds
-#define WAIT_FOR_CLIENT_RESPONSE 15000 //15 seconds
-#define WAIT_FOR_CLOSING_CLIENT_THREAD 5000
 #define WAIT_FOR_SECOND_PLAYER_TO_JOIN_GAME 30000 // 30 seconds
-#define WAIT_FOR_SECOND_PLAYER_TO_CHOOSE_WHAT_TO_DO INFINITE // 30 seconds
-#define CLIENT_RECIVE_TIMEOUT 5 //seconds (CHANGE TO 15)
-#define SERVER_RECIVE_TIMEOUT 5 //seconds(CHANGE TO 15)
+#define WAIT_FOR_SECOND_PLAYER_TO_CHOOSE_WHAT_TO_DO INFINITE 
+#define CLIENT_RECIVE_TIMEOUT 15 //seconds 
+#define SERVER_RECIVE_TIMEOUT 15 //seconds
 #define CLIENT_VERSUS_TIMEOUT 30 //seconds
 #define SERVER_WAIT_FOR_OTHER_PLAYER_MOVE 30 //seconds
 #define ACCEPT_LIESNTER_INTERVALS_SEC 1 //seconds
-#define WAIT_TIME_TO_MAIN_THREAD_TO_CLOSE_AFTER_EXIT 3000 //miliseconds
+#define WAIT_TIME_TO_MAIN_THREAD_TO_CLOSE_AFTER_EXIT 15000 //miliseconds
+
 /* inline MACRO function defenition: */
 #define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
 #define GO_TO_EXIT_ON_FAILURE(ret_val, msg) {if (SUCCESS != ret_val){printf("%s\n",msg);goto EXIT;}}
 
-
+/* all posible return error code */
 typedef enum {
 	SUCCESS,
 	ILLEGAL_NUMBER_OF_ARGV,
@@ -89,6 +88,7 @@ typedef enum {
 	GET_OPPENONT_NAME_FAILED,
 }ErrorCode_t;
 
+/* moves enum */
 typedef enum {
 	ROCK,
 	PAPER,
@@ -97,7 +97,6 @@ typedef enum {
 	SPOCK,
 	UNDEFINED_MOVE
 } MOVES_ENUM;
-
 static const char *MOVES_STRINGS[] = {
 	"ROCK",
 	"PAPER",
@@ -106,21 +105,23 @@ static const char *MOVES_STRINGS[] = {
 	"SPOCK"
 };
 
-/*return move as enum*/
+/*convert move string to move enum*/
 MOVES_ENUM StringToEnum(char *move);
 
+/* 2d array allocation */
 void AllocateFullParamList(char *** param_list);
-
 void FreeFullParamList(char *** param_list);
-void print_buffer(const char *buffer, char last_char);
-void print_buffer2(const char *buffer, int len);
 
+/* string allocation */
 ErrorCode_t AllocateString(char ** str_ptr, int len);
 
+/*Funtction that rounds float #p points after the dot*/
 double Round(double x, int p);
 
+/* check if file exist in given path */
 bool IsFileExists(char* filename);
 
+/* debug */
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
 
 #endif

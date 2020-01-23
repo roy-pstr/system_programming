@@ -171,11 +171,24 @@ ErrorCode_t CleanupClientThreads(client_params_t *client_args, HANDLE *client_ha
 {
 	int Ind;
 	ErrorCode_t ret_val = SUCCESS;
+	DWORD wait_code;
 	for (Ind = 0; Ind < number_of_threads; Ind++)
 	{
 		if (client_handles[Ind] != NULL)
 		{
-			ShutDownAndCloseSocket(&client_args[Ind].socket);
+			ret_val = ShutDownAndCloseSocket(&client_args[Ind].socket);
+
+			wait_code = WaitForSingleObject(client_handles[Ind], WAIT_TIME_TO_MAIN_THREAD_TO_CLOSE_AFTER_EXIT);
+			if (wait_code != WAIT_OBJECT_0) {
+				if (wait_code == WAIT_TIMEOUT) {
+					printf("Client thread wait for close - TIMEOUT. Terminate thread.\n");
+				}
+				else {
+					printf("Error when waiting to client thread.\n");
+				}
+
+			}
+			
 			/* handle the thread exit code */
 			if (SUCCESS != HandlerExitCode(client_handles[Ind])) {
 				printf("HandlerExitCode failed.\n");

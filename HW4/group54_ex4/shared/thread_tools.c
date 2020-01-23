@@ -103,7 +103,7 @@ ErrorCode_t HandlerExitCode(HANDLE p_thread_handle) {
 	}
 	else if (lpExitCode != SUCCESS) {
 		printf("Error with thread exit code (%d)\n", lpExitCode);
-		ret_val = CLIENT_THREAD_FAILED;
+		ret_val = lpExitCode;
 	}
 	return ret_val;
 }
