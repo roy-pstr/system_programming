@@ -1,3 +1,4 @@
+/* this moduel defines both MAIN and EXIT threads which are the core of the server. */
 #ifndef _MAIN_THREAD_H
 #define _MAIN_THREAD_H
 

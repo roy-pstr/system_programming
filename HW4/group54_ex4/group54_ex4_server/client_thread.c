@@ -3,7 +3,6 @@
 #include "msg_protocol.h"
 #include "csv_handler.h"
 #include "game_engine.h"
-//#include "socket_server.h"
 #include "thread_communication.h"
 
 extern bool exit_server;
@@ -377,8 +376,6 @@ EXIT:
 	FreeProtocol(&protocol_msg);
 	return (exit_server) ? SUCCESS : ret_val;
 }
-
-
 
 /* Thread definition */
 DWORD ClientThread(LPVOID lpParam)

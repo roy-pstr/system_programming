@@ -1,4 +1,3 @@
-#include "..\shared\csv_handler.h"
 #include "thread_communication.h"
 #include "csv_handler.h"
 #include "thread_tools.h"
@@ -14,6 +13,7 @@ HANDLE second_client_replayed_event = NULL;
 HANDLE opponent_decision_event = NULL;
 HANDLE first_player_write_event = NULL;
 HANDLE second_player_write_event = NULL;
+
 
 ErrorCode_t InitThreadCommunicationModule() {
 	int ret_val = SUCCESS;
@@ -51,7 +51,6 @@ ErrorCode_t InitThreadCommunicationModule() {
 EXIT:
 	return ret_val;
 }
-
 
 /* other player connect handling */
 ErrorCode_t WaitForSecondPlayerToConnect(bool *second_player_connected, bool *created_session_file) {
@@ -279,6 +278,47 @@ ErrorCode_t ResetPlayersWriteEvents() {
 EXIT:
 	return ret_val;
 }
+ErrorCode_t ReadMove(MOVES_ENUM *move_enum)
+{
+	ErrorCode_t ret_val = SUCCESS;
+	*move_enum = UNDEFINED_MOVE;
+	FILE *fp_gamesession = NULL;
+	char move[MOVE_STRING_MAX_LEN] = "";
+	if (NULL == (fp_gamesession = fopen(GS_NAME, "r")))
+	{
+		printf("File ERROR\n");
+		ret_val = FILE_ERROR;
+		goto EXIT;
+	}
+	fgets(move, MOVE_STRING_MAX_LEN, fp_gamesession);
+	*move_enum = StringToEnum(move);
+EXIT:
+	if (fp_gamesession != NULL)
+	{
+		fclose(fp_gamesession);
+	}
+	return ret_val;
+}
+ErrorCode_t WriteMove(char *move)
+{
+	ErrorCode_t ret_val = SUCCESS;
+	FILE *fp_gamesession = NULL;
+
+	if (NULL == (fp_gamesession = fopen(GS_NAME, "w")))
+	{
+		printf("File ERROR\n");
+		ret_val = FILE_ERROR;
+		goto EXIT;
+	}
+	fprintf(fp_gamesession, "%s", move);
+
+EXIT:
+	if (fp_gamesession != NULL)
+	{
+		fclose(fp_gamesession);
+	}
+	return ret_val;
+}
 ErrorCode_t WriteAndReadMoves(MOVES_ENUM my_move, MOVES_ENUM *oppent_move, bool first_player) {
 	
 	ErrorCode_t ret_val = SUCCESS;
@@ -314,47 +354,6 @@ ErrorCode_t WriteAndReadMoves(MOVES_ENUM my_move, MOVES_ENUM *oppent_move, bool 
 	ret_val = ResetPlayersWriteEvents();
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ResetPlayersWriteEvents() failed.\n");
 EXIT:
-	return ret_val;
-}
-ErrorCode_t WriteMove(char *move)
-{
-	ErrorCode_t ret_val = SUCCESS;
-	FILE *fp_gamesession = NULL;
-
-	if (NULL == (fp_gamesession = fopen(GS_NAME, "w")))
-	{
-		printf("File ERROR\n");
-		ret_val = FILE_ERROR;
-		goto EXIT;
-	}
-	fprintf(fp_gamesession, "%s", move);
-
-EXIT:
-	if (fp_gamesession != NULL)
-	{
-		fclose(fp_gamesession);
-	}
-	return ret_val;
-}
-ErrorCode_t ReadMove(MOVES_ENUM *move_enum)
-{
-	ErrorCode_t ret_val = SUCCESS;
-	*move_enum = UNDEFINED_MOVE;
-	FILE *fp_gamesession = NULL;
-	char move[MOVE_STRING_MAX_LEN] = "";
-	if (NULL == (fp_gamesession = fopen(GS_NAME, "r")))
-	{
-		printf("File ERROR\n");
-		ret_val = FILE_ERROR;
-		goto EXIT;
-	}
-	fgets(move, MOVE_STRING_MAX_LEN, fp_gamesession);
-	*move_enum = StringToEnum(move);
-EXIT:
-	if (fp_gamesession != NULL)
-	{
-		fclose(fp_gamesession);
-	}
 	return ret_val;
 }
 int DeleteGameSessionFile()

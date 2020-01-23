@@ -5,12 +5,9 @@
 #include "utils.h"
 #include "csv_handler.h"
 
-
-
 extern SOCKET m_socket;
 
 /* connection functions */
-
 ErrorCode_t ConnectClient(char *server_ip, int server_port) {
 	ErrorCode_t ret_val = SUCCESS;
 
@@ -94,7 +91,6 @@ EXIT:
 }
 
 /* ClientVsClient functions */
-
 ErrorCode_t StartGameClientVsClient() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -184,6 +180,7 @@ EXIT:
 	FreeProtocol(&recv_protocol);
 	return ret_val;
 }
+
 /* ClientVsCpu functions */
 ErrorCode_t StartGameClientVsCpu() {
 	ErrorCode_t ret_val = SUCCESS;

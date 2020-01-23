@@ -1,3 +1,4 @@
+/* this module handles all the userinterface via the stdin keyboard inputs and print outs */
 #ifndef _USER_INTERACE_H
 #define _USER_INTERACE_H
 

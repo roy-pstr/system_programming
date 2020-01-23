@@ -1,3 +1,5 @@
+/* this module handles all the setup of the server and starts the game
+	those functions are called fro mthe main_thread and this moduel actually manange the cloent_threads */
 #ifndef _SOCKET_SERVER_H
 #define _SOCKET_SERVER_H
 #include <stdio.h>
@@ -18,7 +20,10 @@ static const char *SERVER_DENIED_REASONS[] = {
 	"Username is already connected to server."
 };
 
+/* create socket, bind and listen */
 ErrorCode_t SetUpTheServer(SOCKET * p_socket, int port);
+
+/* set the accept and check client_thread for errors loop */
 ErrorCode_t StartGameServer(int port);
 #endif
 

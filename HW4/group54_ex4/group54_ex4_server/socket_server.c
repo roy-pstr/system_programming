@@ -164,7 +164,6 @@ ErrorCode_t TerminateAllClients() {
 			}
 		}
 	}
-EXIT:
 	return ret_val;
 }
 ErrorCode_t CleanupClientThreads(client_params_t *client_args, HANDLE *client_handles, int number_of_threads)
@@ -293,7 +292,6 @@ ErrorCode_t CheckClientsStatus() {
 			}
 		}
 	}
-EXIT:
 	return ret_val;
 }
 /* this function create the server socket and then handles the clients threads creation and waiting */

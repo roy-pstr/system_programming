@@ -27,9 +27,6 @@
     <ClInclude Include="client_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\thread_tools.h">
-      <Filter>shared</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\msg_protocol.h">
       <Filter>shared</Filter>
     </ClInclude>
@@ -48,6 +45,9 @@
     <ClInclude Include="main_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="thread_tools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main_server.c">
@@ -61,9 +61,6 @@
     </ClCompile>
     <ClCompile Include="client_thread.c">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\thread_tools.c">
-      <Filter>shared</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\msg_protocol.c">
       <Filter>shared</Filter>
@@ -81,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main_thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_tools.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

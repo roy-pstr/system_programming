@@ -1,6 +1,6 @@
 #include "main_thread.h"
 #include "socket_server.h"
-
+#include "thread_communication.h"
 /* Thread definition */
 DWORD MainThread(LPVOID lpParam)
 {
@@ -36,7 +36,6 @@ DWORD MyExitThread()
 			break; /*exit thread*/
 		}
 	}
-EXIT:
 	return ret_val;
 }
 

@@ -169,7 +169,7 @@ ErrorCode_t ProtocolToString(protocol_t * msg, char **p_msg_str)
 	char *msg_str = *p_msg_str;
 	
 	const char * type_str = &PROTOCOLS_STRINGS[GetType(msg)][0];
-	int type_len = strlen(type_str);
+	int type_len = (int)strlen(type_str);
 	/* copy type */
 	while (str_ind< type_len) {
 		msg_str[str_ind] = *type_str;
@@ -252,7 +252,7 @@ ErrorCode_t ParseParams(char * msg_str, protocol_t * msg)
 {
 	ErrorCode_t ret_val = SUCCESS;
 	
-	int str_ind = strlen(PROTOCOLS_STRINGS[GetType(msg)]); 
+	int str_ind = (int)strlen(PROTOCOLS_STRINGS[GetType(msg)]);
 	if (msg_str[str_ind] != ':') {/* must point to ':' */
 		printf("The given protocol message does not have parameters!\n");
 		ret_val = PROTOCOL_MESSAGE_INVALID;

@@ -1,3 +1,4 @@
+/* this module defines the CLIENT_THREAD behavior. */
 #ifndef _CLIENT_THREAD_H
 #define _CLIENT_THREAD_H
 
