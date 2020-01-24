@@ -7,7 +7,7 @@
 
 extern SOCKET m_socket;
 
-/* connection functions */
+/* Client connection - Next 2 functions */
 ErrorCode_t ConnectClient(char *server_ip, int server_port) {
 	ErrorCode_t ret_val = SUCCESS;
 
@@ -32,6 +32,8 @@ ErrorCode_t ConnectClient(char *server_ip, int server_port) {
 	}
 	return ret_val;
 }
+
+
 ErrorCode_t TryToConnectClient(char *server_ip, int server_port, char username[]) {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -90,7 +92,7 @@ EXIT:
 	return ret_val;
 }
 
-/* ClientVsClient functions */
+/* ClientVsClient - Next 2 functions */
 ErrorCode_t StartGameClientVsClient() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -158,6 +160,8 @@ EXIT:
 	FreeProtocol(&recv_protocol);
 	return ret_val;
 }
+
+
 ErrorCode_t WaitForOpponent() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -181,7 +185,7 @@ EXIT:
 	return ret_val;
 }
 
-/* ClientVsCpu functions */
+/* ClientVsServer functions */
 ErrorCode_t StartGameClientVsCpu() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
@@ -245,7 +249,7 @@ EXIT:
 	return ret_val;
 }
 
-/* Leaderboard */
+/* Leaderboard Handling*/
 ErrorCode_t GoToClientLeaderboard() {
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;

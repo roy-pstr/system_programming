@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-/* parameters linked list functions */
+/* parameters linked list functions (Next 6 functions) */
 param_node *CreateParamNode(char *param)
 {
 	param_node *new_element = NULL;
@@ -69,7 +69,7 @@ void LinkedListToParam(LB_Node *head, param_node **head_msg)
 		curr_node = curr_node->next;
 	}
 }
-char * GetParam(param_node *head, int ind) {
+char *GetParam(param_node *head, int ind) {
 	param_node *curr_node = head;
 	for (int i = 0; i < ind; i++)
 	{
@@ -80,7 +80,6 @@ char * GetParam(param_node *head, int ind) {
 void printParamsList(param_node *head)
 {
 	param_node *temp = head;
-	//printf("Name\t\tWon\t\tLost\t\tW/L Ratio\n");
 	while (temp != NULL)
 	{
 		printf("%s\n", temp->param);
@@ -89,7 +88,7 @@ void printParamsList(param_node *head)
 }
 
 
-/* protocol_t functions */
+/* protocol_t functions (Next 11 functions) */
 void InitProtocol(protocol_t * msg)
 {
 	if (ShouldHaveParams(msg)) {

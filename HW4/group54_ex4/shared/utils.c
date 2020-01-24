@@ -11,6 +11,8 @@ void UpperString(char* str) {
 		s++;
 	}
 }
+
+/*Get move as string and returns its enum*/
 MOVES_ENUM StringToEnum(char *move)
 {
 	UpperString(move);
@@ -37,6 +39,7 @@ MOVES_ENUM StringToEnum(char *move)
 	return UNDEFINED_MOVE;
 }
 
+/*Memory allocation & Free  - Next 3 functions*/
 void AllocateFullParamList(char ***param_list) {
 	// dynamically create array of pointers 
 	*param_list = (char **)malloc(PROTOCOL_PARAM_LIST_SIZE * sizeof(char *));
@@ -45,6 +48,8 @@ void AllocateFullParamList(char ***param_list) {
 	for (int r = 0; r < PROTOCOL_PARAM_LIST_SIZE; r++)
 		(*param_list)[r] = (char *)malloc(PARAM_STR_MAX_LEN * sizeof(char));
 }
+
+
 void FreeFullParamList(char ***param_list) {
 	for (int i = 0; i < PROTOCOL_PARAM_LIST_SIZE; i++)
 		free((*param_list)[i]);
@@ -60,6 +65,7 @@ ErrorCode_t AllocateString(char **str_ptr, int len) {
 	return SUCCESS;
 }
 
+/*Round number and get p significant digits after point (We choose 3 in our task) - For W/L ratio */
 double Round(double x, int p)
 {
 	if (x != 0.0) {
@@ -70,6 +76,7 @@ double Round(double x, int p)
 	}
 }
 
+/*Function that checks if file exits*/
 bool IsFileExists(char* filename)
 {
 	struct stat buffer;

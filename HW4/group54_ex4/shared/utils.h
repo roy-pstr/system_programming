@@ -124,6 +124,7 @@ bool IsFileExists(char* filename);
 
 /* debug */
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
+/*server prints*/
 #define SERVER_PRINT(print) {if (PRINTS==true){printf("");print;}}
 
 #endif

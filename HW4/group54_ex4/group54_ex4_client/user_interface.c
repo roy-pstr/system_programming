@@ -1,5 +1,6 @@
 #include "user_interface.h"
 
+/*User choosing move and returning enum move*/
 MOVES_ENUM ChooseMove() {
 	bool valid_input = false;
 	char user_answer[MAX_STR_LEN];
@@ -17,7 +18,7 @@ MOVES_ENUM ChooseMove() {
 	}
 	return move;
 }
-
+/*Menus functions - next 4 functions*/
 PROTOCOL_ENUM EndGameMenu() {
 	bool valid_input = false;
 	char user_answer[INPUT_ANSWER_STR_LEN];
@@ -88,6 +89,7 @@ PROTOCOL_ENUM MainMenu() {
 	return ERROR_MSG_TYPE;
 }
 
+/*After-game printing results function*/
 void PrintGameResult(protocol_t *p_prot) {
 	char * username = GetParam(p_prot->param_list_head, 0);
 	char * oppent_move = GetParam(p_prot->param_list_head, 1);

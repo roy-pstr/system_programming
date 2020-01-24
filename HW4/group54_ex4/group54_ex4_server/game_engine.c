@@ -66,7 +66,7 @@ int CheckWhoWon(MOVES_ENUM first_move, MOVES_ENUM second_move)
 	return -1;
 }
 
-
+/*Get the game result between ClientVsClient or ClientVsServer*/
 void GetGameResults(char **game_results, MOVES_ENUM player1_move, char* player1_name, MOVES_ENUM player2_move, char* player2_name) {
 	int winner_idx = CheckWhoWon(player1_move, player2_move);
 	strcpy_s(game_results[0], USERNAME_MAX_LEN, player2_name);

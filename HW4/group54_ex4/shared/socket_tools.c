@@ -2,7 +2,7 @@
 #include "msg_protocol.h"
 #include <stdio.h>
 #include <string.h>
-
+/*Socket tools module - helping functions with informative names for handling our socket*/
 void InitSockets(SOCKET *sockets, int size) {
 	int Ind;
 	for (Ind = 0; Ind < size; Ind++)

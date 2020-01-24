@@ -1,6 +1,9 @@
 //Authors – Roy Pasternak(204219273) & Ilay Amar(308520857)
 //Project – group54_ex4_client.exe
-//Description –
+/*Description – Rock,Paper,Scissors,Lizard,Spock (Game from big bang theory based on Star Trek characters)
+Additional to the classic Rock,Paper,Scissors game. The game runs on Server with the following options:
+(1) Client Vs. Client, (2) Client Vs. Server. An additional Leaderboard.csv file is created which shows us the 
+players rank by the ration Wins/Loses. Enjoy the game! */
 
 #include <stdio.h>
 #include <string.h>
