@@ -116,7 +116,7 @@ EXIT:
 	return (exit_server) ? SUCCESS : ret_val;
 }
 ErrorCode_t ClientVsClient(client_params_t *Args) {
-	DEBUG_PRINT(printf("ClientVsClient.\n"));
+	SERVER_PRINT(printf("Starting Client Vs. Client.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	InitProtocol(&recv_protocol);
@@ -200,7 +200,7 @@ EXIT:
 
 /* ClientVsCpu functions */
 ErrorCode_t PlayClientVsCpu(client_params_t *Args) {
-	DEBUG_PRINT(printf("PlayClientVsCpu.\n"));
+	SERVER_PRINT(printf("Started Client Vs. Server.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	InitProtocol(&recv_protocol);
@@ -282,7 +282,7 @@ EXIT:
 
 /* Leaderboard functions */
 ErrorCode_t ClientLeaderboard(client_params_t *Args) {
-	DEBUG_PRINT(printf("ClientLeaderboard.\n"));
+	SERVER_PRINT(printf("Showing Leaderboard to client.\n"));
 	ErrorCode_t ret_val = SUCCESS;
 	protocol_t recv_protocol;
 	param_node *lb_param_list = NULL;
@@ -390,7 +390,7 @@ DWORD ClientThread(LPVOID lpParam)
 	}
 	Args = (client_params_t*)lpParam;
 	
-	DEBUG_PRINT(printf("user name: %s\n", Args->user_name));
+	SERVER_PRINT(printf("Username: %s connected!\n", Args->user_name));
 	ret_val = ClientMainMenu(Args);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");
 

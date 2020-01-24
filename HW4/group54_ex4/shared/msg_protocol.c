@@ -45,11 +45,19 @@ void FreeParamsList(param_node *head)
 }
 void LinkedListToParam(LB_Node *head, param_node **head_msg)
 {
+	int idx = 0;
 	LB_Node *curr_node = head;
 	char str_for_next[PARAM_STR_MAX_LEN];
 	while (curr_node != NULL)
 	{
-		if (curr_node->ratio == -1)
+		if (idx == 0)
+		{
+			idx++;
+			sprintf(str_for_next, "Name\t\tWon\t\tLost\t\tW/L Ratio");
+			AddParamToList(head_msg, &str_for_next[0]);
+			continue;
+		}
+		else if (curr_node->ratio == -1)
 		{
 			sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t", curr_node->name, curr_node->won, curr_node->lost);
 		}
@@ -72,11 +80,10 @@ char * GetParam(param_node *head, int ind) {
 void printParamsList(param_node *head)
 {
 	param_node *temp = head;
-	printf("Name\t\tWon\t\tLost\t\tW/L Ratio\n");
+	//printf("Name\t\tWon\t\tLost\t\tW/L Ratio\n");
 	while (temp != NULL)
 	{
 		printf("%s\n", temp->param);
-		//print_buffer2(temp->param, 5); DEBUG
 		temp = temp->next;
 	}
 }

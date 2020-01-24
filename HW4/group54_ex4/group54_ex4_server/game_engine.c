@@ -10,7 +10,6 @@ MOVES_ENUM ServerRaffleMove()
 	srand(time(NULL));
 	MOVES_ENUM result = -1;
 	result = rand() % 5;
-	printf("%d\n", result);
 	return result;
 
 }
@@ -66,7 +65,7 @@ int CheckWhoWon(MOVES_ENUM first_move, MOVES_ENUM second_move)
 
 	return -1;
 }
-/*Not done yet*/
+
 
 void GetGameResults(char **game_results, MOVES_ENUM player1_move, char* player1_name, MOVES_ENUM player2_move, char* player2_name) {
 	int winner_idx = CheckWhoWon(player1_move, player2_move);

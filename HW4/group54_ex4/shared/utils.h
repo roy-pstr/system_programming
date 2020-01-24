@@ -9,6 +9,7 @@
 #include <string.h>
 
 #define DEBUG false
+#define PRINTS true
 #define ALLOW_SAME_USER_NAME false
 
 
@@ -123,5 +124,6 @@ bool IsFileExists(char* filename);
 
 /* debug */
 #define DEBUG_PRINT(print) {if (DEBUG==true){printf("DEBUG: ");print;}}
+#define SERVER_PRINT(print) {if (PRINTS==true){printf("");print;}}
 
 #endif

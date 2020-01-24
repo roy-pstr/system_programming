@@ -86,7 +86,7 @@ LB_Node *CreateNode(char *name, int win, int lose) {
 	{
 		new_element->ratio = Round(((double)win) / lose,3);
 	}
-	new_element->next = NULL;// DEBUG
+	new_element->next = NULL;
 	return new_element;
 }
 
@@ -193,7 +193,7 @@ LB_Node *DetectAndUpdateElement(LB_Node **head, char* name,int w)
 	/* if wasn't detected*/
 	curr = CreateNode(name, w, !w);
 	return curr;
-}//DEBUG DRAW?
+}
 
 /*Updating Leaderboard.csv file from linked list*/
 int LinkedListToCsv(LB_Node *head, char *filename)

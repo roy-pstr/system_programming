@@ -170,7 +170,7 @@ ErrorCode_t WaitForOpponent() {
 		GO_TO_EXIT_ON_FAILURE(ret_val, "StartGameClientVsClient() failed!\n");
 	}
 	else if (SERVER_NO_OPPONENTS == GetType(&recv_protocol)) {
-		DEBUG_PRINT(printf("No opponent, back to main menu\n"));
+		DEBUG_PRINT(printf("No opponent, Back to main menu\n"));
 	}
 	else {
 		ret_val = PROTOCOL_MSG_TYPE_ERROR;

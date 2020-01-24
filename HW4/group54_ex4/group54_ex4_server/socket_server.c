@@ -14,7 +14,7 @@ void InitLeaderboard(LB_Node **head, char * file_path) {
 		RefreshLeaderboard(file_path, head);
 	}
 	else {
-		printf("no leaderboard.csv exist yet, play soem games!\n");
+		printf("Leaderboard is empty! play some games!!!\n");
 	}
 }
 ErrorCode_t SetUpTheServer(SOCKET *p_socket, int port) {
@@ -60,7 +60,7 @@ ErrorCode_t SetUpTheServer(SOCKET *p_socket, int port) {
 		printf("bind( ) failed with error %ld. Ending program\n", WSAGetLastError());
 		//goto server_cleanup_2;
 	}
-	DEBUG_PRINT(printf("Server bind with port: %d succeed\n", port));
+	SERVER_PRINT(printf("Server bind with port: %d succeed\n", port));
 
 	// Listen on the Socket.
 	int ListenRes = listen(*p_socket, MAX_CONN_LISTEN);
@@ -110,7 +110,7 @@ ErrorCode_t SendServerDenied(SOCKET *t_socket, SERVER_DENIED_REASONS_IND reason_
 	/* send server denied! */
 	ret_val = SendProtcolMsgWithParams(t_socket, SERVER_DENIED, &SERVER_DENIED_REASONS[reason_ind], 1);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgWithParams() failed!\n");
-	DEBUG_PRINT(printf("No slots available for client, dropping the connection.\n"));
+	SERVER_PRINT(printf("No slots available for client, Dropping the connection.\n"));
 	closesocket(*t_socket); //Closing the socket, dropping the connection.
 EXIT:
 	return ret_val;

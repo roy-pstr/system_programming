@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 		return ILLEGAL_NUMBER_OF_ARGV;
 	}
 
-	DEBUG_PRINT(printf("============SERVER============\n"));
+	SERVER_PRINT(printf("==============SERVER==============\n"));
 
 	/* get port */
 	main_params_t main_thread_args;
