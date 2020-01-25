@@ -66,7 +66,8 @@ ErrorCode_t RecvData_WithTimeout(SOCKET *t_socket, protocol_t * prtcl_msg, int t
 	}
 	if (retval_select == 0) {
 		// timeout, socket does not have anything to read
-		printf("TIMEOUT during RecvData_WithTimeout\n");
+		printf("Timeout exparied while waiting to recive data (timeout: %d seconds)\n", timeout_in_seconds);
+		printf("Closing connection with client\n");
 		ret_val = SERVER_RECV_TIMEDOUT;
 		goto EXIT;
 	}

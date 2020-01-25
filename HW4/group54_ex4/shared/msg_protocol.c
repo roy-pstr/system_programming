@@ -48,16 +48,13 @@ void LinkedListToParam(LB_Node *head, param_node **head_msg)
 	int idx = 0;
 	LB_Node *curr_node = head;
 	char str_for_next[PARAM_STR_MAX_LEN];
+	idx++;
+	sprintf(str_for_next, "Name\t\tWon\t\tLost\t\tW/L Ratio");
+	AddParamToList(head_msg, &str_for_next[0]);
+
 	while (curr_node != NULL)
 	{
-		if (idx == 0)
-		{
-			idx++;
-			sprintf(str_for_next, "Name\t\tWon\t\tLost\t\tW/L Ratio");
-			AddParamToList(head_msg, &str_for_next[0]);
-			continue;
-		}
-		else if (curr_node->ratio == -1)
+		if (curr_node->ratio == -1)
 		{
 			sprintf(str_for_next, "%s\t\t%d\t\t%d\t\t", curr_node->name, curr_node->won, curr_node->lost);
 		}

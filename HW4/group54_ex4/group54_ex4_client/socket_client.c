@@ -127,7 +127,7 @@ ErrorCode_t StartGameClientVsClient() {
 					/* send to server */
 					ret_val = SendProtcolMsgNoParams(&m_socket, end_game_menu_res);
 					GO_TO_EXIT_ON_FAILURE(ret_val, "SendProtcolMsgNoParams() failed!\n");
-
+					printf("waiting for opponent to decide what to do...\n");
 					switch (end_game_menu_res) {
 					case CLIENT_REPLAY:
 						continue; /* goto start of loop and wait to get the server move */
@@ -169,7 +169,7 @@ ErrorCode_t WaitForOpponent() {
 	ret_val = RecvData_WithTimeout(&m_socket, &recv_protocol, INFINITE);
 	GO_TO_EXIT_ON_FAILURE(ret_val, "RecvData_WithTimeout() failed.\n");
 	if (SERVER_INVITE == GetType(&recv_protocol)) {
-		DEBUG_PRINT(printf("Playing against: %s\n", GetParam(recv_protocol.param_list_head, 0)));
+		printf("Playing against: %s\n", GetParam(recv_protocol.param_list_head, 0));
 		ret_val = StartGameClientVsClient();
 		GO_TO_EXIT_ON_FAILURE(ret_val, "StartGameClientVsClient() failed!\n");
 	}
@@ -319,6 +319,7 @@ ErrorCode_t StartGameClient(char *server_ip, int server_port, char username[]) {
 			
 			switch (main_menu_protocol) {
 			case CLIENT_VERSUS:
+				printf("Waiting to opponent...\n");
 				ret_val = WaitForOpponent();
 				GO_TO_EXIT_ON_FAILURE(ret_val, "WaitForOpponent() failed!\n");
 				break;

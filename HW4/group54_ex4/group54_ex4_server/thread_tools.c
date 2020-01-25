@@ -91,7 +91,7 @@ ErrorCode_t HandlerExitCode(HANDLE p_thread_handle) {
 		ret_val = THREAD_GET_EXIT_CODE_FAILED;
 	}
 	else if (lpExitCode != SUCCESS) {
-		printf("Error with thread exit code (%d)\n", lpExitCode);
+		//DEBUG(printf("GetExitCodeThread() did not returned SUCCESS.\n"));
 		ret_val = lpExitCode;
 	}
 	return ret_val;
@@ -105,7 +105,7 @@ ErrorCode_t CloseThreads(HANDLE *p_threads, int num_of_threads) {
 		{
 			/* handle the thread exit code */
 			if (SUCCESS != (thread_exit_code= HandlerExitCode(p_threads[i]))) {
-				printf("HandlerExitCode failed.\n");
+				printf("Thread exit with code: %d\n", thread_exit_code);
 				ret_val = thread_exit_code;
 			}
 			/* close handle */

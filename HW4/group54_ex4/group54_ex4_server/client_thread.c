@@ -395,7 +395,7 @@ DWORD ClientThread(LPVOID lpParam)
 	GO_TO_EXIT_ON_FAILURE(ret_val, "ClientMainMenu() failed!\n");
 
 EXIT:
-	printf("ClientThread: \"Conversation ended\".\n");
+	printf("Username: %s disconnected!\n", Args->user_name);
 	if (Args->socket != INVALID_SOCKET)
 	{
 		if (closesocket(Args->socket) == SOCKET_ERROR)

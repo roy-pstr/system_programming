@@ -15,6 +15,8 @@ void InitLeaderboard(LB_Node **head, char * file_path) {
 	}
 	else {
 		printf("Leaderboard is empty! play some games!!!\n");
+		LinkedListToCsv(NULL, file_path); /*create Leaderboard with only header line */
+		RefreshLeaderboard(file_path, head);
 	}
 }
 ErrorCode_t SetUpTheServer(SOCKET *p_socket, int port) {
@@ -169,7 +171,7 @@ ErrorCode_t TerminateAllClients() {
 ErrorCode_t CleanupClientThreads(client_params_t *client_args, HANDLE *client_handles, int number_of_threads)
 {
 	int Ind;
-	ErrorCode_t ret_val = SUCCESS;
+	ErrorCode_t ret_val = SUCCESS, exit_code;
 	DWORD wait_code;
 	for (Ind = 0; Ind < number_of_threads; Ind++)
 	{
@@ -189,8 +191,8 @@ ErrorCode_t CleanupClientThreads(client_params_t *client_args, HANDLE *client_ha
 			}
 			
 			/* handle the thread exit code */
-			if (SUCCESS != HandlerExitCode(client_handles[Ind])) {
-				printf("HandlerExitCode failed.\n");
+			if (SUCCESS != (exit_code = HandlerExitCode(client_handles[Ind]))) {
+				printf("Thread exit with code: %d\n", exit_code);
 			}
 			/* close handle */
 			if (FALSE == CloseHandle(client_handles[Ind]))
